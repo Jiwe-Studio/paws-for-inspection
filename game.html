@@ -1,0 +1,2033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exotic Customs: Pet Detective</title>
+  <style>
+    :root {
+      --bg-desk: #232b36;
+      --desk-wood: #2c1e14;
+      --desk-pad: #37474f;
+      --paper-bg: #fdf8e9;
+      --paper-border: #d4c5a9;
+      --ink: #1a1a1a;
+      --cites-stamp-red: #d32f2f;
+      --cites-stamp-green: #2e7d32;
+      --accent-gold: #fbc02d;
+      --accent-blue: #0288d1;
+      --danger: #e53935;
+      --success: #43a047;
+      --lcd-green: #00e676;
+      --lcd-bg: #00240e;
+      --font-mono: "Courier New", Courier, monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-desk);
+      font-family: var(--font-sans);
+      color: #eceff1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* TOP DASHBOARD / HEADER */
+    header {
+      background: linear-gradient(180deg, #1b222c 0%, #11161d 100%);
+      border-bottom: 3px solid #0d1217;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      z-index: 10;
+    }
+
+    .agency-branding {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .agency-badge {
+      font-size: 2rem;
+      background: #37474f;
+      border: 2px solid var(--accent-gold);
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    .agency-text h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: #fff;
+      text-transform: uppercase;
+    }
+
+    .agency-text span {
+      font-size: 0.72rem;
+      color: #90a4ae;
+      letter-spacing: 0.5px;
+    }
+
+    .hud-metrics {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .metric-card {
+      background: #19202a;
+      border: 1px solid #37474f;
+      border-radius: 6px;
+      padding: 6px 14px;
+      text-align: center;
+      min-width: 90px;
+    }
+
+    .metric-card .label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #90a4ae;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 2px;
+    }
+
+    .metric-card .value {
+      font-family: var(--font-mono);
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .metric-card.timer-card .value {
+      color: var(--lcd-green);
+    }
+
+    .metric-card.timer-card.urgent .value {
+      color: var(--danger);
+      animation: pulse-urgent 0.8s infinite alternate;
+    }
+
+    @keyframes pulse-urgent {
+      from { transform: scale(1); filter: drop-shadow(0 0 2px var(--danger)); }
+      to { transform: scale(1.1); filter: drop-shadow(0 0 8px var(--danger)); }
+    }
+
+    .strikes-container {
+      display: flex;
+      gap: 6px;
+      margin-top: 3px;
+    }
+
+    .strike-box {
+      width: 22px;
+      height: 22px;
+      background: #263238;
+      border: 1px solid #455a64;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      color: #546e7a;
+      font-weight: bold;
+    }
+
+    .strike-box.active {
+      background: #d32f2f;
+      border-color: #ff5252;
+      color: #fff;
+      box-shadow: 0 0 8px rgba(255, 23, 68, 0.7);
+    }
+
+    .btn-icon {
+      background: #263238;
+      border: 1px solid #455a64;
+      color: #eceff1;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-icon:hover {
+      background: #37474f;
+      border-color: #78909c;
+    }
+
+    /* MAIN DESK PLAY AREA */
+    main {
+      flex: 1;
+      padding: 16px 20px;
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* LEFT PANEL: PASSENGER & ANIMAL INSPECTION */
+    .inspection-bay {
+      background: #263238;
+      border-radius: 10px;
+      border: 2px solid #37474f;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    }
+
+    .passenger-booth {
+      background: #1e272e;
+      padding: 12px 16px;
+      border-bottom: 2px solid #37474f;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .passenger-avatar {
+      width: 58px;
+      height: 58px;
+      background: #34495e;
+      border: 2px solid var(--accent-gold);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .passenger-details {
+      flex: 1;
+    }
+
+    .passenger-name-tag {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #b0bec5;
+    }
+
+    .passenger-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .speech-bubble {
+      margin-top: 4px;
+      background: #2c3e50;
+      border-left: 3px solid var(--accent-gold);
+      padding: 5px 10px;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.8rem;
+      font-style: italic;
+      color: #eceff1;
+      position: relative;
+    }
+
+    /* ANIMAL DISPLAY & SCALE */
+    .animal-stage-container {
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .scale-bar {
+      background: #111;
+      border: 2px solid #455a64;
+      border-radius: 6px;
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .scale-label {
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #78909c;
+      letter-spacing: 1px;
+    }
+
+    .scale-digital-readout {
+      font-family: var(--font-mono);
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--lcd-green);
+      background: var(--lcd-bg);
+      padding: 2px 10px;
+      border-radius: 4px;
+      border: 1px solid #004d20;
+      letter-spacing: 2px;
+      text-shadow: 0 0 8px rgba(0, 230, 118, 0.6);
+    }
+
+    /* INTERACTIVE CANVAS CAGE */
+    .viewport-box {
+      position: relative;
+      background: radial-gradient(circle at center, #3b4d58 0%, #1f2a30 100%);
+      border: 3px solid #455a64;
+      border-radius: 8px;
+      height: 310px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: inset 0 0 25px rgba(0,0,0,0.6);
+    }
+
+    /* Cage grid lines in background */
+    .viewport-box::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.03) 0px,
+        rgba(255, 255, 255, 0.03) 1px,
+        transparent 1px,
+        transparent 35px
+      );
+      pointer-events: none;
+    }
+
+    .animal-underlayer {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .animal-illustration {
+      font-size: 7.2rem;
+      filter: drop-shadow(0 12px 15px rgba(0,0,0,0.5));
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .animal-revealed-tag {
+      margin-top: 10px;
+      background: rgba(0, 0, 0, 0.75);
+      border: 1px solid var(--accent-gold);
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .animal-scratch-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+      z-index: 5;
+      touch-action: none;
+    }
+
+    /* TOOL CONTROLS */
+    .toolbox {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: #1e272e;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #37474f;
+    }
+
+    .tool-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .tool-btn {
+      background: #2c3e50;
+      border: 2px solid #455a64;
+      color: #cfd8dc;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .tool-btn.active {
+      background: var(--accent-gold);
+      color: #111;
+      border-color: #ffd54f;
+      box-shadow: 0 0 10px rgba(251, 192, 45, 0.5);
+    }
+
+    .wipe-progress-text {
+      font-size: 0.75rem;
+      color: #90a4ae;
+      font-weight: 600;
+    }
+
+    /* RIGHT PANEL: CITES PERMIT & VERDICT */
+    .permit-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .cites-permit {
+      background-color: var(--paper-bg);
+      background-image: radial-gradient(#e0d7be 1px, transparent 1px);
+      background-size: 16px 16px;
+      border: 3px double var(--paper-border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      color: var(--ink);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Watermark */
+    .cites-permit::before {
+      content: "CITES VERIFIED";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-25deg);
+      font-size: 3rem;
+      font-weight: 900;
+      color: rgba(180, 160, 130, 0.12);
+      pointer-events: none;
+      letter-spacing: 4px;
+      white-space: nowrap;
+    }
+
+    .permit-header {
+      border-bottom: 2px solid #5d4037;
+      padding-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .permit-title-wrap h2 {
+      font-size: 1.15rem;
+      text-transform: uppercase;
+      font-weight: 900;
+      letter-spacing: 0.8px;
+      color: #3e2723;
+    }
+
+    .permit-title-wrap span {
+      font-size: 0.7rem;
+      color: #795548;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .permit-code {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #5d4037;
+      border: 1px dashed #8d6e63;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.6);
+    }
+
+    .permit-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px 16px;
+      margin: 16px 0;
+    }
+
+    .permit-field {
+      border-bottom: 1px solid #d7ccc8;
+      padding-bottom: 4px;
+    }
+
+    .permit-field.full-width {
+      grid-column: span 2;
+    }
+
+    .permit-field .p-label {
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: #8d6e63;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .permit-field .p-value {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #212121;
+    }
+
+    .permit-field .p-subtext {
+      font-size: 0.7rem;
+      color: #616161;
+      font-style: italic;
+    }
+
+    .official-seal-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px dashed #bcaaa4;
+      padding-top: 12px;
+      margin-top: auto;
+    }
+
+    .security-hologram {
+      width: 75px;
+      height: 48px;
+      border: 2px solid #8d6e63;
+      background: linear-gradient(135deg, #e0f7fa 0%, #ffe082 50%, #f8bbd0 100%);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 900;
+      color: #37474f;
+      text-shadow: 0 1px 1px #fff;
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .security-hologram.missing {
+      background: #efebe9;
+      border-style: dashed;
+      color: #b0bec5;
+    }
+
+    .security-hologram.missing::after {
+      content: "NO STAMP";
+      color: #d32f2f;
+      font-weight: bold;
+      font-size: 0.65rem;
+    }
+
+    .customs-date-badge {
+      text-align: right;
+    }
+
+    .customs-date-badge .c-label {
+      font-size: 0.62rem;
+      font-weight: 800;
+      color: #8d6e63;
+    }
+
+    .customs-date-badge .c-date {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #1b222c;
+    }
+
+    /* VERDICT STAMP CONTROLS */
+    .verdict-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .stamp-btn {
+      padding: 16px 20px;
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: 1.15rem;
+      font-weight: 900;
+      letter-spacing: 1px;
+      cursor: pointer;
+      border: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: all 0.1s ease;
+      box-shadow: 0 6px 0 rgba(0,0,0,0.3), 0 10px 20px rgba(0,0,0,0.3);
+      position: relative;
+    }
+
+    .stamp-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 rgba(0,0,0,0.3), 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .stamp-btn.deny {
+      background: linear-gradient(180deg, #e53935 0%, #b71c1c 100%);
+      color: #fff;
+      border: 2px solid #ff8a80;
+    }
+
+    .stamp-btn.deny:hover {
+      background: linear-gradient(180deg, #ef5350 0%, #c62828 100%);
+    }
+
+    .stamp-btn.approve {
+      background: linear-gradient(180deg, #43a047 0%, #1b5e20 100%);
+      color: #fff;
+      border: 2px solid #a5d6a7;
+    }
+
+    .stamp-btn.approve:hover {
+      background: linear-gradient(180deg, #4caf50 0%, #2e7d32 100%);
+    }
+
+    .stamp-btn .shortcut-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      opacity: 0.85;
+      letter-spacing: 0.5px;
+    }
+
+    /* PHYSICAL STAMP OVERLAY EFFECT ON VERDICT */
+    .rubber-stamp-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-15deg) scale(2);
+      font-size: 3.2rem;
+      font-weight: 900;
+      letter-spacing: 3px;
+      padding: 8px 24px;
+      border: 6px solid;
+      border-radius: 12px;
+      text-transform: uppercase;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 50;
+      transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.15s ease;
+    }
+
+    .rubber-stamp-overlay.active-stamp {
+      opacity: 0.9;
+      transform: translate(-50%, -50%) rotate(-12deg) scale(1);
+    }
+
+    .rubber-stamp-overlay.approved {
+      color: var(--cites-stamp-green);
+      border-color: var(--cites-stamp-green);
+      background: rgba(46, 125, 50, 0.15);
+      box-shadow: 0 0 15px rgba(46, 125, 50, 0.4);
+    }
+
+    .rubber-stamp-overlay.denied {
+      color: var(--cites-stamp-red);
+      border-color: var(--cites-stamp-red);
+      background: rgba(211, 47, 47, 0.15);
+      box-shadow: 0 0 15px rgba(211, 47, 47, 0.4);
+    }
+
+    /* SCREEN SHAKE ANIMATION */
+    .screen-shake {
+      animation: shake 0.35s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-3px, 1px, 0); }
+      20%, 80% { transform: translate3d(4px, -2px, 0); }
+      30%, 50%, 70% { transform: translate3d(-6px, 3px, 0); }
+      40%, 60% { transform: translate3d(6px, -3px, 0); }
+    }
+
+    /* TOAST / FEEDBACK POPUP */
+    .verdict-feedback {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1e272e;
+      border: 2px solid var(--accent-gold);
+      padding: 12px 24px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      color: #fff;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 100;
+      max-width: 90%;
+    }
+
+    .verdict-feedback.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .verdict-feedback.correct {
+      border-color: var(--success);
+      background: #1b3820;
+    }
+
+    .verdict-feedback.wrong {
+      border-color: var(--danger);
+      background: #3b1818;
+    }
+
+    /* MODAL OVERLAYS (START & GAME OVER) */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 14, 18, 0.88);
+      backdrop-filter: blur(5px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 20px;
+    }
+
+    .modal-card {
+      background: #1e272e;
+      border: 3px solid var(--accent-gold);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 580px;
+      padding: 30px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+      text-align: center;
+    }
+
+    .modal-card h2 {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .modal-card .subtitle {
+      color: var(--accent-gold);
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+    }
+
+    .guide-box {
+      background: #263238;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: left;
+      margin-bottom: 24px;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      color: #cfd8dc;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .guide-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .guide-item .g-icon {
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .primary-btn {
+      background: linear-gradient(180deg, #ffb300 0%, #f57f17 100%);
+      border: 2px solid #ffe082;
+      color: #111;
+      font-size: 1.15rem;
+      font-weight: 900;
+      padding: 14px 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 15px rgba(255, 179, 0, 0.4);
+      transition: all 0.15s ease;
+      width: 100%;
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 179, 0, 0.6);
+    }
+
+    /* SUMMARY STATS TABLE */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .summary-tile {
+      background: #263238;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #37474f;
+    }
+
+    .summary-tile .s-label {
+      font-size: 0.72rem;
+      color: #90a4ae;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    .summary-tile .s-value {
+      font-family: var(--font-mono);
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .rank-badge {
+      font-size: 3rem;
+      font-weight: 900;
+      margin: 10px 0;
+      color: var(--accent-gold);
+      text-shadow: 0 0 15px rgba(255, 193, 7, 0.6);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+      .hud-metrics {
+        gap: 8px;
+      }
+      .metric-card {
+        min-width: 68px;
+        padding: 4px 8px;
+      }
+      .metric-card .value {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP DASHBOARD -->
+  <header>
+    <div class="agency-branding">
+      <div class="agency-badge">🐾</div>
+      <div class="agency-text">
+        <h1>B.C.E.S.R.A.</h1>
+        <span>BORDER CUSTOMS &amp; EXOTIC SPECIES AGENCY</span>
+      </div>
+    </div>
+
+    <div class="hud-metrics">
+      <div class="metric-card timer-card" id="timerBox">
+        <div class="label">Shift Timer</div>
+        <div class="value" id="hudTimer">01:30</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="label">Score</div>
+        <div class="value" id="hudScore">0</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="label">Strikes</div>
+        <div class="strikes-container">
+          <div class="strike-box" id="strike1">✕</div>
+          <div class="strike-box" id="strike2">✕</div>
+          <div class="strike-box" id="strike3">✕</div>
+        </div>
+      </div>
+
+      <button class="btn-icon" id="btnSoundToggle" title="Toggle Sound">🔊 SFX: ON</button>
+      <button class="btn-icon" id="btnHelp" title="Customs Regulations Manual">📖 Rules</button>
+    </div>
+  </header>
+
+  <!-- MAIN DESK -->
+  <main id="deskMain">
+    
+    <!-- LEFT PANEL: PASSENGER & ANIMAL INSPECTION -->
+    <section class="inspection-bay">
+      <div class="passenger-booth">
+        <div class="passenger-avatar" id="passAvatar">🥸</div>
+        <div class="passenger-details">
+          <div class="passenger-name-tag">Passenger / Importer</div>
+          <div class="passenger-name" id="passName">Arthur "Fingers" McCoy</div>
+          <div class="speech-bubble" id="passSpeech">"Just bringing my prize-winning family zebra home, Inspector!"</div>
+        </div>
+      </div>
+
+      <div class="animal-stage-container">
+        <!-- SCALE READOUT -->
+        <div class="scale-bar">
+          <span class="scale-label">BIO-MASS DIGITAL SCALE:</span>
+          <span class="scale-digital-readout" id="scaleDisplay">340.2 KG</span>
+        </div>
+
+        <!-- CAGE VIEWPORT & SCRATCH CANVAS -->
+        <div class="viewport-box" id="viewportBox">
+          <!-- Revealed true underlayer -->
+          <div class="animal-underlayer">
+            <div class="animal-illustration" id="animalGraphic">🐴</div>
+            <div class="animal-revealed-tag" id="animalTrueTag">
+              <span>🔍 REVEALED: Gray Donkey (Equus asinus)</span>
+            </div>
+          </div>
+
+          <!-- Scratch Canvas Overlay for Disguise Rubbing -->
+          <canvas class="animal-scratch-canvas" id="scratchCanvas" width="560" height="310"></canvas>
+        </div>
+
+        <!-- TOOL CONTROLS -->
+        <div class="toolbox">
+          <div class="tool-group">
+            <button class="tool-btn active" id="btnToolSponge">
+              <span>🧽</span> Solvent Sponge (Rub)
+            </button>
+            <button class="tool-btn" id="btnToolUV">
+              <span>🔦</span> Blacklight UV
+            </button>
+          </div>
+          <span class="wipe-progress-text" id="wipeStatus">Scrub animal to reveal hidden features!</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL: CITES OFFICIAL PERMIT & STAMPS -->
+    <section class="permit-panel">
+      <div class="cites-permit" id="permitCard">
+        <!-- Physical Stamp Imprint on Verdict -->
+        <div class="rubber-stamp-overlay" id="stampOverlay">APPROVED</div>
+
+        <div>
+          <div class="permit-header">
+            <div class="permit-title-wrap">
+              <h2>CITES Import Permit</h2>
+              <span>CONVENTION ON INT'L TRADE IN EXOTIC SPECIES</span>
+            </div>
+            <div class="permit-code" id="docPermitId">#CITES-9921-A</div>
+          </div>
+
+          <div class="permit-fields">
+            <div class="permit-field">
+              <div class="p-label">Owner / Importer</div>
+              <div class="p-value" id="docOwner">Arthur McCoy</div>
+            </div>
+
+            <div class="permit-field">
+              <div class="p-label">Permit Valid Until</div>
+              <div class="p-value" id="docExpiry">OCT 15, 2026</div>
+              <div class="p-subtext" id="docExpirySub">Status: ACTIVE</div>
+            </div>
+
+            <div class="permit-field full-width">
+              <div class="p-label">Declared Species</div>
+              <div class="p-value" id="docSpecies">Plains Zebra (Equus quagga)</div>
+              <div class="p-subtext" id="docClassification">Schedule II: Regulated Transit</div>
+            </div>
+
+            <div class="permit-field">
+              <div class="p-label">Permitted Max Weight</div>
+              <div class="p-value" id="docWeight">Max 380.0 KG</div>
+            </div>
+
+            <div class="permit-field">
+              <div class="p-label">Microchip ID</div>
+              <div class="p-value" id="docChip">#CHIP-8841-US</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="official-seal-row">
+          <div class="security-hologram" id="docSeal">
+            OFFICIAL<br>CITES SEAL
+          </div>
+          <div class="customs-date-badge">
+            <div class="c-label">TODAY'S CUSTOMS DATE:</div>
+            <div class="c-date" id="docCurrentDate">OCT 14, 2026</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VERDICT BUTTONS -->
+      <div class="verdict-actions">
+        <button class="stamp-btn deny" id="btnDeny">
+          <span>❌ DENY</span>
+          <span class="shortcut-tag">[KEY: D]</span>
+        </button>
+        <button class="stamp-btn approve" id="btnApprove">
+          <span>✅ APPROVE</span>
+          <span class="shortcut-tag">[KEY: A]</span>
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- POPUP FEEDBACK TOAST -->
+  <div class="verdict-feedback" id="verdictToast">
+    <span id="toastIcon">✅</span>
+    <span id="toastMsg">CORRECT! Good catch officer! (+100 PTS)</span>
+  </div>
+
+  <!-- START SHIFT BRIEFING MODAL -->
+  <div class="modal-backdrop" id="startModal">
+    <div class="modal-card">
+      <h2>Exotic Customs: Pet Detective</h2>
+      <div class="subtitle">Arcade Border Inspection Simulator</div>
+      
+      <div class="guide-box">
+        <div class="guide-item">
+          <div class="g-icon">⏱️</div>
+          <div><strong>90-Second Shift:</strong> Inspect as many animal imports as possible before your shift ends!</div>
+        </div>
+        <div class="guide-item">
+          <div class="g-icon">🧽</div>
+          <div><strong>Use the Sponge / UV Tool:</strong> Click and drag over the animal's cage to scrub away fake dye, spray paint, or check for contraband!</div>
+        </div>
+        <div class="guide-item">
+          <div class="g-icon">📋</div>
+          <div><strong>Check the Permit:</strong> Verify Name, Expiry Date vs Today, Declared Species vs True Animal, and Weight on scale!</div>
+        </div>
+        <div class="guide-item">
+          <div class="g-icon">⚠️</div>
+          <div><strong>3 Strikes:</strong> Incorrect calls cost time and trigger a strike. 3 strikes and you're fired!</div>
+        </div>
+      </div>
+
+      <button class="primary-btn" id="btnStartShift">START 90s SHIFT</button>
+    </div>
+  </div>
+
+  <!-- SHIFT REPORT / GAME OVER MODAL -->
+  <div class="modal-backdrop hidden" id="gameOverModal">
+    <div class="modal-card">
+      <h2 id="endTitle">SHIFT CONCLUDED</h2>
+      <div class="subtitle" id="endSubtitle">Agency Performance Review</div>
+
+      <div class="rank-badge" id="endRank">A+</div>
+
+      <div class="summary-grid">
+        <div class="summary-tile">
+          <div class="s-label">Final Score</div>
+          <div class="s-value" id="endScore">800</div>
+        </div>
+        <div class="summary-tile">
+          <div class="s-label">Cases Cleared</div>
+          <div class="s-value" id="endCases">8</div>
+        </div>
+        <div class="summary-tile">
+          <div class="s-label">Smugglers Busted</div>
+          <div class="s-value" id="endSmugglers">5</div>
+        </div>
+        <div class="summary-tile">
+          <div class="s-label">Strikes Taken</div>
+          <div class="s-value" id="endStrikes">1 / 3</div>
+        </div>
+      </div>
+
+      <button class="primary-btn" id="btnRestart">REPORT FOR NEXT SHIFT</button>
+    </div>
+  </div>
+
+  <!-- RULES POPUP MODAL -->
+  <div class="modal-backdrop hidden" id="rulesModal">
+    <div class="modal-card">
+      <h2>Customs Officer Field Manual</h2>
+      <div class="subtitle">Quick Discrepancy Checklist</div>
+
+      <div class="guide-box">
+        <p><strong>DENY ENTRY IF ANY OF THE FOLLOWING OCCUR:</strong></p>
+        <p>🔴 <strong>Animal is Disguised:</strong> Scrubbing reveals a different species (e.g. donkey painted as zebra, capybara disguised as retriever, smuggled lizards under coat).</p>
+        <p>🔴 <strong>Expired Permit:</strong> Expiry date is before today's customs date (OCT 14, 2026).</p>
+        <p>🔴 <strong>Weight Discrepancy:</strong> Scale reading significantly exceeds permitted limit on permit.</p>
+        <p>🔴 <strong>Name Mismatch:</strong> Passenger tag does not match the permit's declared owner.</p>
+        <p>🔴 <strong>Missing Official Seal:</strong> Permit lacks authentic CITES Hologram.</p>
+        <p>🟢 <strong>APPROVE:</strong> Clean animal, matching details, valid dates, matching weight, authentic seal.</p>
+      </div>
+
+      <button class="primary-btn" id="btnCloseRules">BACK TO DESK</button>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       EXOTIC CUSTOMS: PET DETECTIVE - GAME LOGIC & AUDIO ENGINE
+       ========================================================================== */
+
+    // Retro Synthesized Web Audio Engine
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playStamp(approved) {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        
+        // Deep thud oscillator
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = approved ? 'sine' : 'triangle';
+        osc.frequency.setValueAtTime(approved ? 130 : 90, now);
+        osc.frequency.exponentialRampToValueAtTime(30, now + 0.18);
+
+        gain.gain.setValueAtTime(0.8, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.22);
+
+        // Clack impact noise
+        const bufferSize = this.ctx.sampleRate * 0.06;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.3));
+        }
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+        const noiseGain = this.ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.6, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+
+        noise.connect(noiseGain);
+        noiseGain.connect(this.ctx.destination);
+        noise.start(now);
+      }
+
+      playSponge() {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(400 + Math.random() * 200, now);
+        osc.frequency.exponentialRampToValueAtTime(150, now + 0.06);
+
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.07);
+      }
+
+      playSuccess() {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+          gain.gain.setValueAtTime(0.18, now + idx * 0.07);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.25);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.07);
+          osc.stop(now + idx * 0.07 + 0.26);
+        });
+      }
+
+      playStrike() {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc1 = this.ctx.createOscillator();
+        const osc2 = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc1.type = 'sawtooth';
+        osc2.type = 'sawtooth';
+        osc1.frequency.setValueAtTime(130, now);
+        osc2.frequency.setValueAtTime(142, now); // Harsh dissonance
+
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + 0.36);
+        osc2.stop(now + 0.36);
+      }
+
+      playWarning() {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(880, now);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.09);
+      }
+    }
+
+    const sound = new SoundEngine();
+
+    /* ==========================================================================
+       CASE GENERATION DATABASE & DISGUISE PRESETS
+       ========================================================================== */
+
+    const PASSENGER_NAMES = [
+      "Arthur 'Fingers' McCoy", "Baroness Von Fluff", "Captain Jack O'Collar",
+      "Barnaby Quirk", "Madame Penelope Zaza", "Dr. Sylvester Sneak",
+      "Wanda Wheelbarrow", "Professor Barnaby Fizz", "Chester Copperpot",
+      "Daphne Sterling", "Montgomery 'Lucky' Burns", "Rusty Shackleford"
+    ];
+
+    const PASSENGER_AVATARS = ["🥸", "🧐", "🤠", "👩‍🌾", "🕵️‍♂️", "🧓", "🧑‍🔬", "👒", "🎩", "🧔"];
+
+    // Case definitions with rich comedic traits
+    const CASE_BLUEPRINTS = [
+      {
+        id: "zebra_donkey",
+        type: "disguise",
+        passengerSpeech: "Just an authentic Serengeti zebra! Loves rolling in dust, definitely don't wash him!",
+        declaredSpecies: "Plains Zebra (Equus quagga)",
+        declaredWeight: 350.0,
+        actualWeight: 210.5,
+        declaredOwner: "Arthur McCoy",
+        revealedEmoji: "🐴",
+        revealedTag: "Gray Donkey (Equus asinus) wearing tape!",
+        disguiseStyle: "zebra_paint",
+        violationReason: "DISGUISED ANIMAL! Paint rubbed off to reveal an ordinary donkey with taped ears!"
+      },
+      {
+        id: "retriever_capybara",
+        type: "disguise",
+        passengerSpeech: "He's just a funny-looking Golden Retriever puppy. Barks with a squeak!",
+        declaredSpecies: "Golden Retriever (Canis lupus familiaris)",
+        declaredWeight: 32.0,
+        actualWeight: 52.0,
+        declaredOwner: "Baroness Von Fluff",
+        revealedEmoji: "🦫",
+        revealedTag: "Wild Giant Capybara (Hydrochoerus hydrochaeris)",
+        disguiseStyle: "golden_fluff",
+        violationReason: "FRAUD! Scrubbing washed away yellow hair dye to reveal a wild Capybara!"
+      },
+      {
+        id: "housecat_cheetah",
+        type: "disguise",
+        passengerSpeech: "He's a domestic tabby, officer. Purrs like a chainsaw and eats whole gazelles!",
+        declaredSpecies: "Domestic Cat (Felis catus)",
+        declaredWeight: 4.5,
+        actualWeight: 39.0,
+        declaredOwner: "Madame Penelope Zaza",
+        revealedEmoji: "🐆",
+        revealedTag: "African Cheetah (Acinonyx jubatus)",
+        disguiseStyle: "tabby_paint",
+        violationReason: "ILLEGAL PREDATOR! Brown dye removed to reveal an endangered wild Cheetah!"
+      },
+      {
+        id: "poodle_contraband",
+        type: "disguise",
+        passengerSpeech: "My poodle's coat is naturally bulky. Do not touch her vest, she is sensitive!",
+        declaredSpecies: "Standard Poodle (Canis familiaris)",
+        declaredWeight: 22.0,
+        actualWeight: 29.5,
+        declaredOwner: "Captain Jack O'Collar",
+        revealedEmoji: "🦜",
+        revealedTag: "Smuggled Neon Macaws hidden under coat!",
+        disguiseStyle: "trenchcoat_contraband",
+        violationReason: "CONTRABAND SMUGGLING! Scrubbed undercoat revealed illegally hidden Macaws!"
+      },
+      {
+        id: "teacup_pig_warthog",
+        type: "disguise",
+        passengerSpeech: "Micro miniature piglet! Those aren't tusks, those are just oversized baby teeth.",
+        declaredSpecies: "Teacup Pig (Sus domesticus)",
+        declaredWeight: 12.0,
+        actualWeight: 88.0,
+        declaredOwner: "Barnaby Quirk",
+        revealedEmoji: "🐗",
+        revealedTag: "Savannah Warthog (Phacochoerus africanus)",
+        disguiseStyle: "pink_powder",
+        violationReason: "DANGEROUS BEAST! Pink makeup scrubbed away revealing ferocious tusks!"
+      },
+      // Paperwork Errors (Legit Clean Animals, but forged/faulty papers)
+      {
+        id: "expired_permit_dog",
+        type: "expired_date",
+        passengerSpeech: "Everything is in order! Just renewed it... well, a little while back.",
+        declaredSpecies: "Border Collie (Canis familiaris)",
+        declaredWeight: 20.0,
+        actualWeight: 19.8,
+        declaredOwner: "Daphne Sterling",
+        revealedEmoji: "🐶",
+        revealedTag: "Legitimate Border Collie",
+        disguiseStyle: "clean_dust",
+        violationReason: "EXPIRED PERMIT! Permit expired in 2024, prior to today's date (OCT 2026)!"
+      },
+      {
+        id: "weight_fraud_rabbit",
+        type: "weight_mismatch",
+        passengerSpeech: "My bunny is just slightly plump from all the carrots during the flight.",
+        declaredSpecies: "Holland Lop Rabbit (Oryctolagus cuniculus)",
+        declaredWeight: 2.5,
+        actualWeight: 28.5, // Lead weights or bricks hidden!
+        declaredOwner: "Chester Copperpot",
+        revealedEmoji: "🐰",
+        revealedTag: "Rabbit carrier padded with contraband bricks!",
+        disguiseStyle: "clean_dust",
+        violationReason: "WEIGHT FRAUD! Scale reads 28.5 KG vs declared maximum of 2.5 KG!"
+      },
+      {
+        id: "name_mismatch_cat",
+        type: "name_mismatch",
+        passengerSpeech: "I am definitely the registered owner. Pay no attention to my other passport.",
+        declaredSpecies: "Persian Cat (Felis catus)",
+        declaredWeight: 4.8,
+        actualWeight: 4.7,
+        declaredOwner: "Lord Horatio Vance", // Passenger will have completely different name
+        revealedEmoji: "🐱",
+        revealedTag: "Legitimate Persian Cat",
+        disguiseStyle: "clean_dust",
+        violationReason: "IDENTITY MISMATCH! Passenger name does not match permit owner!"
+      },
+      {
+        id: "missing_seal_alpaca",
+        type: "missing_seal",
+        passengerSpeech: "This permit was printed fresh at the embassy this morning, pinky swear!",
+        declaredSpecies: "Huacaya Alpaca (Vicugna pacos)",
+        declaredWeight: 65.0,
+        actualWeight: 64.2,
+        declaredOwner: "Montgomery Burns",
+        revealedEmoji: "🦙",
+        revealedTag: "Legitimate Domestic Alpaca",
+        disguiseStyle: "clean_dust",
+        violationReason: "FORGED DOCUMENT! Permit is missing the mandatory CITES holographic security seal!"
+      },
+      // 100% Valid & Legal Cases
+      {
+        id: "legal_bengal",
+        type: "legal",
+        passengerSpeech: "Here is her pedigree and CITES certification. She's fully vaccinated!",
+        declaredSpecies: "Bengal Cat (Felis catus × Prionailurus)",
+        declaredWeight: 5.5,
+        actualWeight: 5.2,
+        declaredOwner: "ValidOwner",
+        revealedEmoji: "🐱",
+        revealedTag: "Verified Purebred Domestic Bengal",
+        disguiseStyle: "clean_dust",
+        violationReason: null
+      },
+      {
+        id: "legal_macaw",
+        type: "legal",
+        passengerSpeech: "Registered breeder transport with active scientific transit papers.",
+        declaredSpecies: "Scarlet Macaw (Ara macao)",
+        declaredWeight: 1.2,
+        actualWeight: 1.15,
+        declaredOwner: "ValidOwner",
+        revealedEmoji: "🦜",
+        revealedTag: "Registered Aviary Specimen",
+        disguiseStyle: "clean_dust",
+        violationReason: null
+      },
+      {
+        id: "legal_hedgehog",
+        type: "legal",
+        passengerSpeech: "My sweet little hedgehog. Loves belly rubs and mealworms.",
+        declaredSpecies: "African Pygmy Hedgehog (Atelerix albiventris)",
+        declaredWeight: 0.5,
+        actualWeight: 0.48,
+        declaredOwner: "ValidOwner",
+        revealedEmoji: "🦔",
+        revealedTag: "Verified Captive Bred Pygmy Hedgehog",
+        disguiseStyle: "clean_dust",
+        violationReason: null
+      }
+    ];
+
+    /* ==========================================================================
+       GAME STATE & CONTROLLER
+       ========================================================================== */
+
+    const GAME_DURATION = 90; // seconds
+    const TODAY_STR = "OCT 14, 2026";
+    const TODAY_YEAR = 2026;
+
+    let gameState = {
+      active: false,
+      timeLeft: GAME_DURATION,
+      score: 0,
+      strikes: 0,
+      maxStrikes: 3,
+      casesProcessed: 0,
+      smugglersCaught: 0,
+      currentCase: null,
+      activeTool: 'sponge', // 'sponge' or 'uv'
+      wipeRatio: 0,
+      shiftInterval: null,
+      isWiping: false,
+      lastSpongeSoundTime: 0
+    };
+
+    // DOM Elements
+    const elDesk = document.getElementById('deskMain');
+    const elHudTimer = document.getElementById('hudTimer');
+    const elTimerBox = document.getElementById('timerBox');
+    const elHudScore = document.getElementById('hudScore');
+    const elStrike1 = document.getElementById('strike1');
+    const elStrike2 = document.getElementById('strike2');
+    const elStrike3 = document.getElementById('strike3');
+    const elBtnSound = document.getElementById('btnSoundToggle');
+    const elBtnHelp = document.getElementById('btnHelp');
+
+    const elPassAvatar = document.getElementById('passAvatar');
+    const elPassName = document.getElementById('passName');
+    const elPassSpeech = document.getElementById('passSpeech');
+    const elScale = document.getElementById('scaleDisplay');
+    const elAnimalGraphic = document.getElementById('animalGraphic');
+    const elAnimalTrueTag = document.getElementById('animalTrueTag');
+    const elScratchCanvas = document.getElementById('scratchCanvas');
+    const elWipeStatus = document.getElementById('wipeStatus');
+    const elBtnToolSponge = document.getElementById('btnToolSponge');
+    const elBtnToolUV = document.getElementById('btnToolUV');
+
+    const elPermitCard = document.getElementById('permitCard');
+    const elDocPermitId = document.getElementById('docPermitId');
+    const elDocOwner = document.getElementById('docOwner');
+    const elDocExpiry = document.getElementById('docExpiry');
+    const elDocExpirySub = document.getElementById('docExpirySub');
+    const elDocSpecies = document.getElementById('docSpecies');
+    const elDocWeight = document.getElementById('docWeight');
+    const elDocChip = document.getElementById('docChip');
+    const elDocSeal = document.getElementById('docSeal');
+    const elDocCurrentDate = document.getElementById('docCurrentDate');
+    const elStampOverlay = document.getElementById('stampOverlay');
+
+    const elBtnDeny = document.getElementById('btnDeny');
+    const elBtnApprove = document.getElementById('btnApprove');
+    const elToast = document.getElementById('verdictToast');
+    const elToastIcon = document.getElementById('toastIcon');
+    const elToastMsg = document.getElementById('toastMsg');
+
+    const elStartModal = document.getElementById('startModal');
+    const elBtnStartShift = document.getElementById('btnStartShift');
+    const elGameOverModal = document.getElementById('gameOverModal');
+    const elBtnRestart = document.getElementById('btnRestart');
+    const elRulesModal = document.getElementById('rulesModal');
+    const elBtnCloseRules = document.getElementById('btnCloseRules');
+
+    const canvasCtx = elScratchCanvas.getContext('2d');
+
+    /* ==========================================================================
+       CANVAS SCRATCH-OFF / REVEAL MECHANIC
+       ========================================================================== */
+
+    function setupScratchCanvas(style) {
+      const w = elScratchCanvas.width;
+      const h = elScratchCanvas.height;
+
+      canvasCtx.globalCompositeOperation = 'source-over';
+      canvasCtx.clearRect(0, 0, w, h);
+
+      if (style === 'zebra_paint') {
+        // White opaque base coat
+        canvasCtx.fillStyle = '#f5f5f5';
+        canvasCtx.fillRect(0, 0, w, h);
+
+        // Dripping black acrylic zebra stripes
+        canvasCtx.fillStyle = '#111';
+        for (let x = 30; x < w; x += 45) {
+          canvasCtx.beginPath();
+          canvasCtx.moveTo(x, 0);
+          canvasCtx.lineTo(x + 25, 0);
+          canvasCtx.lineTo(x + 10, h * 0.75);
+          canvasCtx.lineTo(x - 5, h);
+          canvasCtx.lineTo(x - 20, h * 0.7);
+          canvasCtx.closePath();
+          canvasCtx.fill();
+
+          // Comedic paint drips
+          canvasCtx.beginPath();
+          canvasCtx.arc(x - 10, h - 25, 8, 0, Math.PI * 2);
+          canvasCtx.fill();
+        }
+
+        // Wet paint stencil badge
+        canvasCtx.fillStyle = '#d32f2f';
+        canvasCtx.font = 'bold 15px monospace';
+        canvasCtx.fillText("⚠ FRESH ACRYLIC STRIPES", 20, 30);
+      } 
+      else if (style === 'golden_fluff') {
+        // Bright synthetic yellow dog fur dye
+        canvasCtx.fillStyle = '#ffca28';
+        canvasCtx.fillRect(0, 0, w, h);
+
+        canvasCtx.fillStyle = '#f57f17';
+        for (let i = 0; i < 40; i++) {
+          const rx = Math.random() * w;
+          const ry = Math.random() * h;
+          canvasCtx.beginPath();
+          canvasCtx.arc(rx, ry, 15 + Math.random() * 20, 0, Math.PI * 2);
+          canvasCtx.fill();
+        }
+
+        canvasCtx.fillStyle = '#4e342e';
+        canvasCtx.font = 'bold 14px monospace';
+        canvasCtx.fillText("🏷️ 'SUPER RETRIEVER BLONDE DYE #4'", 20, 30);
+      } 
+      else if (style === 'tabby_paint') {
+        // Muddy brown coat over cheetah spots
+        canvasCtx.fillStyle = '#8d6e63';
+        canvasCtx.fillRect(0, 0, w, h);
+
+        canvasCtx.fillStyle = '#5d4037';
+        for (let y = 30; y < h; y += 40) {
+          canvasCtx.fillRect(0, y, w, 14);
+        }
+        canvasCtx.fillStyle = '#fff';
+        canvasCtx.font = 'bold 14px monospace';
+        canvasCtx.fillText("🐾 CONCEALING COAT SPRAY", 20, 30);
+      } 
+      else if (style === 'trenchcoat_contraband') {
+        // Trench coat / bulky jacket concealing smuggled animals
+        canvasCtx.fillStyle = '#37474f';
+        canvasCtx.fillRect(0, 0, w, h);
+
+        // Zipper stitches
+        canvasCtx.strokeStyle = '#cfd8dc';
+        canvasCtx.lineWidth = 4;
+        canvasCtx.setLineDash([8, 8]);
+        canvasCtx.beginPath();
+        canvasCtx.moveTo(w / 2, 0);
+        canvasCtx.lineTo(w / 2, h);
+        canvasCtx.stroke();
+        canvasCtx.setLineDash([]);
+
+        canvasCtx.fillStyle = '#eceff1';
+        canvasCtx.font = 'bold 14px monospace';
+        canvasCtx.fillText("🧥 PADDED HEAVY TRAVEL VEST", 20, 30);
+      }
+      else if (style === 'pink_powder') {
+        // Fake pink powdery makeup
+        canvasCtx.fillStyle = '#f48fb1';
+        canvasCtx.fillRect(0, 0, w, h);
+
+        canvasCtx.fillStyle = '#f06292';
+        for (let i = 0; i < 30; i++) {
+          canvasCtx.beginPath();
+          canvasCtx.arc(Math.random() * w, Math.random() * h, 25, 0, Math.PI * 2);
+          canvasCtx.fill();
+        }
+        canvasCtx.fillStyle = '#880e4f';
+        canvasCtx.font = 'bold 14px monospace';
+        canvasCtx.fillText("🌸 'TEACUP BLUSH' POWDER", 20, 30);
+      }
+      else {
+        // Clean animal with light travel dust
+        canvasCtx.fillStyle = 'rgba(120, 144, 156, 0.45)';
+        canvasCtx.fillRect(0, 0, w, h);
+
+        canvasCtx.fillStyle = '#eceff1';
+        canvasCtx.font = '13px monospace';
+        canvasCtx.fillText("✨ TRAVEL TRANSIT CRATE (CLEAN COAT)", 20, 30);
+      }
+
+      gameState.wipeRatio = 0;
+      elWipeStatus.textContent = "Scrub animal with tool to inspect!";
+      elAnimalTrueTag.style.opacity = "0.2";
+    }
+
+    function scratchAt(clientX, clientY) {
+      const rect = elScratchCanvas.getBoundingClientRect();
+      const scaleX = elScratchCanvas.width / rect.width;
+      const scaleY = elScratchCanvas.height / rect.height;
+      const x = (clientX - rect.left) * scaleX;
+      const y = (clientY - rect.top) * scaleY;
+
+      canvasCtx.save();
+      canvasCtx.globalCompositeOperation = 'destination-out';
+      canvasCtx.beginPath();
+
+      const radius = gameState.activeTool === 'sponge' ? 38 : 46;
+      canvasCtx.arc(x, y, radius, 0, Math.PI * 2);
+      canvasCtx.fill();
+      canvasCtx.restore();
+
+      // Sound throttling
+      const now = Date.now();
+      if (now - gameState.lastSpongeSoundTime > 90) {
+        sound.playSponge();
+        gameState.lastSpongeSoundTime = now;
+      }
+
+      // Check reveal ratio
+      sampleWipeProgress();
+    }
+
+    function sampleWipeProgress() {
+      // Subsample a 12x8 grid of pixels to calculate transparent ratio
+      const w = elScratchCanvas.width;
+      const h = elScratchCanvas.height;
+      const stepX = Math.floor(w / 12);
+      const stepY = Math.floor(h / 8);
+      let cleared = 0;
+      let total = 0;
+
+      const imgData = canvasCtx.getImageData(0, 0, w, h).data;
+      for (let y = stepY; y < h - stepY; y += stepY) {
+        for (let x = stepX; x < w - stepX; x += stepX) {
+          total++;
+          const alphaIdx = (y * w + x) * 4 + 3;
+          if (imgData[alphaIdx] < 60) {
+            cleared++;
+          }
+        }
+      }
+
+      const ratio = cleared / total;
+      gameState.wipeRatio = ratio;
+      const percent = Math.min(100, Math.round(ratio * 100));
+
+      if (percent < 15) {
+        elWipeStatus.textContent = `Scrubbing... (${percent}% cleared)`;
+        elAnimalTrueTag.style.opacity = "0.2";
+      } else if (percent < 45) {
+        elWipeStatus.textContent = `Features emerging! (${percent}% cleared)`;
+        elAnimalTrueTag.style.opacity = "0.6";
+      } else {
+        elWipeStatus.textContent = `🔍 UNDERLAYER FULLY EXPOSED! (${percent}%)`;
+        elAnimalTrueTag.style.opacity = "1";
+      }
+    }
+
+    // Canvas Events
+    elScratchCanvas.addEventListener('mousedown', (e) => {
+      gameState.isWiping = true;
+      sound.init();
+      scratchAt(e.clientX, e.clientY);
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!gameState.isWiping) return;
+      scratchAt(e.clientX, e.clientY);
+    });
+
+    window.addEventListener('mouseup', () => {
+      gameState.isWiping = false;
+    });
+
+    // Touch support
+    elScratchCanvas.addEventListener('touchstart', (e) => {
+      gameState.isWiping = true;
+      sound.init();
+      if (e.touches.length > 0) {
+        scratchAt(e.touches[0].clientX, e.touches[0].clientY);
+      }
+      e.preventDefault();
+    }, { passive: false });
+
+    elScratchCanvas.addEventListener('touchmove', (e) => {
+      if (!gameState.isWiping) return;
+      if (e.touches.length > 0) {
+        scratchAt(e.touches[0].clientX, e.touches[0].clientY);
+      }
+      e.preventDefault();
+    }, { passive: false });
+
+    elScratchCanvas.addEventListener('touchend', () => {
+      gameState.isWiping = false;
+    });
+
+    /* ==========================================================================
+       CASE GENERATION & PRESENTATION
+       ========================================================================== */
+
+    function generateNewCase() {
+      // Pick a random blueprint
+      const blueprint = CASE_BLUEPRINTS[Math.floor(Math.random() * CASE_BLUEPRINTS.length)];
+      const passenger = PASSENGER_NAMES[Math.floor(Math.random() * PASSENGER_NAMES.length)];
+      const avatar = PASSENGER_AVATARS[Math.floor(Math.random() * PASSENGER_AVATARS.length)];
+      
+      const permitId = "#CITES-" + Math.floor(1000 + Math.random() * 9000) + "-X";
+      const chipId = "#CHIP-" + Math.floor(1000 + Math.random() * 9000) + "-NAT";
+
+      // Configure dates
+      let expiryYear = TODAY_YEAR;
+      let expiryMonth = "NOV";
+      let expiryDay = "24";
+
+      if (blueprint.type === 'expired_date') {
+        expiryYear = 2024; // explicitly expired
+        expiryMonth = "MAY";
+        expiryDay = "12";
+      }
+
+      const expiryStr = `${expiryMonth} ${expiryDay}, ${expiryYear}`;
+
+      // Owner name resolution
+      let permitOwner = passenger;
+      if (blueprint.type === 'name_mismatch') {
+        permitOwner = "Count Roderick Snodgrass";
+      }
+
+      const newCase = {
+        blueprint: blueprint,
+        passengerName: passenger,
+        passengerAvatar: avatar,
+        permitId: permitId,
+        chipId: chipId,
+        permitOwner: permitOwner,
+        expiryDate: expiryStr,
+        isExpired: expiryYear < TODAY_YEAR,
+        hasSeal: blueprint.type !== 'missing_seal',
+        scaleWeight: blueprint.actualWeight,
+        declaredWeight: blueprint.declaredWeight,
+        declaredSpecies: blueprint.declaredSpecies,
+        shouldApprove: blueprint.type === 'legal'
+      };
+
+      gameState.currentCase = newCase;
+      renderCase(newCase);
+    }
+
+    function renderCase(c) {
+      // Reset stamp visual
+      elStampOverlay.className = "rubber-stamp-overlay";
+
+      // Left Panel: Passenger
+      elPassAvatar.textContent = c.passengerAvatar;
+      elPassName.textContent = c.passengerName;
+      elPassSpeech.textContent = `"${c.blueprint.passengerSpeech}"`;
+
+      // Scale & Animal
+      elScale.textContent = `${c.scaleWeight.toFixed(1)} KG`;
+      elAnimalGraphic.textContent = c.blueprint.revealedEmoji;
+      elAnimalTrueTag.innerHTML = `<span>🔍 ${c.blueprint.revealedTag}</span>`;
+
+      // Right Panel: Permit
+      elDocPermitId.textContent = c.permitId;
+      elDocOwner.textContent = c.permitOwner;
+      elDocExpiry.textContent = c.expiryDate;
+      elDocSpecies.textContent = c.declaredSpecies;
+      elDocWeight.textContent = `Max ${c.declaredWeight.toFixed(1)} KG`;
+      elDocChip.textContent = c.chipId;
+      elDocCurrentDate.textContent = TODAY_STR;
+
+      if (c.isExpired) {
+        elDocExpirySub.textContent = "Status: EXPIRED";
+        elDocExpirySub.style.color = "#d32f2f";
+      } else {
+        elDocExpirySub.textContent = "Status: ACTIVE";
+        elDocExpirySub.style.color = "#2e7d32";
+      }
+
+      if (c.hasSeal) {
+        elDocSeal.className = "security-hologram";
+        elDocSeal.innerHTML = "OFFICIAL<br>CITES SEAL";
+      } else {
+        elDocSeal.className = "security-hologram missing";
+        elDocSeal.innerHTML = "";
+      }
+
+      // Prepare scratch canvas
+      setupScratchCanvas(c.blueprint.disguiseStyle);
+    }
+
+    /* ==========================================================================
+       VERDICT SYSTEM & SHIFT LOGIC
+       ========================================================================== */
+
+    function handleVerdict(approvedByUser) {
+      if (!gameState.active || !gameState.currentCase) return;
+
+      const c = gameState.currentCase;
+      const isCorrect = (approvedByUser === c.shouldApprove);
+
+      // Trigger tactile rubber stamp animation
+      sound.init();
+      sound.playStamp(approvedByUser);
+
+      elStampOverlay.textContent = approvedByUser ? "APPROVED" : "DENIED";
+      elStampOverlay.className = `rubber-stamp-overlay active-stamp ${approvedByUser ? 'approved' : 'denied'}`;
+
+      if (isCorrect) {
+        // Correct verdict
+        sound.playSuccess();
+        gameState.score += 100;
+        gameState.casesProcessed++;
+        if (!c.shouldApprove) {
+          gameState.smugglersCaught++;
+        }
+
+        const reason = c.shouldApprove 
+          ? "Legitimate transit approved! (+100 PTS)" 
+          : `Busted! ${c.blueprint.violationReason} (+100 PTS)`;
+        showToast(true, reason);
+      } else {
+        // Strike & Penalty
+        sound.playStrike();
+        triggerScreenShake();
+        gameState.strikes++;
+        gameState.timeLeft = Math.max(0, gameState.timeLeft - 10); // 10s penalty
+
+        let failDetail = "";
+        if (approvedByUser && !c.shouldApprove) {
+          failDetail = `Illegal Entry Allowed! ${c.blueprint.violationReason} (-10s penalty)`;
+        } else {
+          failDetail = `False Rejection! That animal and permit were completely legitimate! (-10s penalty)`;
+        }
+        showToast(false, `STRIKE ${gameState.strikes}! ${failDetail}`);
+      }
+
+      updateHUD();
+
+      // Check strikes
+      if (gameState.strikes >= gameState.maxStrikes) {
+        setTimeout(() => {
+          endShift("FIRED BY INSPECTOR GENERAL", "Too many protocol violations on your shift!");
+        }, 600);
+        return;
+      }
+
+      // Slide in next case after brief stamp showcase
+      setTimeout(() => {
+        if (gameState.active) {
+          generateNewCase();
+        }
+      }, 500);
+    }
+
+    function triggerScreenShake() {
+      elDesk.classList.remove('screen-shake');
+      void elDesk.offsetWidth; // Force reflow
+      elDesk.classList.add('screen-shake');
+    }
+
+    function showToast(isCorrect, message) {
+      elToast.className = `verdict-feedback show ${isCorrect ? 'correct' : 'wrong'}`;
+      elToastIcon.textContent = isCorrect ? '✅' : '❌';
+      elToastMsg.textContent = message;
+
+      clearTimeout(elToast.hideTimeout);
+      elToast.hideTimeout = setTimeout(() => {
+        elToast.className = 'verdict-feedback';
+      }, 2600);
+    }
+
+    function updateHUD() {
+      // Time format MM:SS
+      const mins = Math.floor(gameState.timeLeft / 60);
+      const secs = gameState.timeLeft % 60;
+      elHudTimer.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+      if (gameState.timeLeft <= 15) {
+        elTimerBox.classList.add('urgent');
+      } else {
+        elTimerBox.classList.remove('urgent');
+      }
+
+      elHudScore.textContent = gameState.score;
+
+      // Update strike boxes
+      elStrike1.className = gameState.strikes >= 1 ? 'strike-box active' : 'strike-box';
+      elStrike2.className = gameState.strikes >= 2 ? 'strike-box active' : 'strike-box';
+      elStrike3.className = gameState.strikes >= 3 ? 'strike-box active' : 'strike-box';
+    }
+
+    function startShift() {
+      sound.init();
+      gameState.active = true;
+      gameState.timeLeft = GAME_DURATION;
+      gameState.score = 0;
+      gameState.strikes = 0;
+      gameState.casesProcessed = 0;
+      gameState.smugglersCaught = 0;
+
+      elStartModal.classList.add('hidden');
+      elGameOverModal.classList.add('hidden');
+      elRulesModal.classList.add('hidden');
+
+      updateHUD();
+      generateNewCase();
+
+      clearInterval(gameState.shiftInterval);
+      gameState.shiftInterval = setInterval(() => {
+        if (!gameState.active) return;
+        gameState.timeLeft--;
+
+        if (gameState.timeLeft <= 10 && gameState.timeLeft > 0) {
+          sound.playWarning();
+        }
+
+        updateHUD();
+
+        if (gameState.timeLeft <= 0) {
+          endShift("SHIFT FINISHED", "Time expired! Here is your shift evaluation.");
+        }
+      }, 1000);
+    }
+
+    function endShift(title, subtitle) {
+      gameState.active = false;
+      clearInterval(gameState.shiftInterval);
+
+      // Calculate Rank
+      let rank = "F";
+      if (gameState.score >= 800) rank = "S+ ACE DETECTIVE";
+      else if (gameState.score >= 600) rank = "A SENIOR INSPECTOR";
+      else if (gameState.score >= 400) rank = "B JUNIOR AGENT";
+      else if (gameState.score >= 200) rank = "C ROOKIE";
+      else rank = "F DISMISSED";
+
+      document.getElementById('endTitle').textContent = title;
+      document.getElementById('endSubtitle').textContent = subtitle;
+      document.getElementById('endRank').textContent = rank;
+      document.getElementById('endScore').textContent = gameState.score;
+      document.getElementById('endCases').textContent = gameState.casesProcessed;
+      document.getElementById('endSmugglers').textContent = gameState.smugglersCaught;
+      document.getElementById('endStrikes').textContent = `${gameState.strikes} / 3`;
+
+      elGameOverModal.classList.remove('hidden');
+    }
+
+    /* ==========================================================================
+       USER INPUT & EVENT LISTENERS
+       ========================================================================== */
+
+    elBtnApprove.addEventListener('click', () => handleVerdict(true));
+    elBtnDeny.addEventListener('click', () => handleVerdict(false));
+
+    // Keyboard Shortcuts (A: Approve, D: Deny, Space: Switch Tool)
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'a' || e.key === 'A') {
+        handleVerdict(true);
+      } else if (e.key === 'd' || e.key === 'D') {
+        handleVerdict(false);
+      } else if (e.key === ' ' || e.key === 'w' || e.key === 'W') {
+        toggleTool();
+      }
+    });
+
+    function toggleTool() {
+      if (gameState.activeTool === 'sponge') {
+        gameState.activeTool = 'uv';
+        elBtnToolUV.classList.add('active');
+        elBtnToolSponge.classList.remove('active');
+      } else {
+        gameState.activeTool = 'sponge';
+        elBtnToolSponge.classList.add('active');
+        elBtnToolUV.classList.remove('active');
+      }
+    }
+
+    elBtnToolSponge.addEventListener('click', () => {
+      gameState.activeTool = 'sponge';
+      elBtnToolSponge.classList.add('active');
+      elBtnToolUV.classList.remove('active');
+    });
+
+    elBtnToolUV.addEventListener('click', () => {
+      gameState.activeTool = 'uv';
+      elBtnToolUV.classList.add('active');
+      elBtnToolSponge.classList.remove('active');
+    });
+
+    elBtnSound.addEventListener('click', () => {
+      sound.init();
+      sound.muted = !sound.muted;
+      elBtnSound.textContent = sound.muted ? "🔇 SFX: OFF" : "🔊 SFX: ON";
+    });
+
+    elBtnHelp.addEventListener('click', () => {
+      elRulesModal.classList.remove('hidden');
+    });
+
+    elBtnCloseRules.addEventListener('click', () => {
+      elRulesModal.classList.add('hidden');
+    });
+
+    elBtnStartShift.addEventListener('click', startShift);
+    elBtnRestart.addEventListener('click', startShift);
+
+  </script>
+</body>
+</html>
