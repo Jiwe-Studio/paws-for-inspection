@@ -325,8 +325,7 @@ const Tutorial = {
     const c = gameState.currentCase;
     sound.init();
     sound.playStamp(approved);
-    elStampOverlay.textContent = approved ? "APPROVED" : "DENIED";
-    elStampOverlay.className = `rubber-stamp-overlay active-stamp ${approved ? 'approved' : 'denied'}`;
+    showStampImprint(approved);
     if (correct) {
       sound.playSuccess();
       c.violations.forEach(v => describeViolation(c, v).els.forEach(el => el.classList.add('flagged')));
