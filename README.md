@@ -22,6 +22,8 @@ Every case is generated fresh: a clean case is built first, then 0–2 rules are
 
 ---
 
+New players start with **Orientation**: Mama Rehema, a veteran inspector, walks you through three practice cases with no timer. Shifts 2, 3 and 4 open with a short briefing when a new rule arrives, and the clock waits for your first stamp.
+
 ## 🚀 How to Play
 
 1. Clone this repository or download the repo.
