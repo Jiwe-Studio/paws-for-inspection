@@ -1573,3 +1573,131 @@ main.panic-glow {
     padding: 8px;
   }
 }
+
+/* ==========================================================================
+   DIALOGUE + SPOTLIGHT
+   ========================================================================== */
+.dialogue-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 190;
+}
+
+.dialogue-layer.passthrough,
+.dialogue-layer.passthrough .dialogue-box {
+  pointer-events: none;
+}
+
+.spotlight-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.spotlight-dim {
+  fill: rgba(8, 10, 14, 0.62);
+}
+
+.spotlight-outline {
+  fill: none;
+  stroke: var(--accent-gold);
+  stroke-width: 3;
+  animation: spotPulse 1.1s ease-in-out infinite;
+}
+
+@keyframes spotPulse {
+  50% { stroke-opacity: 0.35; }
+}
+
+.dialogue-box {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(580px, calc(100% - 16px));
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--paper-bg);
+  color: var(--ink);
+  border: 3px solid #5d4037;
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+  cursor: pointer;
+  animation: dialogueIn 0.18s ease-out;
+}
+
+@keyframes dialogueIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+}
+
+.dialogue-box.pos-bottom {
+  bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+.dialogue-box.pos-top {
+  top: max(12px, env(safe-area-inset-top));
+}
+
+.dialogue-portrait {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  background: #e0a23a;
+  border: 3px solid #5d4037;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.3rem;
+}
+
+.dialogue-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.dialogue-name {
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #b0482a;
+  margin-bottom: 3px;
+}
+
+.dialogue-text {
+  font-size: 0.98rem;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.dialogue-next {
+  margin-top: 6px;
+  text-align: right;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #8d6e63;
+  animation: nextBlink 1s steps(2, start) infinite;
+}
+
+@keyframes nextBlink {
+  to { visibility: hidden; }
+}
+
+@media (max-width: 699px), (max-height: 520px) {
+  .dialogue-box {
+    gap: 8px;
+    padding: 8px 10px;
+  }
+  .dialogue-portrait {
+    width: 42px;
+    height: 42px;
+    font-size: 1.6rem;
+  }
+  .dialogue-text {
+    font-size: 0.86rem;
+  }
+}

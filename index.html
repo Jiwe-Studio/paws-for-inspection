@@ -7,8 +7,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <title>Exotic Customs: Pet Detective</title>
-  <link rel="stylesheet" href="style.css?v=9" />
-  <script src="game.js?v=9" defer></script>
+  <link rel="stylesheet" href="style.css?v=11" />
+  <script src="tutorial.js?v=11" defer></script>
+  <script src="game.js?v=11" defer></script>
 </head>
 <body>
 
@@ -198,6 +199,19 @@
     <span id="toastMsg">CORRECT! Good catch officer! (+100 PTS)</span>
   </div>
 
+  <!-- DIALOGUE + SPOTLIGHT (Orientation, shift briefings, story scenes) -->
+  <div class="dialogue-layer hidden" id="dialogueLayer">
+    <svg class="spotlight-svg" id="spotlightSvg" aria-hidden="true"></svg>
+    <div class="dialogue-box" id="dialogueBox" role="dialog" aria-live="polite">
+      <div class="dialogue-portrait" id="dialoguePortrait"></div>
+      <div class="dialogue-body">
+        <div class="dialogue-name" id="dialogueName"></div>
+        <div class="dialogue-text" id="dialogueText"></div>
+        <div class="dialogue-next" id="dialogueNext">Tap to continue ▸</div>
+      </div>
+    </div>
+  </div>
+
   <!-- 1. MAIN MENU OVERLAY -->
   <div class="modal-backdrop" id="mainMenuModal">
     <div class="modal-card">
@@ -236,6 +250,7 @@
       </div>
 
       <div style="display:flex; gap:10px;">
+        <button class="secondary-btn" id="btnReplayTutorial">Replay Orientation</button>
         <button class="secondary-btn" id="btnResetStory">Reset Campaign Progress</button>
       </div>
     </div>
