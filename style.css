@@ -2506,6 +2506,42 @@ header {
   .modal-card h2 {
     font-size: 1.5rem;
   }
+  /* The boxed permit fields are taller than plain text; tighten so the desk still fits one screen. */
+  .permit-fields {
+    gap: 3px 8px;
+    margin: 4px 0;
+  }
+  .permit-field .p-label {
+    font-size: 0.55rem;
+    margin-bottom: 0;
+  }
+  .permit-field .p-value {
+    padding: 0 6px;
+    font-size: 0.8rem;
+  }
+  .official-seal-row {
+    padding-top: 3px;
+  }
+  .security-hologram {
+    width: 46px;
+    height: 46px;
+  }
+  .cites-permit {
+    padding: 6px 10px;
+  }
+  .passenger-booth {
+    padding: 4px 8px;
+  }
+  .booth-window {
+    width: 66px;
+  }
+  .stamp-btn {
+    padding: 8px 10px;
+  }
+  .stamp-btn .stamp-icon {
+    width: 32px;
+    height: 32px;
+  }
 }
 
 .guide-box .rule-deny {
