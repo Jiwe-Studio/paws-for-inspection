@@ -191,9 +191,10 @@ funny, not realistic.
 >
 > *Trafficked wildlife (Big Man Kiboko's ring):*
 > - `cheetah_cat`: a cheetah cub smeared with brown shoe polish, wearing a cat bell
-> - `pangolin_hedgehog`: a pangolin curled into a ball with toothpicks glued on as "spikes"
-> - `greys_vest`: three African grey parrots poking out of a zipped poodle costume
+> - `pangolin_hedgehog`: a pangolin curled into a ball under a knitted hedgehog hat
+> - `parrot_kuku`: African grey parrots with glued-on rooster combs, passed off as Kienyeji roosters
 > - `tortoise_slider`: a flat pancake tortoise with a red stripe painted on to look like a pet turtle
+>   (a permit must declare an animal, so no non-animal disguises such as a pie)
 > - `galago_hamster`: a big-eyed bush baby squeezed into a hamster ball
 > - `penguin_butler`: an African penguin chick in a duck costume with a bow tie
 > - `croc_wiener`: a baby Nile crocodile in a knit dachshund sweater with felt ears
@@ -278,8 +279,8 @@ personality.
 | Batch | Contents | Status |
 |---|---|---|
 | 0 | Style guide + test scene | ✅ approved |
-| 1 | UI kit (incl. Jiwe paw seal) | next |
-| 2 | Scene props | not started |
+| 1 | UI kit (incl. Jiwe paw seal) | ✅ in game (PR #5) |
+| 2 | Scene props | in progress |
 | 3 | Animals (9 legal + 10 disguised + 8 rescued poses + dex badges) | not started |
 | 4 | Passengers (8 × 4 + 4 custom) | not started |
 | 5 | Crew + Kiboko (6 × 4) | not started |
