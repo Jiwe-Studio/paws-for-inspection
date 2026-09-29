@@ -1,6 +1,9 @@
-# Pet Detective: Art Work Order for Claude Design
+# Paws for Inspection: Art Work Order for Claude Design
 
-This is the brief and the prompt script for producing Pet Detective's art in Claude Design.
+This is the brief and the prompt script for producing the art for Paws for Inspection in Claude Design.
+
+> **Renamed from "Pet Detective".** If a batch was already made under the old name, paste the
+> updated brief below into that project and ask Claude Design to swap the name and wordmark.
 Work through the batches **in order**. Each batch is a separate Claude Design project (or a page
 inside one project). Paste the **Project brief** first and keep it at the top of every project, then
 paste that batch's prompt.
@@ -36,8 +39,9 @@ art/
 
 ## Project brief (paste at the top of every batch)
 
-> **Game:** *Pet Detective*, a comedy border-control inspection game in the spirit of *Papers,
-> Please*. You're a rookie inspector at the fictional **Wanyama Customs Authority (W.C.A.)**
+> **Game:** *Paws for Inspection*, a comedy airport-customs game in the spirit of *Papers,
+> Please*. You're a rookie **customs inspector in charge of searching, checking and clearing
+> animals** (not a detective) at the fictional **Wanyama Customs Authority (W.C.A.)**
 > animal-import desk at the fictional **Mzinga International Airport**, Nairobi. Passengers bring
 > animals with a Wildlife Transit Permit. You check names, dates, weights and seals, scrub crate
 > covers to catch disguised animals (donkeys painted as zebras, capybaras dyed as retrievers), then
@@ -123,8 +127,9 @@ weight the same everywhere? Could the phone version be played one-handed?
 > glowing `uv-glow` on dark violet), `seal-uv-fake` (dark, no glow, a faint smudge).
 >
 > **Logo:** `logo-wca`, a W.C.A. crest badge (a customs shield with an animal silhouette, 256×256),
-> and `logo-game`, the "Pet Detective" wordmark in the signwriter style, with "Exotic Customs" as a
-> smaller line, 800×300.
+> and `logo-game`, the "Paws for Inspection" wordmark in the signwriter style (a paw print
+> can stand in for a letter or sit inside a rubber-stamp frame), with the tagline "Animal
+> clearance at Mzinga International" as a smaller line, 800×300.
 >
 > **Frames:** `panel-paper` (a 9-slice-friendly cream paper panel with a torn or perforated edge)
 > and `panel-board` (a 9-slice wooden or cork notice board for menus and the Pet-Dex).

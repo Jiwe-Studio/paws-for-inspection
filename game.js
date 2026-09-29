@@ -1,5 +1,5 @@
 /* ==========================================================================
-   EXOTIC CUSTOMS: PET DETECTIVE - GAME CONTROLLER (v2.1)
+   PAWS FOR INSPECTION - GAME CONTROLLER
    Architecture: Modular JS Engine with Story Campaign, Daily Bulletin,
    Arcade Score Attack, and LocalStorage Persistence.
    ========================================================================== */
@@ -494,6 +494,7 @@ const DEFAULT_PASSENGERS = [
 ];
 
 // --- 5. LOCALSTORAGE PROGRESSION MANAGER ---
+// Keys keep the original 'petdetect_' prefix so players keep their progress after the rename.
 class StorageManager {
   static getArcadeHighScore() {
     return parseInt(localStorage.getItem('petdetect_arcade_high_score') || "0", 10);

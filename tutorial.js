@@ -1,5 +1,5 @@
 /* ==========================================================================
-   EXOTIC CUSTOMS: PET DETECTIVE - DIALOGUE, SPOTLIGHT & ORIENTATION
+   PAWS FOR INSPECTION - DIALOGUE, SPOTLIGHT & ORIENTATION
    Loaded before game.js; everything here only touches game globals at runtime.
    ========================================================================== */
 
