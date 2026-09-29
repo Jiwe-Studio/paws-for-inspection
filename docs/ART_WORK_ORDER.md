@@ -42,7 +42,7 @@ art/
 > **Game:** *Paws for Inspection*, a comedy airport-customs game in the spirit of *Papers,
 > Please*. You're a rookie **customs inspector in charge of searching, checking and clearing
 > animals** (not a detective) at the fictional **Wanyama Customs Authority (W.C.A.)**
-> animal-import desk at the fictional **Mzinga International Airport**, Nairobi. Passengers bring
+> animal-import desk at the fictional **Jambo International Airport**, Nairobi. Passengers bring
 > animals with a Wildlife Transit Permit. You check names, dates, weights and seals, scrub crate
 > covers to catch disguised animals (donkeys painted as zebras, capybaras dyed as retrievers), then
 > stamp APPROVE or DENY. The tone is warm and cheeky, like a Kenyan sitcom, never mean-spirited.
@@ -50,7 +50,7 @@ art/
 > **Story theme: wildlife trafficking.** Alongside small-time scammers (a donkey painted as a
 > zebra), the main villain, **Big Man Kiboko**, runs a ring smuggling endangered African wildlife
 > (cheetah cubs, pangolins, African grey parrots, pancake tortoises) disguised as ordinary pets.
-> Every bust is a **rescue**: the animals go to the fictional Mzinga Wildlife Rescue Centre. The
+> Every bust is a **rescue**: the animals go to the Kenya Wildlife Service. The
 > jokes are always on the smugglers and their terrible disguises. The animals are drawn with
 > dignity (curious, scared, then relieved), never hurt, never dead. No blood, no injured animals,
 > no animal parts.
@@ -144,7 +144,7 @@ weight the same everywhere? Could the phone version be played one-handed?
 > **Logo:** `logo-wca`, a W.C.A. crest badge (a customs shield with an animal silhouette, 256×256),
 > and `logo-game`, the "Paws for Inspection" wordmark in the signwriter style (a paw print
 > can stand in for a letter or sit inside a rubber-stamp frame), with the tagline "Animal
-> clearance at Mzinga International" as a smaller line, 800×300.
+> clearance at Jambo International" as a smaller line, 800×300.
 >
 > **Frames:** `panel-paper` (a 9-slice-friendly cream paper panel with a torn or perforated edge)
 > and `panel-board` (a 9-slice wooden or cork notice board for menus and the Pet-Dex).
@@ -160,9 +160,9 @@ weight the same everywhere? Could the phone version be played one-handed?
 > - `counter-window`: the passenger's window frame (a glass partition with a speaking grille and a
 >   W.C.A. sign above), 800×360, with the centre left clear so the passenger shows through.
 > - `airport-bg`: a blurred background behind the passenger (queue barriers, departure board,
->   an "Mzinga International" sign), 800×360.
+>   an "Jambo International" sign), 800×360.
 > - `crate-cover`: the tarp or crate front the player scrubs off, 560×280, with stencilled
->   "MZINGA AIR CARGO · LIVE ANIMAL". It must be **identical for every animal**.
+>   "JAMBO AIR CARGO · LIVE ANIMAL". It must be **identical for every animal**.
 > - `crate-inside`: the inside of the empty crate (straw, a water bowl) shown behind the animal,
 >   560×280.
 > - `permit-paper`: a blank Wildlife Transit Permit form with ruled field boxes and labels but
@@ -278,10 +278,14 @@ personality.
 
 | Batch | Contents | Status |
 |---|---|---|
-| 0 | Style guide + test scene | ✅ approved |
-| 1 | UI kit (incl. Jiwe paw seal) | ✅ in game (PR #5) |
-| 2 | Scene props | in progress |
-| 3 | Animals (9 legal + 10 disguised + 8 rescued poses + dex badges) | not started |
-| 4 | Passengers (8 × 4 + 4 custom) | not started |
-| 5 | Crew + Kiboko (6 × 4) | not started |
-| 6 | Screens + app icon | not started |
+| 0 | Style guide + test scene | ✅ in game |
+| 1 | UI kit (incl. Jiwe paw seal) | ✅ in game |
+| 2 | Scene props | ✅ in repo (bulletin paper in game) |
+| 3 | Animals (9 legal + 10 disguised + rescued poses + badges) | ✅ in game |
+| 4 | Passengers (8 × 4 + 4 custom) | ✅ in game |
+| 5 | Crew + Kiboko (6 × 4) | ✅ in game |
+| 6 | Screens + app icon | ✅ in game |
+
+**Redraw needed after the Jambo rename:** `logo-game` (tagline), `stamp-approved`, `stamp-denied`,
+`airport-bg` (sign), `crate-cover` (stencil), `bulletin-paper` and `permit-paper` (letterhead) still
+read "Mzinga". Replace it with "Jambo" / "Jambo International Airport", same layout and file names.

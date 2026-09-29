@@ -239,8 +239,8 @@ const ALL_VIOLATIONS = ["expired", "name", "weight", "disguise", "seal"];
 const STORY_SHIFTS = [
   {
     shiftNumber: 1,
-    title: "Shift 1: First Day at Mzinga",
-    story: "Karibu to the Wanyama Customs desk at Mzinga International Airport, Officer! Today is paperwork only. Read every permit carefully: the date and the owner's name must both check out.",
+    title: "Shift 1: First Day at Jambo",
+    story: "Karibu to the Wanyama Customs desk at Jambo International Airport, Officer! Today is paperwork only. Read every permit carefully: the date and the owner's name must both check out.",
     rules: [
       "Target Quota: Process 4 cases correctly.",
       "DENY if the permit expired before today's date.",
@@ -357,7 +357,7 @@ const STORY_SHIFTS = [
   {
     shiftNumber: 10,
     title: "Shift 10: The Final Inspection",
-    story: "This is your assessment for Chief Inspector. Every trick in the book will cross your desk today. Make Mzinga proud!",
+    story: "This is your assessment for Chief Inspector. Every trick in the book will cross your desk today. Make Jambo proud!",
     rules: [
       "Target Quota: Process 9 cases correctly.",
       "3 Strikes = Immediate Termination."
@@ -371,57 +371,53 @@ const STORY_SHIFTS = [
 
 const ARCADE_RULES = { violations: ALL_VIOLATIONS, doubleChance: 0.25 };
 
-// --- 3. PET-DEX DATABASE ---
+// --- 3. RESCUE LOG (formerly the Pet-Dex) ---
+// `art` is the badge in art/animals/<art>_dex.svg. Trafficked entries carry a real conservation fact.
 const PET_DEX_MASTER = [
-  { id: "donkey_zebra", name: "The Donkeyxote", emoji: "🐴", species: "Grey Donkey", disguise: "Painted Zebra", lore: "An ordinary shamba donkey sprayed with cheap acrylic stripes. Brays when nervous." },
-  { id: "capybara_dog", name: "Sir Fluffsbark", emoji: "🦫", species: "Giant Capybara", disguise: "Golden Retriever", lore: "Dyed with supermarket bleach. Chirps instead of barking." },
-  { id: "cheetah_cat", name: "Barnaby the Tabby", emoji: "🐆", species: "Cheetah Cub", disguise: "House Cat", lore: "Smuggled under brown shoe polish. Purrs like a matatu engine." },
-  { id: "macaw_vest", name: "Trenchcoat Polly", emoji: "🦜", species: "Smuggled Macaws", disguise: "Poodle Vest", lore: "Three macaws zipped into a padded poodle costume." },
-  { id: "warthog_pig", name: "Princess Piglet", emoji: "🐗", species: "Warthog Piglet", disguise: "Teacup Pig", lore: "Tusks hidden under thick layers of pink blush. Pumbaa's cousin." },
-  { id: "croc_wiener", name: "The Wiener Croc", emoji: "🐊", species: "Baby Nile Crocodile", disguise: "Dachshund", lore: "Stuffed into a knit sweater with felt puppy ears glued on." },
-  { id: "penguin_butler", name: "Sir Tuxedo", emoji: "🐧", species: "Penguin Chick", disguise: "Pekin Duck", lore: "The owner said it was an emotional-support duck that likes cold showers." },
-  { id: "legal_bengal", name: "Her Royal Paws", emoji: "🐈", species: "Bengal Cat", disguise: "None", lore: "A fully legal champion cat with her papers in order." },
-  { id: "legal_alpaca", name: "Llama Del Rey", emoji: "🦙", species: "Huacaya Alpaca", disguise: "None", lore: "A prize wool alpaca travelling with valid papers." },
-  { id: "legal_hedgehog", name: "Spike McFluff", emoji: "🦔", species: "Pygmy Hedgehog", disguise: "None", lore: "A verified captive-bred hedgehog in peak health." },
-  { id: "legal_macaw", name: "Captain Feathers", emoji: "🦜", species: "Scarlet Macaw", disguise: "None", lore: "A registered zoo specimen with a pristine seal." },
-  { id: "legal_rooster", name: "Jogoo wa Mtaa", emoji: "🐓", species: "Kienyeji Rooster", disguise: "None", lore: "Crows at 4am sharp. Fully legal, extremely loud." }
+  // Trafficked wildlife: Big Man Kiboko's ring
+  { id: "cheetah_cat", art: "cheetah_cat", kind: "trafficked", name: "Barnaby the Tabby", emoji: "🐆", species: "Cheetah Cub", disguise: "House Cat", lore: "Smuggled under brown shoe polish. Cheetah cubs are taken from the wild for the illegal pet trade, and many don't survive the journey." },
+  { id: "pangolin_hedgehog", art: "pangolin_hedgehog", kind: "trafficked", name: "Prickles", emoji: "🦔", species: "Pangolin", disguise: "Pygmy Hedgehog", lore: "Curled up under a knitted hedgehog hat. Pangolins are among the most trafficked wild mammals in the world." },
+  { id: "parrot_kuku", art: "parrot_kuku", kind: "trafficked", name: "The Kuku Gang", emoji: "🦜", species: "African Grey Parrots", disguise: "Kienyeji Rooster", lore: "Glued-on rooster combs fooled nobody. African greys are endangered in the wild, largely because of the pet trade." },
+  { id: "tortoise_slider", art: "tortoise_slider", kind: "trafficked", name: "Flatbread", emoji: "🐢", species: "Pancake Tortoise", disguise: "Pet Turtle", lore: "A red stripe painted on its shell. Pancake tortoises from Kenya and Tanzania are critically endangered." },
+  { id: "galago_hamster", art: "galago_hamster", kind: "trafficked", name: "Big Eyes", emoji: "🐒", species: "Bush Baby", disguise: "Hamster", lore: "Squeezed into a hamster ball. Bush babies are nocturnal primates whose huge eyes let them hunt insects in the dark." },
+  { id: "penguin_butler", art: "penguin_butler", kind: "trafficked", name: "Sir Tuxedo", emoji: "🐧", species: "African Penguin", disguise: "Pekin Duck", lore: "Wore a bow tie as an 'emotional-support duck'. African penguins are among Africa's most endangered seabirds." },
+  { id: "croc_wiener", art: "croc_wiener", kind: "trafficked", name: "The Wiener Croc", emoji: "🐊", species: "Baby Nile Crocodile", disguise: "Dachshund", lore: "Stuffed into a knit sweater with felt ears. This lap dog would grow to over four metres long." },
+  { id: "warthog_pig", art: "warthog_pig", kind: "trafficked", name: "Princess Piglet", emoji: "🐗", species: "Warthog Piglet", disguise: "Teacup Pig", lore: "Tusks hidden under pink blush. Warthogs aren't endangered, but wild animals don't belong in teacups." },
+  // Scams: ordinary animals dressed up to sell as something fancier
+  { id: "donkey_zebra", art: "donkey_zebra", kind: "scam", name: "The Donkeyxote", emoji: "🐴", species: "Grey Donkey", disguise: "Painted Zebra", lore: "An ordinary shamba donkey sprayed with cheap acrylic stripes. Brays when nervous." },
+  { id: "capybara_dog", art: "capybara_dog", kind: "scam", name: "Sir Fluffsbark", emoji: "🦫", species: "Capybara", disguise: "Golden Retriever", lore: "Dyed with supermarket bleach. Chirps instead of barking." },
+  // Legal travellers
+  { id: "legal_collie", art: "border_collie", kind: "legal", name: "Bingwa", emoji: "🐕", species: "Border Collie", disguise: "None", lore: "A working farm dog heading home to Nyahururu. Tried to herd the queue." },
+  { id: "legal_persian", art: "persian_cat", kind: "legal", name: "Malkia", emoji: "🐱", species: "Persian Cat", disguise: "None", lore: "Unimpressed by customs, airports and you." },
+  { id: "legal_bengal", art: "bengal_cat", kind: "legal", name: "Her Royal Paws", emoji: "🐈", species: "Bengal Cat", disguise: "None", lore: "A fully legal champion cat with her papers in order." },
+  { id: "legal_macaw", art: "scarlet_macaw", kind: "legal", name: "Captain Feathers", emoji: "🦜", species: "Scarlet Macaw", disguise: "None", lore: "A registered captive-bred bird with a pristine seal." },
+  { id: "legal_hedgehog", art: "pygmy_hedgehog", kind: "legal", name: "Spike McFluff", emoji: "🦔", species: "Pygmy Hedgehog", disguise: "None", lore: "A verified captive-bred hedgehog in peak health." },
+  { id: "legal_alpaca", art: "huacaya_alpaca", kind: "legal", name: "Llama Del Rey", emoji: "🦙", species: "Huacaya Alpaca", disguise: "None", lore: "A prize wool alpaca travelling with valid papers." },
+  { id: "legal_rabbit", art: "holland_lop_rabbit", kind: "legal", name: "Sukari", emoji: "🐰", species: "Holland Lop Rabbit", disguise: "None", lore: "Ears so floppy they needed their own seat." },
+  { id: "legal_rooster", art: "kienyeji_rooster", kind: "legal", name: "Jogoo wa Mtaa", emoji: "🐓", species: "Kienyeji Rooster", disguise: "None", lore: "Crows at 4am sharp. Fully legal, extremely loud." },
+  { id: "legal_goat", art: "galla_goat", kind: "legal", name: "Mzee Mbuzi", emoji: "🐐", species: "Galla Goat", disguise: "None", lore: "Judged every passenger in the queue. Approved of none." }
 ];
 
 // --- 4. ANIMALS & DISGUISES ---
 // Weights are kg. A legal permit's max weight is the animal's `max`.
 const LEGAL_ANIMALS = [
-  { species: "Border Collie (Canis familiaris)", emoji: "🐕", art: "animals/border_collie", min: 14, max: 20, sound: "bark" },
-  { species: "Persian Cat (Felis catus)", emoji: "🐱", art: "animals/persian_cat", min: 3, max: 5.5, sound: "meow" },
+  { species: "Border Collie (Canis familiaris)", emoji: "🐕", art: "animals/border_collie", min: 14, max: 20, sound: "bark", dexId: "legal_collie" },
+  { species: "Persian Cat (Felis catus)", emoji: "🐱", art: "animals/persian_cat", min: 3, max: 5.5, sound: "meow", dexId: "legal_persian" },
   { species: "Bengal Cat (Felis catus)", emoji: "🐈", art: "animals/bengal_cat", min: 4, max: 7, sound: "meow", dexId: "legal_bengal" },
   { species: "Scarlet Macaw (Ara macao)", emoji: "🦜", art: "animals/scarlet_macaw", min: 0.9, max: 1.4, sound: "squeak", dexId: "legal_macaw" },
   { species: "African Pygmy Hedgehog (Atelerix albiventris)", emoji: "🦔", art: "animals/pygmy_hedgehog", min: 0.3, max: 0.6, sound: "squeak", dexId: "legal_hedgehog" },
   { species: "Huacaya Alpaca (Vicugna pacos)", emoji: "🦙", art: "animals/huacaya_alpaca", min: 50, max: 80, sound: "squeak", dexId: "legal_alpaca" },
-  { species: "Holland Lop Rabbit (Oryctolagus cuniculus)", emoji: "🐰", art: "animals/holland_lop_rabbit", min: 1.3, max: 2.2, sound: "squeak" },
+  { species: "Holland Lop Rabbit (Oryctolagus cuniculus)", emoji: "🐰", art: "animals/holland_lop_rabbit", min: 1.3, max: 2.2, sound: "squeak", dexId: "legal_rabbit" },
   { species: "Kienyeji Rooster (Gallus gallus)", emoji: "🐓", art: "animals/kienyeji_rooster", min: 1.8, max: 3, sound: "squeak", dexId: "legal_rooster" },
-  { species: "Galla Goat (Capra hircus)", emoji: "🐐", art: "animals/galla_goat", min: 30, max: 50, sound: "bark" }
+  { species: "Galla Goat (Capra hircus)", emoji: "🐐", art: "animals/galla_goat", min: 30, max: 50, sound: "bark", dexId: "legal_goat" }
 ];
 
 // Smugglers pick look-alike weights, so the scale won't catch a disguise.
 // Only scrubbing the crate (or provoking a sound) gives it away.
+// kind: 'trafficked' animals are rescued on a bust; 'scam' animals are confiscated.
 const DISGUISES = [
   {
-    dexId: "donkey_zebra",
-    declared: { species: "Plains Zebra (Equus quagga)", min: 220, max: 350 },
-    emoji: "🐴", sound: "donkey",
-    revealTag: "Grey donkey with painted stripes!",
-    reason: "That 'zebra' was a painted donkey!",
-    speech: ["Authentic zebra from the Mara! Just don't wash him, he's allergic to water."]
-  },
-  {
-    dexId: "capybara_dog",
-    declared: { species: "Golden Retriever (Canis familiaris)", min: 25, max: 34 },
-    emoji: "🦫", sound: "capybara",
-    revealTag: "Capybara dyed blonde!",
-    reason: "That 'retriever' was a dyed capybara!",
-    speech: ["Golden Retriever puppy, sasa! He just barks with a squeak."]
-  },
-  {
-    dexId: "cheetah_cat",
+    dexId: "cheetah_cat", kind: "trafficked",
     declared: { species: "Domestic Tabby (Felis catus)", min: 3.5, max: 6 },
     emoji: "🐆", sound: "cheetah",
     revealTag: "Cheetah cub under shoe polish!",
@@ -429,23 +425,47 @@ const DISGUISES = [
     speech: ["Paka wa nyumbani tu. He purrs like a matatu engine."]
   },
   {
-    dexId: "macaw_vest",
-    declared: { species: "Standard Poodle (Canis familiaris)", min: 20, max: 30 },
+    dexId: "pangolin_hedgehog", kind: "trafficked",
+    declared: { species: "African Pygmy Hedgehog (Atelerix albiventris)", min: 0.3, max: 0.6 },
+    emoji: "🦔", sound: "squeak",
+    revealTag: "Pangolin under a knitted hedgehog hat!",
+    reason: "That 'hedgehog' was a pangolin!",
+    speech: ["She's shy, she curls up a lot. Totally normal hedgehog stuff."]
+  },
+  {
+    dexId: "parrot_kuku", kind: "trafficked",
+    declared: { species: "Kienyeji Rooster (Gallus gallus)", min: 1.8, max: 3 },
     emoji: "🦜", sound: "squeak",
-    revealTag: "Three macaws zipped into a poodle vest!",
-    reason: "That 'poodle' was a vest full of macaws!",
-    speech: ["My poodle's coat is naturally bulky. Usiguse, she is sensitive!"]
+    revealTag: "African grey parrots with glued-on combs!",
+    reason: "Those 'roosters' were African grey parrots!",
+    speech: ["Kuku wa kienyeji, officer. They even talk, very clever chickens."]
   },
   {
-    dexId: "warthog_pig",
-    declared: { species: "Teacup Pig (Sus domesticus)", min: 8, max: 15 },
-    emoji: "🐗", sound: "cheetah",
-    revealTag: "Warthog piglet in pink blush!",
-    reason: "That 'teacup pig' was a warthog!",
-    speech: ["Teacup piglet! Those aren't tusks, ni meno ya mtoto."]
+    dexId: "tortoise_slider", kind: "trafficked",
+    declared: { species: "Red-eared Slider (Trachemys scripta)", min: 0.5, max: 1.5 },
+    emoji: "🐢", sound: "squeak",
+    revealTag: "Pancake tortoise with a painted stripe!",
+    reason: "That 'pet turtle' was a pancake tortoise!",
+    speech: ["Just a pet turtle. A bit flat, he was sat on during the flight."]
   },
   {
-    dexId: "croc_wiener",
+    dexId: "galago_hamster", kind: "trafficked",
+    declared: { species: "Syrian Hamster (Mesocricetus auratus)", min: 0.1, max: 0.2 },
+    emoji: "🐒", sound: "squeak",
+    revealTag: "Bush baby squeezed into a hamster ball!",
+    reason: "That 'hamster' was a bush baby!",
+    speech: ["Big eyes, small hamster. He's a night-shift hamster."]
+  },
+  {
+    dexId: "penguin_butler", kind: "trafficked",
+    declared: { species: "Pekin Duck (Anas platyrhynchos)", min: 3, max: 4.5 },
+    emoji: "🐧", sound: "squeak",
+    revealTag: "African penguin chick in a duck costume!",
+    reason: "That 'duck' was an African penguin!",
+    speech: ["He's my emotional-support bata. He likes cold showers."]
+  },
+  {
+    dexId: "croc_wiener", kind: "trafficked",
     declared: { species: "Dachshund (Canis familiaris)", min: 7, max: 11 },
     emoji: "🐊", sound: "cheetah",
     revealTag: "Baby crocodile in a knit sweater!",
@@ -453,12 +473,28 @@ const DISGUISES = [
     speech: ["My dachshund has scaly skin from allergies. Lap dog kabisa."]
   },
   {
-    dexId: "penguin_butler",
-    declared: { species: "Pekin Duck (Anas platyrhynchos)", min: 3, max: 4.5 },
-    emoji: "🐧", sound: "squeak",
-    revealTag: "Penguin chick in a duck costume!",
-    reason: "That 'duck' was a penguin chick!",
-    speech: ["He's my emotional-support bata. He likes cold showers."]
+    dexId: "warthog_pig", kind: "trafficked",
+    declared: { species: "Teacup Pig (Sus domesticus)", min: 8, max: 15 },
+    emoji: "🐗", sound: "cheetah",
+    revealTag: "Warthog piglet in pink blush!",
+    reason: "That 'teacup pig' was a warthog!",
+    speech: ["Teacup piglet! Those aren't tusks, ni meno ya mtoto."]
+  },
+  {
+    dexId: "donkey_zebra", kind: "scam",
+    declared: { species: "Plains Zebra (Equus quagga)", min: 220, max: 350 },
+    emoji: "🐴", sound: "donkey",
+    revealTag: "Grey donkey with painted stripes!",
+    reason: "That 'zebra' was a painted donkey!",
+    speech: ["Authentic zebra from the Mara! Just don't wash him, he's allergic to water."]
+  },
+  {
+    dexId: "capybara_dog", kind: "scam",
+    declared: { species: "Golden Retriever (Canis familiaris)", min: 25, max: 34 },
+    emoji: "🦫", sound: "capybara",
+    revealTag: "Capybara dyed blonde!",
+    reason: "That 'retriever' was a dyed capybara!",
+    speech: ["Golden Retriever puppy, sasa! He just barks with a squeak."]
   }
 ];
 
@@ -483,23 +519,30 @@ const HINT_LINES = {
 };
 
 const DEFAULT_PASSENGERS = [
-  { name: "Njeri Wambui", art: "passengers/njeri_wambui_neutral", avatar: "👩🏾‍🌾", quote: "Officer, I have a matatu waiting outside!" },
-  { name: "Otieno Ochieng", art: "passengers/otieno_ochieng_neutral", avatar: "👴🏾", quote: "Mimi ni mzee wa heshima. I don't lie." },
-  { name: "Brian Kamau", art: "passengers/brian_kamau_neutral", avatar: "😎", quote: "Niaje officer! We keep it quick, sawa?" },
-  { name: "Akinyi Adhiambo", art: "passengers/akinyi_adhiambo_neutral", avatar: "👒", quote: "He is very well behaved, unlike my husband." },
-  { name: "Dr. Mwangi Karanja", art: "passengers/mwangi_karanja_neutral", avatar: "🧐", quote: "I am a doctor. Trust me, the animal is fine." },
-  { name: "Hon. Chebet Kiprono", art: "passengers/chebet_kiprono_neutral", avatar: "🎩", quote: "Do you know who I am? Stamp it, please." },
-  { name: "Kevin Mutua", art: "passengers/kevin_mutua_neutral", avatar: "🤠", quote: "Fresh from Dubai, officer. Everything is legit." },
-  { name: "Halima Hassan", art: "passengers/halima_hassan_neutral", avatar: "🧕🏾", quote: "Please be gentle with her, she's shy." }
+  { name: "Njeri Wambui", art: "passengers/njeri_wambui", avatar: "👩🏾‍🌾", quote: "Officer, I have a matatu waiting outside!" },
+  { name: "Otieno Ochieng", art: "passengers/otieno_ochieng", avatar: "👴🏾", quote: "Mimi ni mzee wa heshima. I don't lie." },
+  { name: "Brian Kamau", art: "passengers/brian_kamau", avatar: "😎", quote: "Niaje officer! We keep it quick, sawa?" },
+  { name: "Akinyi Adhiambo", art: "passengers/akinyi_adhiambo", avatar: "👒", quote: "He is very well behaved, unlike my husband." },
+  { name: "Dr. Mwangi Karanja", art: "passengers/mwangi_karanja", avatar: "🧐", quote: "I am a doctor. Trust me, the animal is fine." },
+  { name: "Hon. Chebet Kiprono", art: "passengers/chebet_kiprono", avatar: "🎩", quote: "Do you know who I am? Stamp it, please." },
+  { name: "Kevin Mutua", art: "passengers/kevin_mutua", avatar: "🤠", quote: "Fresh from Dubai, officer. Everything is legit." },
+  { name: "Halima Hassan", art: "passengers/halima_hassan", avatar: "🧕🏾", quote: "Please be gentle with her, she's shy." }
 ];
 
 // --- 4b. ART (Claude Design batches, see docs/ART_WORK_ORDER.md) ---
 // Only ids listed here are loaded; everything else keeps its emoji until its batch lands,
 // so a missing file never shows as a broken image.
+const PASSENGER_MOODS = ["neutral", "nervous", "relieved", "busted"];
+
 const ART_FILES = new Set([
-  "animals/border_collie",
-  "passengers/njeri_wambui_neutral"
+  ...DEFAULT_PASSENGERS.flatMap(p => PASSENGER_MOODS.map(m => `${p.art}_${m}`)),
+  ...[1, 2, 3, 4].map(n => `passengers/custom_suspect_${n}`),
+  ...Object.values(CREW).flatMap(c => c.moods.map(m => `crew/${c.art}_${m}`)),
+  "animals/dex_locked",
+  ...PET_DEX_MASTER.flatMap(d => [`animals/${d.art}`, `animals/${d.art}_dex`]),
+  ...DISGUISES.map(d => `animals/${d.dexId}_rescued`)
 ]);
+
 
 function artPath(id) {
   return id && ART_FILES.has(id) ? `art/${id}.svg` : null;
@@ -618,6 +661,7 @@ let gameState = {
   coffeeAvailable: true,
   isTimeFrozen: false,
   resolving: false,
+  rescuedThisShift: [],
   introPause: false,
   coffeeTimeout: null,
   revealed: false,
@@ -735,13 +779,6 @@ function setupScratchCanvas(covered) {
 
   if (crateCoverImg.complete && crateCoverImg.naturalWidth > 0) {
     canvasCtx.drawImage(crateCoverImg, 0, 0, w, h);
-    canvasCtx.textAlign = 'center';
-    canvasCtx.fillStyle = '#2A2623';
-    canvasCtx.font = "25px 'Lilita One', sans-serif";
-    if ('letterSpacing' in canvasCtx) canvasCtx.letterSpacing = '3px';
-    canvasCtx.fillText("MZINGA AIR CARGO · LIVE ANIMAL", w / 2, 222);
-    if ('letterSpacing' in canvasCtx) canvasCtx.letterSpacing = '0px';
-    canvasCtx.textAlign = 'start';
     elWipeStatus.textContent = "Scrub the crate to see inside!";
     elAnimalTrueTag.style.opacity = "0";
     return;
@@ -771,7 +808,7 @@ function setupScratchCanvas(covered) {
   canvasCtx.textAlign = 'center';
   canvasCtx.fillStyle = 'rgba(255, 224, 130, 0.85)';
   canvasCtx.font = 'bold 16px monospace';
-  canvasCtx.fillText("MZINGA AIR CARGO · LIVE ANIMAL", w / 2, h / 2 - 6);
+  canvasCtx.fillText("JAMBO AIR CARGO · LIVE ANIMAL", w / 2, h / 2 - 6);
   canvasCtx.fillStyle = 'rgba(255,255,255,0.75)';
   canvasCtx.font = 'bold 13px monospace';
   canvasCtx.fillText("SCRUB TO INSPECT", w / 2, h / 2 + 18);
@@ -943,7 +980,18 @@ function forgeName(name) {
 }
 
 function getCombinedPassengers() {
-  return [...DEFAULT_PASSENGERS, ...StorageManager.getCustomSuspects()];
+  const custom = StorageManager.getCustomSuspects().map(s => {
+    const hash = [...s.name].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7);
+    return { ...s, art: `passengers/custom_suspect_${(hash % 4) + 1}` };
+  });
+  return [...DEFAULT_PASSENGERS, ...custom];
+}
+
+// Passengers react: nervous when the animal is provoked, relieved when approved, busted when caught.
+function setPassengerMood(c, mood) {
+  if (!c) return;
+  const moodId = `${c.passengerArt}_${mood}`;
+  setArt(elPassAvatar, ART_FILES.has(moodId) ? moodId : c.passengerArt, c.passengerAvatar);
 }
 
 function getActiveRules() {
@@ -1074,7 +1122,7 @@ function renderCase(c) {
   elStampOverlay.className = "rubber-stamp-overlay";
   document.querySelectorAll('.flagged').forEach(el => el.classList.remove('flagged'));
 
-  setArt(elPassAvatar, c.passengerArt, c.passengerAvatar);
+  setPassengerMood(c, 'neutral');
   elPassName.textContent = c.passengerName;
   elPassSpeech.textContent = `"${c.passengerSpeech}"`;
 
@@ -1135,6 +1183,7 @@ function handleVerdict(approvedByUser) {
   sound.playStamp(approvedByUser);
 
   showStampImprint(approvedByUser);
+  setPassengerMood(c, approvedByUser ? 'relieved' : (c.shouldApprove ? 'nervous' : 'busted'));
 
   // Show the truth: open the crate and point at whatever was wrong.
   if (c.covered) {
@@ -1158,12 +1207,23 @@ function handleVerdict(approvedByUser) {
     let dexNote = "";
     if (c.dexId && StorageManager.saveDexItem(c.dexId)) {
       updateDexBadge();
-      dexNote = " New Pet-Dex entry!";
+      dexNote = " New Rescue Log entry!";
+    }
+
+    let rescueNote = "";
+    if (c.disguise) {
+      const trafficked = c.disguise.kind === 'trafficked';
+      setArt(elAnimalGraphic, `animals/${c.disguise.dexId}_rescued`, c.underEmoji);
+      elAnimalTrueTag.textContent = trafficked
+        ? "Rescued! Handed over to the Kenya Wildlife Service."
+        : "Confiscated. Cleaned up and safe.";
+      rescueNote = trafficked ? " Animal rescued." : "";
+      if (trafficked) gameState.rescuedThisShift.push(c.disguise.dexId);
     }
 
     const reason = c.shouldApprove
       ? "Clean case, approved! (+100 PTS)"
-      : `Busted! ${findingText} (+100 PTS)`;
+      : `Busted! ${findingText}${rescueNote} (+100 PTS)`;
     showToast(true, reason + dexNote);
 
     // In Story Mode: Check if target quota has been achieved!
@@ -1171,7 +1231,7 @@ function handleVerdict(approvedByUser) {
       gameState.active = false;
       updateHUD();
       setTimeout(() => {
-        handleShiftEnd(true, "QUOTA COMPLETED!", "Excellent detective work! Shift requirements met.");
+        handleShiftEnd(true, "COMPLETE");
       }, 1200);
       return;
     }
@@ -1193,7 +1253,7 @@ function handleVerdict(approvedByUser) {
   if (gameState.strikes >= gameState.maxStrikes) {
     gameState.active = false;
     setTimeout(() => {
-      handleShiftEnd(false, "FIRED BY THE CHIEF", "3 Strikes! You've been sent home from the customs desk.");
+      handleShiftEnd(false, "SENT HOME");
     }, 1400);
     return;
   }
@@ -1278,7 +1338,7 @@ function showMainMenu() {
   clearInterval(gameState.shiftInterval);
 
   const highScore = StorageManager.getArcadeHighScore();
-  elMenuArcadeHighScore.textContent = `${highScore} PTS`;
+  elMenuArcadeHighScore.textContent = highScore.toLocaleString('en-US');
 
   const savedShift = StorageManager.getStoryShift();
   elMenuStoryBadge.textContent = `SHIFT ${savedShift} / 10`;
@@ -1300,13 +1360,14 @@ function prepareStoryShift(shiftIndex) {
   gameState.timeLeft = conf.timeLimit;
 
   // Populate Daily Bulletin overlay
-  elBulletinTitle.textContent = conf.title;
+  document.getElementById('bulletinKicker').textContent = `DAILY BULLETIN · SHIFT ${conf.shiftNumber} · 14 OCT`;
+  elBulletinTitle.textContent = conf.title.replace(/^Shift \d+:\s*/, '');
   elBulletinStory.textContent = conf.story;
-  
+
   elBulletinRulesList.innerHTML = "";
   conf.rules.forEach(r => {
     const li = document.createElement('li');
-    li.textContent = `• ${r}`;
+    li.textContent = r;
     elBulletinRulesList.appendChild(li);
   });
 
@@ -1325,6 +1386,7 @@ function startActualShift() {
   gameState.smugglersCaught = 0;
   gameState.correctCalls = 0;
   gameState.wrongCalls = 0;
+  gameState.rescuedThisShift = [];
   gameState.coffeeAvailable = true;
   gameState.isTimeFrozen = false;
   gameState.resolving = false;
@@ -1363,12 +1425,12 @@ function startActualShift() {
     updateHUD();
 
     if (gameState.timeLeft <= 0) {
-      handleShiftEnd(false, "SHIFT CONCLUDED", "Time expired on your watch!");
+      handleShiftEnd(false, "TIME UP");
     }
   }, 1000);
 }
 
-function handleShiftEnd(success, title, subtitle) {
+function handleShiftEnd(success, outcome) {
   gameState.active = false;
   gameState.resolving = false;
   clearInterval(gameState.shiftInterval);
@@ -1392,45 +1454,63 @@ function handleShiftEnd(success, title, subtitle) {
     }
   }
 
-  // Calculate Rank
+  // Rank is earned on accuracy, so a short story shift can still reach the top title.
   const totalCalls = gameState.correctCalls + gameState.wrongCalls;
   const accuracy = totalCalls > 0 ? Math.round((gameState.correctCalls / totalCalls) * 100) : 0;
   let rank;
-  if (totalCalls < 3) rank = "F DISMISSED";
-  else if (accuracy >= 95) rank = "S+ ACE DETECTIVE";
-  else if (accuracy >= 85) rank = "A SENIOR INSPECTOR";
-  else if (accuracy >= 70) rank = "B JUNIOR AGENT";
-  else if (accuracy >= 50) rank = "C ROOKIE";
-  else rank = "F DISMISSED";
-  rank += ` · ${accuracy}%`;
+  if (totalCalls < 3) rank = "SENT HOME";
+  else if (accuracy >= 95) rank = "CHIEF INSPECTOR";
+  else if (accuracy >= 85) rank = "SENIOR INSPECTOR";
+  else if (accuracy >= 70) rank = "JUNIOR INSPECTOR";
+  else if (accuracy >= 50) rank = "ROOKIE";
+  else rank = "SENT HOME";
 
-  elEndTitle.textContent = title;
-  elEndSubtitle.textContent = subtitle;
+  const modeLabel = gameState.mode === 'story' ? `SHIFT ${gameState.storyShiftIndex + 1}` : "ARCADE";
+  elEndSubtitle.textContent = `${modeLabel} · ${outcome}`;
+  elEndTitle.textContent = "Shift report";
   elEndRank.textContent = rank;
   elEndScore.textContent = gameState.score;
+  document.getElementById('endAccuracy').textContent = `${accuracy}%`;
   elEndCases.textContent = gameState.casesProcessed;
   elEndSmugglers.textContent = gameState.smugglersCaught;
-  elEndStrikes.textContent = `${gameState.strikes} / 3`;
+  elEndStrikes.textContent = gameState.strikes;
+  document.getElementById('endStrikeMarks').innerHTML =
+    [0, 1, 2].map(i => `<span class="strike-mark ${i < gameState.strikes ? 'used' : ''}"></span>`).join('');
+
+  // Rescued animals this shift
+  const rescued = gameState.rescuedThisShift;
+  const rescuedRow = document.getElementById('endRescuedRow');
+  rescuedRow.classList.toggle('hidden', rescued.length === 0);
+  const badges = document.getElementById('endRescuedBadges');
+  badges.replaceChildren();
+  rescued.slice(0, 5).forEach(id => {
+    const span = document.createElement('span');
+    const entry = PET_DEX_MASTER.find(d => d.id === id);
+    setArt(span, `animals/${entry.art}_dex`, entry.emoji);
+    badges.appendChild(span);
+  });
+  document.getElementById('endRescuedText').textContent =
+    `${rescued.length} ${rescued.length === 1 ? 'animal' : 'animals'} rescued and handed to the Kenya Wildlife Service.`;
 
   if (gameState.mode === 'story') {
     if (success) {
       if (gameState.storyShiftIndex + 1 < STORY_SHIFTS.length) {
-        elBtnEndAction.textContent = `COMMENCE SHIFT ${gameState.storyShiftIndex + 2}`;
+        elBtnEndAction.textContent = "Next shift";
         elBtnEndAction.onclick = () => {
           prepareStoryShift(gameState.storyShiftIndex + 1);
         };
       } else {
-        elBtnEndAction.textContent = "CAMPAIGN COMPLETE!";
+        elBtnEndAction.textContent = "Campaign complete!";
         elBtnEndAction.onclick = showMainMenu;
       }
     } else {
-      elBtnEndAction.textContent = "RETRY SHIFT";
+      elBtnEndAction.textContent = "Retry shift";
       elBtnEndAction.onclick = () => {
         prepareStoryShift(gameState.storyShiftIndex);
       };
     }
   } else {
-    elBtnEndAction.textContent = "PLAY AGAIN (ARCADE)";
+    elBtnEndAction.textContent = "Play again";
     elBtnEndAction.onclick = () => {
       gameState.mode = 'arcade';
       startActualShift();
@@ -1470,6 +1550,7 @@ elBtnVocalize.addEventListener('click', () => {
   if (!gameState.active || !gameState.currentCase) return;
   const soundType = gameState.currentCase.vocalSound || 'squeak';
   sound.playVocal(soundType);
+  setPassengerMood(gameState.currentCase, 'nervous');
   elPassSpeech.textContent = VOCAL_REACTIONS[soundType] || VOCAL_REACTIONS.squeak;
 });
 
@@ -1526,8 +1607,9 @@ elBtnToolUV.addEventListener('click', () => setTool(gameState.activeTool === 'uv
 
 // --- 13. PET-DEX & SUSPECT ROSTER VIEWERS ---
 function updateDexBadge() {
-  const count = StorageManager.getUserDex().length;
+  const count = StorageManager.getUserDex().filter(id => PET_DEX_MASTER.some(d => d.id === id)).length;
   document.getElementById('dexCountBadge').textContent = `(${count}/${PET_DEX_MASTER.length})`;
+  document.getElementById('logCount').textContent = `${count} / ${PET_DEX_MASTER.length}`;
 }
 
 function renderPetDex() {
@@ -1535,17 +1617,21 @@ function renderPetDex() {
   grid.innerHTML = "";
   const userDex = StorageManager.getUserDex();
 
+  const TAGS = { trafficked: "RESCUED", scam: "SEIZED", legal: "CLEARED" };
   PET_DEX_MASTER.forEach((item) => {
     const isDiscovered = userDex.includes(item.id);
     const card = document.createElement('div');
-    card.className = `dex-card ${isDiscovered ? 'discovered' : 'locked'}`;
+    card.className = `dex-card ${isDiscovered ? 'discovered' : 'locked'} kind-${item.kind}`;
     card.innerHTML = `
-      ${isDiscovered ? '<span class="dex-busted-tag">BUSTED</span>' : ''}
-      <div class="dex-icon">${isDiscovered ? item.emoji : ICON('lock')}</div>
+      ${isDiscovered ? `<span class="dex-busted-tag">${TAGS[item.kind]}</span>` : ''}
+      <div class="dex-icon"></div>
       <div class="dex-name">${isDiscovered ? item.name : '??? Locked'}</div>
       <div class="dex-species">${isDiscovered ? item.species : 'Undiscovered'}</div>
-      ${isDiscovered ? `<div style="font-size:0.62rem; color:#b0bec5; margin-top:4px;">${item.lore}</div>` : ''}
+      ${isDiscovered ? `<div class="dex-lore">${item.lore}</div>` : ''}
     `;
+    const icon = card.querySelector('.dex-icon');
+    if (isDiscovered) setArt(icon, `animals/${item.art}_dex`, item.emoji);
+    else setArt(icon, 'animals/dex_locked', '?');
     grid.appendChild(card);
   });
 }
@@ -1696,6 +1782,14 @@ elBtnSound.addEventListener('click', () => {
   sound.init();
   sound.muted = !sound.muted;
   elBtnSound.innerHTML = `${ICON(sound.muted ? 'sound-off' : 'sound-on')} ${sound.muted ? 'OFF' : 'ON'}`;
+});
+
+document.getElementById('btnMenuSound').addEventListener('click', () => {
+  elBtnSound.click();
+  document.getElementById('btnMenuSound').innerHTML = ICON(sound.muted ? 'sound-off' : 'sound-on');
+});
+document.getElementById('btnMenuHelp').addEventListener('click', () => {
+  elRulesModal.classList.remove('hidden');
 });
 
 elBtnHelp.addEventListener('click', () => {
