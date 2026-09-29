@@ -3,21 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="theme-color" content="#11161d" />
+  <meta name="theme-color" content="#E0A23A" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <title>Paws for Inspection</title>
   <meta name="description" content="Clear, search and stamp animals through airport customs at Mzinga International." />
-  <link rel="stylesheet" href="style.css?v=12" />
-  <script src="tutorial.js?v=12" defer></script>
-  <script src="game.js?v=12" defer></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Special+Elite&family=Baloo+2:wght@400;600;800&display=swap" />
+  <link rel="stylesheet" href="style.css?v=15" />
+  <script src="tutorial.js?v=15" defer></script>
+  <script src="game.js?v=15" defer></script>
 </head>
 <body>
 
   <!-- TOP DASHBOARD -->
   <header>
     <div class="agency-branding">
-      <div class="agency-badge">🐾</div>
+      <div class="agency-badge"><img src="art/ui/logo-wca.svg" alt="W.C.A. crest" /></div>
       <div class="agency-text">
         <h1>W.C.A.</h1>
         <span>WANYAMA CUSTOMS AUTHORITY &middot; MZINGA INT'L AIRPORT</span>
@@ -51,14 +54,14 @@
         </div>
       </div>
 
-      <button class="btn-icon menu-toggle" id="btnMoreMenu" aria-expanded="false" aria-controls="headerBtns" aria-label="More options">☰</button>
+      <button class="btn-icon menu-toggle" id="btnMoreMenu" aria-expanded="false" aria-controls="headerBtns" aria-label="More options"><img class="icon" src="art/ui/icon-menu.svg" alt=""></button>
 
       <div class="header-btns" id="headerBtns">
-        <button class="btn-icon" id="btnMainMenu" title="Return to Main Menu">🏠 Menu</button>
-        <button class="btn-icon" id="btnOpenDex" title="View Pet-Dex Scrapbook">📖 Pet-Dex <span id="dexCountBadge">(0/12)</span></button>
-        <button class="btn-icon" id="btnCustomSuspects" title="Add Friends to Suspect Roster">🥸 Suspects</button>
-        <button class="btn-icon" id="btnSoundToggle" title="Toggle Sound">🔊 ON</button>
-        <button class="btn-icon" id="btnHelp" title="Customs Regulations Manual">❓ Help</button>
+        <button class="btn-icon" id="btnMainMenu" title="Return to Main Menu"><img class="icon" src="art/ui/icon-home.svg" alt=""> Menu</button>
+        <button class="btn-icon" id="btnOpenDex" title="View the Rescue Log"><img class="icon" src="art/ui/icon-petdex.svg" alt=""> Pet-Dex <span id="dexCountBadge">(0/12)</span></button>
+        <button class="btn-icon" id="btnCustomSuspects" title="Add Friends to Suspect Roster"><img class="icon" src="art/ui/icon-suspects.svg" alt=""> Suspects</button>
+        <button class="btn-icon" id="btnSoundToggle" title="Toggle Sound"><img class="icon" src="art/ui/icon-sound-on.svg" alt=""> ON</button>
+        <button class="btn-icon" id="btnHelp" title="Customs Regulations Manual"><img class="icon" src="art/ui/icon-help.svg" alt=""> Help</button>
       </div>
     </div>
   </header>
@@ -69,7 +72,9 @@
     <!-- LEFT PANEL: PASSENGER & ANIMAL INSPECTION -->
     <section class="inspection-bay">
       <div class="passenger-booth">
-        <div class="passenger-avatar" id="passAvatar">👩🏾‍🌾</div>
+        <div class="booth-window">
+          <div class="passenger-avatar" id="passAvatar">👩🏾‍🌾</div>
+        </div>
         <div class="passenger-details">
           <div class="passenger-name-tag">Passenger / Importer</div>
           <div class="passenger-name" id="passName">Njeri Wambui</div>
@@ -89,9 +94,7 @@
           <!-- Revealed true underlayer -->
           <div class="animal-underlayer">
             <div class="animal-illustration" id="animalGraphic">🐕</div>
-            <div class="animal-revealed-tag" id="animalTrueTag">
-              🔍 Looks like: Border Collie
-            </div>
+            <div class="animal-revealed-tag" id="animalTrueTag">Looks like: Border Collie</div>
           </div>
 
           <!-- Scratch Canvas Overlay for Disguise Rubbing -->
@@ -101,10 +104,10 @@
         <!-- GADGET TRAY (Vocalizer & Coffee Panic Button) -->
         <div class="gadget-tray">
           <button class="gadget-btn" id="btnVocalize" title="Make the animal call out. A disguise might give itself away.">
-            <span>🔊</span> Provoke<span class="wide-only"> Sound</span>
+            <img class="icon" src="art/ui/icon-provoke.svg" alt=""> Provoke<span class="wide-only"> Sound</span>
           </button>
           <button class="gadget-btn coffee" id="btnCoffee" title="Freeze the shift timer for 5 seconds. Once per shift.">
-            <span>☕</span> Chai<span class="wide-only"> Break (5s)</span>
+            <img class="icon" src="art/ui/icon-coffee.svg" alt=""> Chai<span class="wide-only"> Break (5s)</span>
           </button>
           <span class="wipe-progress-text" id="wipeStatus"></span>
         </div>
@@ -113,10 +116,10 @@
         <div class="toolbox" id="toolbox">
           <div class="tool-group">
             <button class="tool-btn active" id="btnToolSponge" title="Scrub the crate cover to see the animal inside.">
-              <span>🧽</span> Sponge
+              <img class="icon" src="art/ui/icon-sponge.svg" alt=""> Sponge
             </button>
             <button class="tool-btn" id="btnToolUV" title="Check the permit seal. Genuine seals glow green.">
-              <span>🔦</span> UV<span class="wide-only"> Light</span>
+              <img class="icon" src="art/ui/icon-uv.svg" alt=""> UV<span class="wide-only"> Light</span>
             </button>
           </div>
           <span class="hotkey-hint">Hotkeys: [A] Approve &bull; [D] Deny &bull; [W/Space] Tool</span>
@@ -128,7 +131,7 @@
     <section class="permit-panel">
       <div class="cites-permit" id="permitCard">
         <!-- Physical Stamp Imprint on Verdict -->
-        <div class="rubber-stamp-overlay" id="stampOverlay">APPROVED</div>
+        <div class="rubber-stamp-overlay" id="stampOverlay"><img id="stampOverlayImg" src="art/ui/stamp-approved.svg" alt="" /></div>
 
         <div>
           <div class="permit-header">
@@ -169,8 +172,7 @@
 
         <div class="official-seal-row">
           <div class="security-hologram" id="docSeal">
-            <span class="seal-text" id="docSealText">W.C.A.<br>OFFICIAL SEAL</span>
-            <span class="uv-mark genuine" id="docSealUV">✓ GENUINE</span>
+            <img id="docSealImg" src="art/ui/seal-genuine.svg" alt="W.C.A. official seal" />
           </div>
           <div class="customs-date-badge">
             <div class="c-label">TODAY'S CUSTOMS DATE:</div>
@@ -182,12 +184,12 @@
       <!-- VERDICT BUTTONS -->
       <div class="verdict-actions">
         <button class="stamp-btn deny" id="btnDeny">
-          <span>❌ DENY</span>
-          <span class="shortcut-tag">[KEY: D]</span>
+          <img class="stamp-icon" src="art/ui/stamp-button-deny.svg" alt="" />
+          <span class="stamp-label">DENY<span class="shortcut-tag">KEY: D</span></span>
         </button>
         <button class="stamp-btn approve" id="btnApprove">
-          <span>✅ APPROVE</span>
-          <span class="shortcut-tag">[KEY: A]</span>
+          <img class="stamp-icon" src="art/ui/stamp-button-approve.svg" alt="" />
+          <span class="stamp-label">APPROVE<span class="shortcut-tag">KEY: A</span></span>
         </button>
       </div>
     </section>
@@ -196,7 +198,7 @@
 
   <!-- POPUP FEEDBACK TOAST -->
   <div class="verdict-feedback" id="verdictToast">
-    <span id="toastIcon">✅</span>
+    <span id="toastIcon"></span>
     <span id="toastMsg">CORRECT! Good catch officer! (+100 PTS)</span>
   </div>
 
@@ -216,11 +218,11 @@
   <!-- 1. MAIN MENU OVERLAY -->
   <div class="modal-backdrop" id="mainMenuModal">
     <div class="modal-card">
-      <h2>Paws for Inspection</h2>
-      <div class="subtitle">Animal clearance at Mzinga International &middot; Wanyama Customs Authority</div>
+      <h2 class="menu-logo"><img src="art/ui/logo-game.svg" alt="Paws for Inspection" /></h2>
+      <div class="subtitle">Wanyama Customs Authority &middot; Dirisha 3</div>
 
       <div class="high-score-banner">
-        <span>🏆 ALL-TIME ARCADE HIGH SCORE:</span>
+        <span>ARCADE HIGH SCORE</span>
         <span class="hs-val" id="menuArcadeHighScore">0 PTS</span>
       </div>
 
@@ -228,7 +230,7 @@
         <!-- Story Mode Button -->
         <div class="menu-big-btn" id="btnMenuStory">
           <div class="menu-btn-content">
-            <div class="btn-heading">📖 Story Campaign</div>
+            <div class="btn-heading">Story Campaign</div>
             <div class="btn-sub">10-Shift narrative journey. Daily bulletins, quotas, and escalating fraud.</div>
           </div>
           <span class="menu-btn-badge" id="menuStoryBadge">SHIFT 1 / 10</span>
@@ -237,7 +239,7 @@
         <!-- Arcade Mode Button -->
         <div class="menu-big-btn" id="btnMenuArcade">
           <div class="menu-btn-content">
-            <div class="btn-heading">⚡ Arcade Score Attack</div>
+            <div class="btn-heading">Arcade Score Attack</div>
             <div class="btn-sub">Pure 90-second speed inspection. Catch max smugglers for the leaderboard!</div>
           </div>
           <span class="menu-btn-badge">90 SECONDS</span>
@@ -246,8 +248,8 @@
 
       <div class="guide-box">
         <p><strong>Quick Desk Instructions:</strong></p>
-        <p>&bull; 📄 <strong>Check the permit:</strong> the owner name must match the passenger exactly, and the permit must not have expired before today's date.</p>
-        <p>&bull; ✅ <strong>APPROVE</strong> clean cases and <strong>DENY</strong> anything wrong. New rules are added shift by shift.</p>
+        <p>&bull; <strong>Check the permit:</strong> the owner name must match the passenger exactly, and the permit must not have expired before today's date.</p>
+        <p>&bull; <strong>APPROVE</strong> clean cases and <strong>DENY</strong> anything wrong. New rules are added shift by shift.</p>
       </div>
 
       <div style="display:flex; gap:10px;">
@@ -322,7 +324,7 @@
   <!-- 4. PET-DEX DOSSIER SCRAPBOOK MODAL -->
   <div class="modal-backdrop hidden" id="petdexModal">
     <div class="modal-card" style="max-width:680px;">
-      <h2>📖 The W.C.A. Pet-Dex</h2>
+      <h2>The W.C.A. Pet-Dex</h2>
       <div class="subtitle">Exotic Contraband &amp; Disguised Beast Scrapbook</div>
 
       <div class="petdex-grid" id="petdexGrid">
@@ -336,7 +338,7 @@
   <!-- 5. CUSTOM SUSPECTS MODAL ("PUT US IN THE GAME") -->
   <div class="modal-backdrop hidden" id="suspectsModal">
     <div class="modal-card">
-      <h2>🥸 Customs Suspect Roster</h2>
+      <h2>Customs Suspect Roster</h2>
       <div class="subtitle">Add You &amp; Your Friends to the Passenger Rotation!</div>
 
       <div style="background:#263238; padding:12px; border-radius:8px; margin-bottom:14px; text-align:left;">
@@ -372,12 +374,12 @@
 
       <div class="guide-box">
         <p><strong>DENY ENTRY IF ANY OF THE FOLLOWING OCCUR:</strong></p>
-        <p>🔴 <strong>Expired Permit:</strong> the "Valid Until" date is before today's customs date.</p>
-        <p>🔴 <strong>Name Mismatch:</strong> the permit owner isn't spelled exactly like the passenger's name. Watch for one-letter typos!</p>
-        <p>🔴 <strong>Overweight:</strong> the scale reads above the permit's max weight, even by a little.</p>
-        <p>🔴 <strong>Disguised Animal:</strong> scrub the crate with the 🧽 Sponge. DENY if the animal isn't the declared species. <em>Provoke Sound</em> can give it away too.</p>
-        <p>🔴 <strong>Forged Seal:</strong> switch to the 🔦 Blacklight UV. A genuine seal glows green. A fake stays dark.</p>
-        <p>🟢 <strong>APPROVE:</strong> everything checks out.</p>
+        <p><strong class="rule-deny">DENY &middot; Expired Permit:</strong> the "Valid Until" date is before today's customs date.</p>
+        <p><strong class="rule-deny">DENY &middot; Name Mismatch:</strong> the permit owner isn't spelled exactly like the passenger's name. Watch for one-letter typos!</p>
+        <p><strong class="rule-deny">DENY &middot; Overweight:</strong> the scale reads above the permit's max weight, even by a little.</p>
+        <p><strong class="rule-deny">DENY &middot; Disguised Animal:</strong> scrub the crate with the Sponge. DENY if the animal isn't the declared species. <em>Provoke Sound</em> can give it away too.</p>
+        <p><strong class="rule-deny">DENY &middot; Forged Seal:</strong> switch to the Blacklight UV. A genuine seal glows green. A fake stays dark.</p>
+        <p><strong class="rule-approve">APPROVE:</strong> everything checks out.</p>
         <p style="color:#90a4ae;">Rules unlock shift by shift. Your Daily Bulletin always lists what to check.</p>
       </div>
 

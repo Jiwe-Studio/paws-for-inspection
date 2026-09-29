@@ -390,15 +390,15 @@ const PET_DEX_MASTER = [
 // --- 4. ANIMALS & DISGUISES ---
 // Weights are kg. A legal permit's max weight is the animal's `max`.
 const LEGAL_ANIMALS = [
-  { species: "Border Collie (Canis familiaris)", emoji: "🐕", min: 14, max: 20, sound: "bark" },
-  { species: "Persian Cat (Felis catus)", emoji: "🐱", min: 3, max: 5.5, sound: "meow" },
-  { species: "Bengal Cat (Felis catus)", emoji: "🐈", min: 4, max: 7, sound: "meow", dexId: "legal_bengal" },
-  { species: "Scarlet Macaw (Ara macao)", emoji: "🦜", min: 0.9, max: 1.4, sound: "squeak", dexId: "legal_macaw" },
-  { species: "African Pygmy Hedgehog (Atelerix albiventris)", emoji: "🦔", min: 0.3, max: 0.6, sound: "squeak", dexId: "legal_hedgehog" },
-  { species: "Huacaya Alpaca (Vicugna pacos)", emoji: "🦙", min: 50, max: 80, sound: "squeak", dexId: "legal_alpaca" },
-  { species: "Holland Lop Rabbit (Oryctolagus cuniculus)", emoji: "🐰", min: 1.3, max: 2.2, sound: "squeak" },
-  { species: "Kienyeji Rooster (Gallus gallus)", emoji: "🐓", min: 1.8, max: 3, sound: "squeak", dexId: "legal_rooster" },
-  { species: "Galla Goat (Capra hircus)", emoji: "🐐", min: 30, max: 50, sound: "bark" }
+  { species: "Border Collie (Canis familiaris)", emoji: "🐕", art: "animals/border_collie", min: 14, max: 20, sound: "bark" },
+  { species: "Persian Cat (Felis catus)", emoji: "🐱", art: "animals/persian_cat", min: 3, max: 5.5, sound: "meow" },
+  { species: "Bengal Cat (Felis catus)", emoji: "🐈", art: "animals/bengal_cat", min: 4, max: 7, sound: "meow", dexId: "legal_bengal" },
+  { species: "Scarlet Macaw (Ara macao)", emoji: "🦜", art: "animals/scarlet_macaw", min: 0.9, max: 1.4, sound: "squeak", dexId: "legal_macaw" },
+  { species: "African Pygmy Hedgehog (Atelerix albiventris)", emoji: "🦔", art: "animals/pygmy_hedgehog", min: 0.3, max: 0.6, sound: "squeak", dexId: "legal_hedgehog" },
+  { species: "Huacaya Alpaca (Vicugna pacos)", emoji: "🦙", art: "animals/huacaya_alpaca", min: 50, max: 80, sound: "squeak", dexId: "legal_alpaca" },
+  { species: "Holland Lop Rabbit (Oryctolagus cuniculus)", emoji: "🐰", art: "animals/holland_lop_rabbit", min: 1.3, max: 2.2, sound: "squeak" },
+  { species: "Kienyeji Rooster (Gallus gallus)", emoji: "🐓", art: "animals/kienyeji_rooster", min: 1.8, max: 3, sound: "squeak", dexId: "legal_rooster" },
+  { species: "Galla Goat (Capra hircus)", emoji: "🐐", art: "animals/galla_goat", min: 30, max: 50, sound: "bark" }
 ];
 
 // Smugglers pick look-alike weights, so the scale won't catch a disguise.
@@ -483,15 +483,43 @@ const HINT_LINES = {
 };
 
 const DEFAULT_PASSENGERS = [
-  { name: "Njeri Wambui", avatar: "👩🏾‍🌾", quote: "Officer, I have a matatu waiting outside!" },
-  { name: "Otieno Ochieng", avatar: "👴🏾", quote: "Mimi ni mzee wa heshima. I don't lie." },
-  { name: "Brian Kamau", avatar: "😎", quote: "Niaje officer! We keep it quick, sawa?" },
-  { name: "Akinyi Adhiambo", avatar: "👒", quote: "He is very well behaved, unlike my husband." },
-  { name: "Dr. Mwangi Karanja", avatar: "🧐", quote: "I am a doctor. Trust me, the animal is fine." },
-  { name: "Hon. Chebet Kiprono", avatar: "🎩", quote: "Do you know who I am? Stamp it, please." },
-  { name: "Kevin Mutua", avatar: "🤠", quote: "Fresh from Dubai, officer. Everything is legit." },
-  { name: "Halima Hassan", avatar: "🧕🏾", quote: "Please be gentle with her, she's shy." }
+  { name: "Njeri Wambui", art: "passengers/njeri_wambui_neutral", avatar: "👩🏾‍🌾", quote: "Officer, I have a matatu waiting outside!" },
+  { name: "Otieno Ochieng", art: "passengers/otieno_ochieng_neutral", avatar: "👴🏾", quote: "Mimi ni mzee wa heshima. I don't lie." },
+  { name: "Brian Kamau", art: "passengers/brian_kamau_neutral", avatar: "😎", quote: "Niaje officer! We keep it quick, sawa?" },
+  { name: "Akinyi Adhiambo", art: "passengers/akinyi_adhiambo_neutral", avatar: "👒", quote: "He is very well behaved, unlike my husband." },
+  { name: "Dr. Mwangi Karanja", art: "passengers/mwangi_karanja_neutral", avatar: "🧐", quote: "I am a doctor. Trust me, the animal is fine." },
+  { name: "Hon. Chebet Kiprono", art: "passengers/chebet_kiprono_neutral", avatar: "🎩", quote: "Do you know who I am? Stamp it, please." },
+  { name: "Kevin Mutua", art: "passengers/kevin_mutua_neutral", avatar: "🤠", quote: "Fresh from Dubai, officer. Everything is legit." },
+  { name: "Halima Hassan", art: "passengers/halima_hassan_neutral", avatar: "🧕🏾", quote: "Please be gentle with her, she's shy." }
 ];
+
+// --- 4b. ART (Claude Design batches, see docs/ART_WORK_ORDER.md) ---
+// Only ids listed here are loaded; everything else keeps its emoji until its batch lands,
+// so a missing file never shows as a broken image.
+const ART_FILES = new Set([
+  "animals/border_collie",
+  "passengers/njeri_wambui_neutral"
+]);
+
+function artPath(id) {
+  return id && ART_FILES.has(id) ? `art/${id}.svg` : null;
+}
+
+// Fill `el` with the artwork for `id`, or the emoji if that art hasn't landed yet.
+function setArt(el, id, emoji) {
+  const path = artPath(id);
+  el.classList.toggle('has-art', Boolean(path));
+  if (!path) {
+    el.textContent = emoji;
+    return;
+  }
+  const img = document.createElement('img');
+  img.src = path;
+  img.alt = "";
+  el.replaceChildren(img);
+}
+
+const ICON = (name) => `<img class="icon" src="art/ui/icon-${name}.svg" alt="">`;
 
 // --- 5. LOCALSTORAGE PROGRESSION MANAGER ---
 // Keys keep the original 'petdetect_' prefix so players keep their progress after the rename.
@@ -639,8 +667,7 @@ const elDocSpecies = document.getElementById('docSpecies');
 const elDocWeight = document.getElementById('docWeight');
 const elDocChip = document.getElementById('docChip');
 const elDocSeal = document.getElementById('docSeal');
-const elDocSealText = document.getElementById('docSealText');
-const elDocSealUV = document.getElementById('docSealUV');
+const elDocSealImg = document.getElementById('docSealImg');
 const elDocCurrentDate = document.getElementById('docCurrentDate');
 const elStampOverlay = document.getElementById('stampOverlay');
 
@@ -685,6 +712,9 @@ const elBtnCloseRules = document.getElementById('btnCloseRules');
 const canvasCtx = elScratchCanvas.getContext('2d');
 
 // --- 8. SCRATCH CANVAS REVEAL MECHANIC ---
+const crateCoverImg = new Image();
+crateCoverImg.src = 'art/scene/crate-cover.svg';
+
 // Every animal arrives under the same crate cover, so the cover itself tells you nothing.
 function setupScratchCanvas(covered) {
   const w = elScratchCanvas.width;
@@ -702,6 +732,20 @@ function setupScratchCanvas(covered) {
   }
 
   elScratchCanvas.style.pointerEvents = 'auto';
+
+  if (crateCoverImg.complete && crateCoverImg.naturalWidth > 0) {
+    canvasCtx.drawImage(crateCoverImg, 0, 0, w, h);
+    canvasCtx.textAlign = 'center';
+    canvasCtx.fillStyle = '#2A2623';
+    canvasCtx.font = "25px 'Lilita One', sans-serif";
+    if ('letterSpacing' in canvasCtx) canvasCtx.letterSpacing = '3px';
+    canvasCtx.fillText("MZINGA AIR CARGO · LIVE ANIMAL", w / 2, 222);
+    if ('letterSpacing' in canvasCtx) canvasCtx.letterSpacing = '0px';
+    canvasCtx.textAlign = 'start';
+    elWipeStatus.textContent = "Scrub the crate to see inside!";
+    elAnimalTrueTag.style.opacity = "0";
+    return;
+  }
 
   // Tarp base
   canvasCtx.fillStyle = '#6d5a3a';
@@ -730,7 +774,7 @@ function setupScratchCanvas(covered) {
   canvasCtx.fillText("MZINGA AIR CARGO · LIVE ANIMAL", w / 2, h / 2 - 6);
   canvasCtx.fillStyle = 'rgba(255,255,255,0.75)';
   canvasCtx.font = 'bold 13px monospace';
-  canvasCtx.fillText("🧽 SCRUB TO INSPECT", w / 2, h / 2 + 18);
+  canvasCtx.fillText("SCRUB TO INSPECT", w / 2, h / 2 + 18);
   canvasCtx.textAlign = 'start';
 
   elWipeStatus.textContent = "Scrub the crate to see inside!";
@@ -806,7 +850,7 @@ function sampleWipeProgress(force = false) {
     gameState.revealed = true;
     clearScratchCanvas();
     emitGameEvent('reveal');
-    elWipeStatus.textContent = "🔍 Crate open. Compare with the permit!";
+    elWipeStatus.textContent = "Crate open. Compare with the permit!";
   }
 }
 
@@ -934,12 +978,13 @@ function generateNewCase(overrides = {}) {
   const covered = rules.violations.includes('disguise');
 
   // Animal: disguise swaps what's under the cover, while the permit stays on the look-alike species.
-  let declared, underEmoji, underTag, vocalSound, dexId;
+  let declared, underEmoji, underArt, underTag, vocalSound, dexId;
   let disguise = null;
   if (violations.includes('disguise')) {
     disguise = DISGUISES.find(d => d.dexId === overrides.disguiseId) || pick(DISGUISES);
     declared = disguise.declared;
     underEmoji = disguise.emoji;
+    underArt = `animals/${disguise.dexId}`;
     underTag = disguise.revealTag;
     vocalSound = disguise.sound;
     dexId = disguise.dexId;
@@ -947,6 +992,7 @@ function generateNewCase(overrides = {}) {
     const animal = LEGAL_ANIMALS.find(a => overrides.animalSpecies && a.species.startsWith(overrides.animalSpecies)) || pick(LEGAL_ANIMALS);
     declared = animal;
     underEmoji = animal.emoji;
+    underArt = animal.art;
     underTag = `Looks like: ${animal.species.split(' (')[0]}`;
     vocalSound = animal.sound;
     dexId = animal.dexId || null;
@@ -993,6 +1039,7 @@ function generateNewCase(overrides = {}) {
   const newCase = {
     passengerName: passenger.name,
     passengerAvatar: passenger.avatar,
+    passengerArt: passenger.art,
     passengerSpeech: speech,
     permitId: "#WTP-" + randInt(1000, 9999) + "-K",
     chipId: "#CHIP-" + randInt(1000, 9999) + "-KE",
@@ -1005,6 +1052,7 @@ function generateNewCase(overrides = {}) {
     sealMisprint,
     covered,
     underEmoji,
+    underArt,
     underTag,
     vocalSound,
     dexId,
@@ -1026,13 +1074,13 @@ function renderCase(c) {
   elStampOverlay.className = "rubber-stamp-overlay";
   document.querySelectorAll('.flagged').forEach(el => el.classList.remove('flagged'));
 
-  elPassAvatar.textContent = c.passengerAvatar;
+  setArt(elPassAvatar, c.passengerArt, c.passengerAvatar);
   elPassName.textContent = c.passengerName;
   elPassSpeech.textContent = `"${c.passengerSpeech}"`;
 
   elScale.textContent = `${formatWeight(c.scaleWeight)} KG`;
-  elAnimalGraphic.textContent = c.underEmoji;
-  elAnimalTrueTag.textContent = `🔍 ${c.underTag}`;
+  setArt(elAnimalGraphic, c.underArt, c.underEmoji);
+  elAnimalTrueTag.textContent = c.underTag;
 
   elDocPermitId.textContent = c.permitId;
   elDocOwner.textContent = c.permitOwner;
@@ -1042,12 +1090,10 @@ function renderCase(c) {
   elDocChip.textContent = c.chipId;
   elDocCurrentDate.textContent = TODAY_STR;
 
-  elDocSealText.innerHTML = c.sealMisprint ? "W.C.A.<br>OFICIAL SEAL" : "W.C.A.<br>OFFICIAL SEAL";
-  elDocSealUV.textContent = c.sealGenuine ? "✓ GENUINE" : "no watermark";
-  elDocSealUV.className = `uv-mark ${c.sealGenuine ? 'genuine' : 'fake'}`;
 
   setupScratchCanvas(c.covered);
   updateToolAvailability();
+  updateSealImage();
 }
 
 // Explain each broken rule and point at the fields that prove it.
@@ -1088,8 +1134,7 @@ function handleVerdict(approvedByUser) {
   sound.init();
   sound.playStamp(approvedByUser);
 
-  elStampOverlay.textContent = approvedByUser ? "APPROVED" : "DENIED";
-  elStampOverlay.className = `rubber-stamp-overlay active-stamp ${approvedByUser ? 'approved' : 'denied'}`;
+  showStampImprint(approvedByUser);
 
   // Show the truth: open the crate and point at whatever was wrong.
   if (c.covered) {
@@ -1113,7 +1158,7 @@ function handleVerdict(approvedByUser) {
     let dexNote = "";
     if (c.dexId && StorageManager.saveDexItem(c.dexId)) {
       updateDexBadge();
-      dexNote = " 📖 New Pet-Dex entry!";
+      dexNote = " New Pet-Dex entry!";
     }
 
     const reason = c.shouldApprove
@@ -1161,6 +1206,11 @@ function handleVerdict(approvedByUser) {
   }, isCorrect ? 900 : 2200);
 }
 
+function showStampImprint(approved) {
+  document.getElementById('stampOverlayImg').src = `art/ui/${approved ? 'stamp-approved' : 'stamp-denied'}.svg`;
+  elStampOverlay.className = `rubber-stamp-overlay active-stamp ${approved ? 'approved' : 'denied'}`;
+}
+
 function triggerScreenShake() {
   elDesk.classList.remove('screen-shake');
   void elDesk.offsetWidth;
@@ -1169,7 +1219,7 @@ function triggerScreenShake() {
 
 function showToast(isCorrect, message) {
   elToast.className = `verdict-feedback show ${isCorrect ? 'correct' : 'wrong'}`;
-  elToastIcon.textContent = isCorrect ? '✅' : '❌';
+  elToastIcon.innerHTML = ICON(isCorrect ? 'star' : 'strike');
   elToastMsg.textContent = message;
 
   clearTimeout(elToast.hideTimeout);
@@ -1330,7 +1380,7 @@ function handleShiftEnd(success, title, subtitle) {
   if (gameState.mode === 'arcade') {
     const isNewHigh = StorageManager.saveArcadeHighScore(gameState.score);
     if (isNewHigh) {
-      showToast(true, "🏆 NEW ARCADE HIGH SCORE RECORDED!");
+      showToast(true, "New arcade high score!");
     }
   }
 
@@ -1370,7 +1420,7 @@ function handleShiftEnd(success, title, subtitle) {
           prepareStoryShift(gameState.storyShiftIndex + 1);
         };
       } else {
-        elBtnEndAction.textContent = "CAMPAIGN COMPLETED! 🏆";
+        elBtnEndAction.textContent = "CAMPAIGN COMPLETE!";
         elBtnEndAction.onclick = showMainMenu;
       }
     } else {
@@ -1398,7 +1448,7 @@ elBtnCoffee.addEventListener('click', () => {
   elBtnCoffee.classList.add('used');
 
   sound.playCoffee();
-  showToast(true, "☕ Chai break! Timer frozen for 5 seconds.");
+  showToast(true, "Chai break! Timer frozen for 5 seconds.");
   updateHUD();
 
   gameState.coffeeTimeout = setTimeout(() => {
@@ -1432,9 +1482,20 @@ function getAvailableTools() {
   return tools;
 }
 
+function updateSealImage() {
+  const c = gameState.currentCase;
+  if (!c) return;
+  const uv = gameState.activeTool === 'uv';
+  let name;
+  if (uv) name = c.sealGenuine ? 'seal-uv-genuine' : 'seal-uv-fake';
+  else name = c.sealMisprint ? 'seal-fake' : 'seal-genuine';
+  elDocSealImg.src = `art/ui/${name}.svg`;
+}
+
 function setTool(tool) {
   gameState.activeTool = tool;
   emitGameEvent('tool', tool);
+  updateSealImage();
   elBtnToolSponge.classList.toggle('active', tool === 'sponge');
   elBtnToolUV.classList.toggle('active', tool === 'uv');
   elPermitCard.classList.toggle('uv-on', tool === 'uv');
@@ -1480,7 +1541,7 @@ function renderPetDex() {
     card.className = `dex-card ${isDiscovered ? 'discovered' : 'locked'}`;
     card.innerHTML = `
       ${isDiscovered ? '<span class="dex-busted-tag">BUSTED</span>' : ''}
-      <div class="dex-icon">${isDiscovered ? item.emoji : '❓'}</div>
+      <div class="dex-icon">${isDiscovered ? item.emoji : ICON('lock')}</div>
       <div class="dex-name">${isDiscovered ? item.name : '??? Locked'}</div>
       <div class="dex-species">${isDiscovered ? item.species : 'Undiscovered'}</div>
       ${isDiscovered ? `<div style="font-size:0.62rem; color:#b0bec5; margin-top:4px;">${item.lore}</div>` : ''}
@@ -1634,7 +1695,7 @@ document.getElementById('btnAddSuspect').addEventListener('click', () => {
 elBtnSound.addEventListener('click', () => {
   sound.init();
   sound.muted = !sound.muted;
-  elBtnSound.textContent = sound.muted ? "🔇 OFF" : "🔊 ON";
+  elBtnSound.innerHTML = `${ICON(sound.muted ? 'sound-off' : 'sound-on')} ${sound.muted ? 'OFF' : 'ON'}`;
 });
 
 elBtnHelp.addEventListener('click', () => {
