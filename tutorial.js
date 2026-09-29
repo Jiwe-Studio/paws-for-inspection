@@ -4,11 +4,15 @@
    ========================================================================== */
 
 // --- CREW (emoji portraits until the Claude Design art lands in art/crew/) ---
+// Portraits live in art/crew/<art>_<mood>.svg (Claude Design Batch 5).
+const STAFF_MOODS = ["neutral", "happy", "worried", "talking"];
 const CREW = {
-  rehema: { name: "Mama Rehema", role: "Senior Inspector", emoji: "👵🏾" },
-  wiji: { name: "Wiji Njoroge", role: "Lab Tech", emoji: "👩🏾‍🔬" },
-  kiprop: { name: "Chief Kiprop", role: "Chief Inspector", emoji: "👮🏾‍♂️" },
-  tony: { name: "Tony Wafula", role: "Rookie Inspector", emoji: "🧑🏾‍💼" }
+  rehema: { name: "Mama Rehema", role: "Senior Inspector", emoji: "👵🏾", art: "mama_rehema", moods: STAFF_MOODS, defaultMood: "talking" },
+  wiji: { name: "Wiji Njoroge", role: "Lab Tech", emoji: "👩🏾‍🔬", art: "wiji_njoroge", moods: STAFF_MOODS, defaultMood: "talking" },
+  kiprop: { name: "Chief Kiprop", role: "Chief Inspector", emoji: "👮🏾‍♂️", art: "chief_kiprop", moods: STAFF_MOODS, defaultMood: "talking" },
+  tony: { name: "Tony Wafula", role: "Rookie Inspector", emoji: "🧑🏾‍💼", art: "tony_wafula", moods: STAFF_MOODS, defaultMood: "talking" },
+  biscuit: { name: "Biscuit", role: "Sniffer Dog", emoji: "🐕", art: "biscuit", moods: ["neutral", "happy", "sniffing", "alert"], defaultMood: "neutral" },
+  kiboko: { name: "Big Man Kiboko", role: "Smuggling Boss", emoji: "🦛", art: "big_man_kiboko", moods: ["neutral", "smug", "angry", "busted"], defaultMood: "smug" }
 };
 
 // --- DIALOGUE ---
@@ -144,8 +148,8 @@ const Dialogue = (() => {
 
   async function show(step, gen) {
     const who = CREW[step.who] || CREW.rehema;
-    portrait.textContent = who.emoji;
-    nameEl.textContent = `${who.name} · ${who.role}`;
+    setArt(portrait, `crew/${who.art}_${step.mood || who.defaultMood}`, who.emoji);
+    nameEl.textContent = who.name;
     spotGetter = step.spot || null;
     layer.classList.remove('hidden');
 
@@ -295,10 +299,10 @@ const SHIFT_INTROS = {
   uv: {
     firstCase: { violations: ["seal"] },
     steps: [
-      { who: "wiji", text: "Hi, hi! I'm Wiji from the lab. Forgers are printing almost perfect seals, so I built you a toy." },
+      { mood: "happy", who: "wiji", text: "Hi, hi! I'm Wiji from the lab. Forgers are printing almost perfect seals, so I built you a toy." },
       { who: "wiji", text: "Tap the UV Light.", spot: SPOT.uvButton, until: () => waitForGameEvent('tool', t => t === 'uv') },
       { who: "wiji", text: "A genuine W.C.A. seal glows green under UV. This one stays dark, so it's a fake!", spot: SPOT.seal },
-      { who: "rehema", text: "Karibu to the team, Wiji. Rookie, check the seal on every permit from now on." },
+      { mood: "happy", who: "rehema", text: "Karibu to the team, Wiji. Rookie, check the seal on every permit from now on." },
       CLOCK_WAITS
     ]
   }
@@ -326,6 +330,7 @@ const Tutorial = {
     sound.init();
     sound.playStamp(approved);
     showStampImprint(approved);
+    setPassengerMood(c, approved ? 'relieved' : (c.shouldApprove ? 'nervous' : 'busted'));
     if (correct) {
       sound.playSuccess();
       c.violations.forEach(v => describeViolation(c, v).els.forEach(el => el.classList.add('flagged')));
@@ -339,6 +344,7 @@ const Tutorial = {
   // Keep asking until the player stamps correctly; explain after each miss. Returns false if aborted.
   async stampStep(prompt, expectApprove, hintSteps) {
     let text = prompt;
+    hintSteps = hintSteps.map(s => ({ mood: "worried", ...s }));
     for (;;) {
       const approved = await Dialogue.ask({ who: "rehema", text, until: () => this.nextVerdict() });
       if (approved === null) return false;
@@ -384,7 +390,7 @@ const Tutorial = {
       speech: "Habari officer! Is it your first day? You look nervous."
     });
     if (!(await Dialogue.run([
-      { who: "rehema", text: "Karibu, rookie! I'm Mama Rehema. Thirty years on this desk, and I retire next month. Chief Kiprop says I have to train you first, so sikiza vizuri." },
+      { mood: "happy", who: "rehema", text: "Karibu, rookie! I'm Mama Rehema. Thirty years on this desk, and I retire next month. Chief Kiprop says I have to train you first, so sikiza vizuri." },
       { who: "rehema", text: "Every passenger brings an animal and a Wildlife Transit Permit. You check the permit, then stamp it APPROVE or DENY.", spot: SPOT.permit },
       { who: "rehema", text: "First, the name. The owner on the permit must match the passenger exactly. Njeri Wambui and Njeri Wambui. Good.", spot: SPOT.names },
       { who: "rehema", text: "Next, the date. 'Valid until' must not be before today's date, down here in the corner. This one is fine.", spot: SPOT.dates }
@@ -392,7 +398,7 @@ const Tutorial = {
     if (!(await this.stampStep("Everything checks out. Stamp it APPROVE!", true, [
       { who: "rehema", text: "Eh! Nothing is wrong with this one. Turn away honest people and they complain to the Chief.", spot: SPOT.approve }
     ]))) return false;
-    if (!(await Dialogue.run([{ who: "rehema", text: "Safi! That's the job. Now you try one on your own." }]))) return false;
+    if (!(await Dialogue.run([{ mood: "happy", who: "rehema", text: "Safi! That's the job. Now you try one on your own." }]))) return false;
 
     // Case B: expired permit.
     generateNewCase({
@@ -402,7 +408,7 @@ const Tutorial = {
     if (!(await this.stampStep("Check the name and the date, then stamp it.", false, [
       { who: "rehema", text: `Look at the date again. It expired ${formatDate(gameState.currentCase.expiry)}, and today is ${TODAY_STR}. Expired means DENY.`, spot: SPOT.dates }
     ]))) return false;
-    if (!(await Dialogue.run([{ who: "rehema", text: "Sharp eyes! An expired permit is always a DENY, however polite the mzee is." }]))) return false;
+    if (!(await Dialogue.run([{ mood: "happy", who: "rehema", text: "Sharp eyes! An expired permit is always a DENY, however polite the mzee is." }]))) return false;
 
     // Case C: one-letter name typo.
     generateNewCase({
@@ -414,7 +420,7 @@ const Tutorial = {
     ]))) return false;
 
     return Dialogue.run([
-      { who: "rehema", text: "Wueh! You caught the typo. Forgers love one-letter mistakes." },
+      { mood: "happy", who: "rehema", text: "Wueh! You caught the typo. Forgers love one-letter mistakes." },
       { who: "rehema", text: "The scale, the crates and the seals come later. I'll show you each one when it's time." },
       { who: "rehema", text: "Your first real shift has a timer and a quota. Three wrong stamps and the Chief sends you home. Usijali, you're ready!" }
     ]);

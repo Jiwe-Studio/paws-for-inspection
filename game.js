@@ -239,8 +239,8 @@ const ALL_VIOLATIONS = ["expired", "name", "weight", "disguise", "seal"];
 const STORY_SHIFTS = [
   {
     shiftNumber: 1,
-    title: "Shift 1: First Day at Mzinga",
-    story: "Karibu to the Wanyama Customs desk at Mzinga International Airport, Officer! Today is paperwork only. Read every permit carefully: the date and the owner's name must both check out.",
+    title: "Shift 1: First Day at Jambo",
+    story: "Karibu to the Wanyama Customs desk at Jambo International Airport, Officer! Today is paperwork only. Read every permit carefully: the date and the owner's name must both check out.",
     rules: [
       "Target Quota: Process 4 cases correctly.",
       "DENY if the permit expired before today's date.",
@@ -357,7 +357,7 @@ const STORY_SHIFTS = [
   {
     shiftNumber: 10,
     title: "Shift 10: The Final Inspection",
-    story: "This is your assessment for Chief Inspector. Every trick in the book will cross your desk today. Make Mzinga proud!",
+    story: "This is your assessment for Chief Inspector. Every trick in the book will cross your desk today. Make Jambo proud!",
     rules: [
       "Target Quota: Process 9 cases correctly.",
       "3 Strikes = Immediate Termination."
@@ -519,25 +519,30 @@ const HINT_LINES = {
 };
 
 const DEFAULT_PASSENGERS = [
-  { name: "Njeri Wambui", art: "passengers/njeri_wambui_neutral", avatar: "👩🏾‍🌾", quote: "Officer, I have a matatu waiting outside!" },
-  { name: "Otieno Ochieng", art: "passengers/otieno_ochieng_neutral", avatar: "👴🏾", quote: "Mimi ni mzee wa heshima. I don't lie." },
-  { name: "Brian Kamau", art: "passengers/brian_kamau_neutral", avatar: "😎", quote: "Niaje officer! We keep it quick, sawa?" },
-  { name: "Akinyi Adhiambo", art: "passengers/akinyi_adhiambo_neutral", avatar: "👒", quote: "He is very well behaved, unlike my husband." },
-  { name: "Dr. Mwangi Karanja", art: "passengers/mwangi_karanja_neutral", avatar: "🧐", quote: "I am a doctor. Trust me, the animal is fine." },
-  { name: "Hon. Chebet Kiprono", art: "passengers/chebet_kiprono_neutral", avatar: "🎩", quote: "Do you know who I am? Stamp it, please." },
-  { name: "Kevin Mutua", art: "passengers/kevin_mutua_neutral", avatar: "🤠", quote: "Fresh from Dubai, officer. Everything is legit." },
-  { name: "Halima Hassan", art: "passengers/halima_hassan_neutral", avatar: "🧕🏾", quote: "Please be gentle with her, she's shy." }
+  { name: "Njeri Wambui", art: "passengers/njeri_wambui", avatar: "👩🏾‍🌾", quote: "Officer, I have a matatu waiting outside!" },
+  { name: "Otieno Ochieng", art: "passengers/otieno_ochieng", avatar: "👴🏾", quote: "Mimi ni mzee wa heshima. I don't lie." },
+  { name: "Brian Kamau", art: "passengers/brian_kamau", avatar: "😎", quote: "Niaje officer! We keep it quick, sawa?" },
+  { name: "Akinyi Adhiambo", art: "passengers/akinyi_adhiambo", avatar: "👒", quote: "He is very well behaved, unlike my husband." },
+  { name: "Dr. Mwangi Karanja", art: "passengers/mwangi_karanja", avatar: "🧐", quote: "I am a doctor. Trust me, the animal is fine." },
+  { name: "Hon. Chebet Kiprono", art: "passengers/chebet_kiprono", avatar: "🎩", quote: "Do you know who I am? Stamp it, please." },
+  { name: "Kevin Mutua", art: "passengers/kevin_mutua", avatar: "🤠", quote: "Fresh from Dubai, officer. Everything is legit." },
+  { name: "Halima Hassan", art: "passengers/halima_hassan", avatar: "🧕🏾", quote: "Please be gentle with her, she's shy." }
 ];
 
 // --- 4b. ART (Claude Design batches, see docs/ART_WORK_ORDER.md) ---
 // Only ids listed here are loaded; everything else keeps its emoji until its batch lands,
 // so a missing file never shows as a broken image.
+const PASSENGER_MOODS = ["neutral", "nervous", "relieved", "busted"];
+
 const ART_FILES = new Set([
-  "passengers/njeri_wambui_neutral",
+  ...DEFAULT_PASSENGERS.flatMap(p => PASSENGER_MOODS.map(m => `${p.art}_${m}`)),
+  ...[1, 2, 3, 4].map(n => `passengers/custom_suspect_${n}`),
+  ...Object.values(CREW).flatMap(c => c.moods.map(m => `crew/${c.art}_${m}`)),
   "animals/dex_locked",
   ...PET_DEX_MASTER.flatMap(d => [`animals/${d.art}`, `animals/${d.art}_dex`]),
   ...DISGUISES.map(d => `animals/${d.dexId}_rescued`)
 ]);
+
 
 function artPath(id) {
   return id && ART_FILES.has(id) ? `art/${id}.svg` : null;
@@ -656,6 +661,7 @@ let gameState = {
   coffeeAvailable: true,
   isTimeFrozen: false,
   resolving: false,
+  rescuedThisShift: [],
   introPause: false,
   coffeeTimeout: null,
   revealed: false,
@@ -773,13 +779,6 @@ function setupScratchCanvas(covered) {
 
   if (crateCoverImg.complete && crateCoverImg.naturalWidth > 0) {
     canvasCtx.drawImage(crateCoverImg, 0, 0, w, h);
-    canvasCtx.textAlign = 'center';
-    canvasCtx.fillStyle = '#2A2623';
-    canvasCtx.font = "25px 'Lilita One', sans-serif";
-    if ('letterSpacing' in canvasCtx) canvasCtx.letterSpacing = '3px';
-    canvasCtx.fillText("MZINGA AIR CARGO · LIVE ANIMAL", w / 2, 222);
-    if ('letterSpacing' in canvasCtx) canvasCtx.letterSpacing = '0px';
-    canvasCtx.textAlign = 'start';
     elWipeStatus.textContent = "Scrub the crate to see inside!";
     elAnimalTrueTag.style.opacity = "0";
     return;
@@ -809,7 +808,7 @@ function setupScratchCanvas(covered) {
   canvasCtx.textAlign = 'center';
   canvasCtx.fillStyle = 'rgba(255, 224, 130, 0.85)';
   canvasCtx.font = 'bold 16px monospace';
-  canvasCtx.fillText("MZINGA AIR CARGO · LIVE ANIMAL", w / 2, h / 2 - 6);
+  canvasCtx.fillText("JAMBO AIR CARGO · LIVE ANIMAL", w / 2, h / 2 - 6);
   canvasCtx.fillStyle = 'rgba(255,255,255,0.75)';
   canvasCtx.font = 'bold 13px monospace';
   canvasCtx.fillText("SCRUB TO INSPECT", w / 2, h / 2 + 18);
@@ -981,7 +980,18 @@ function forgeName(name) {
 }
 
 function getCombinedPassengers() {
-  return [...DEFAULT_PASSENGERS, ...StorageManager.getCustomSuspects()];
+  const custom = StorageManager.getCustomSuspects().map(s => {
+    const hash = [...s.name].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7);
+    return { ...s, art: `passengers/custom_suspect_${(hash % 4) + 1}` };
+  });
+  return [...DEFAULT_PASSENGERS, ...custom];
+}
+
+// Passengers react: nervous when the animal is provoked, relieved when approved, busted when caught.
+function setPassengerMood(c, mood) {
+  if (!c) return;
+  const moodId = `${c.passengerArt}_${mood}`;
+  setArt(elPassAvatar, ART_FILES.has(moodId) ? moodId : c.passengerArt, c.passengerAvatar);
 }
 
 function getActiveRules() {
@@ -1112,7 +1122,7 @@ function renderCase(c) {
   elStampOverlay.className = "rubber-stamp-overlay";
   document.querySelectorAll('.flagged').forEach(el => el.classList.remove('flagged'));
 
-  setArt(elPassAvatar, c.passengerArt, c.passengerAvatar);
+  setPassengerMood(c, 'neutral');
   elPassName.textContent = c.passengerName;
   elPassSpeech.textContent = `"${c.passengerSpeech}"`;
 
@@ -1173,6 +1183,7 @@ function handleVerdict(approvedByUser) {
   sound.playStamp(approvedByUser);
 
   showStampImprint(approvedByUser);
+  setPassengerMood(c, approvedByUser ? 'relieved' : (c.shouldApprove ? 'nervous' : 'busted'));
 
   // Show the truth: open the crate and point at whatever was wrong.
   if (c.covered) {
@@ -1204,9 +1215,10 @@ function handleVerdict(approvedByUser) {
       const trafficked = c.disguise.kind === 'trafficked';
       setArt(elAnimalGraphic, `animals/${c.disguise.dexId}_rescued`, c.underEmoji);
       elAnimalTrueTag.textContent = trafficked
-        ? "Rescued! Off to the Mzinga Wildlife Rescue Centre."
+        ? "Rescued! Handed over to the Kenya Wildlife Service."
         : "Confiscated. Cleaned up and safe.";
       rescueNote = trafficked ? " Animal rescued." : "";
+      if (trafficked) gameState.rescuedThisShift.push(c.disguise.dexId);
     }
 
     const reason = c.shouldApprove
@@ -1219,7 +1231,7 @@ function handleVerdict(approvedByUser) {
       gameState.active = false;
       updateHUD();
       setTimeout(() => {
-        handleShiftEnd(true, "QUOTA COMPLETED!", "Excellent detective work! Shift requirements met.");
+        handleShiftEnd(true, "COMPLETE");
       }, 1200);
       return;
     }
@@ -1241,7 +1253,7 @@ function handleVerdict(approvedByUser) {
   if (gameState.strikes >= gameState.maxStrikes) {
     gameState.active = false;
     setTimeout(() => {
-      handleShiftEnd(false, "FIRED BY THE CHIEF", "3 Strikes! You've been sent home from the customs desk.");
+      handleShiftEnd(false, "SENT HOME");
     }, 1400);
     return;
   }
@@ -1326,7 +1338,7 @@ function showMainMenu() {
   clearInterval(gameState.shiftInterval);
 
   const highScore = StorageManager.getArcadeHighScore();
-  elMenuArcadeHighScore.textContent = `${highScore} PTS`;
+  elMenuArcadeHighScore.textContent = highScore.toLocaleString('en-US');
 
   const savedShift = StorageManager.getStoryShift();
   elMenuStoryBadge.textContent = `SHIFT ${savedShift} / 10`;
@@ -1348,13 +1360,14 @@ function prepareStoryShift(shiftIndex) {
   gameState.timeLeft = conf.timeLimit;
 
   // Populate Daily Bulletin overlay
-  elBulletinTitle.textContent = conf.title;
+  document.getElementById('bulletinKicker').textContent = `DAILY BULLETIN · SHIFT ${conf.shiftNumber} · 14 OCT`;
+  elBulletinTitle.textContent = conf.title.replace(/^Shift \d+:\s*/, '');
   elBulletinStory.textContent = conf.story;
-  
+
   elBulletinRulesList.innerHTML = "";
   conf.rules.forEach(r => {
     const li = document.createElement('li');
-    li.textContent = `• ${r}`;
+    li.textContent = r;
     elBulletinRulesList.appendChild(li);
   });
 
@@ -1373,6 +1386,7 @@ function startActualShift() {
   gameState.smugglersCaught = 0;
   gameState.correctCalls = 0;
   gameState.wrongCalls = 0;
+  gameState.rescuedThisShift = [];
   gameState.coffeeAvailable = true;
   gameState.isTimeFrozen = false;
   gameState.resolving = false;
@@ -1411,12 +1425,12 @@ function startActualShift() {
     updateHUD();
 
     if (gameState.timeLeft <= 0) {
-      handleShiftEnd(false, "SHIFT CONCLUDED", "Time expired on your watch!");
+      handleShiftEnd(false, "TIME UP");
     }
   }, 1000);
 }
 
-function handleShiftEnd(success, title, subtitle) {
+function handleShiftEnd(success, outcome) {
   gameState.active = false;
   gameState.resolving = false;
   clearInterval(gameState.shiftInterval);
@@ -1440,45 +1454,63 @@ function handleShiftEnd(success, title, subtitle) {
     }
   }
 
-  // Calculate Rank
+  // Rank is earned on accuracy, so a short story shift can still reach the top title.
   const totalCalls = gameState.correctCalls + gameState.wrongCalls;
   const accuracy = totalCalls > 0 ? Math.round((gameState.correctCalls / totalCalls) * 100) : 0;
   let rank;
-  if (totalCalls < 3) rank = "F DISMISSED";
-  else if (accuracy >= 95) rank = "S+ ACE DETECTIVE";
-  else if (accuracy >= 85) rank = "A SENIOR INSPECTOR";
-  else if (accuracy >= 70) rank = "B JUNIOR AGENT";
-  else if (accuracy >= 50) rank = "C ROOKIE";
-  else rank = "F DISMISSED";
-  rank += ` · ${accuracy}%`;
+  if (totalCalls < 3) rank = "SENT HOME";
+  else if (accuracy >= 95) rank = "CHIEF INSPECTOR";
+  else if (accuracy >= 85) rank = "SENIOR INSPECTOR";
+  else if (accuracy >= 70) rank = "JUNIOR INSPECTOR";
+  else if (accuracy >= 50) rank = "ROOKIE";
+  else rank = "SENT HOME";
 
-  elEndTitle.textContent = title;
-  elEndSubtitle.textContent = subtitle;
+  const modeLabel = gameState.mode === 'story' ? `SHIFT ${gameState.storyShiftIndex + 1}` : "ARCADE";
+  elEndSubtitle.textContent = `${modeLabel} · ${outcome}`;
+  elEndTitle.textContent = "Shift report";
   elEndRank.textContent = rank;
   elEndScore.textContent = gameState.score;
+  document.getElementById('endAccuracy').textContent = `${accuracy}%`;
   elEndCases.textContent = gameState.casesProcessed;
   elEndSmugglers.textContent = gameState.smugglersCaught;
-  elEndStrikes.textContent = `${gameState.strikes} / 3`;
+  elEndStrikes.textContent = gameState.strikes;
+  document.getElementById('endStrikeMarks').innerHTML =
+    [0, 1, 2].map(i => `<span class="strike-mark ${i < gameState.strikes ? 'used' : ''}"></span>`).join('');
+
+  // Rescued animals this shift
+  const rescued = gameState.rescuedThisShift;
+  const rescuedRow = document.getElementById('endRescuedRow');
+  rescuedRow.classList.toggle('hidden', rescued.length === 0);
+  const badges = document.getElementById('endRescuedBadges');
+  badges.replaceChildren();
+  rescued.slice(0, 5).forEach(id => {
+    const span = document.createElement('span');
+    const entry = PET_DEX_MASTER.find(d => d.id === id);
+    setArt(span, `animals/${entry.art}_dex`, entry.emoji);
+    badges.appendChild(span);
+  });
+  document.getElementById('endRescuedText').textContent =
+    `${rescued.length} ${rescued.length === 1 ? 'animal' : 'animals'} rescued and handed to the Kenya Wildlife Service.`;
 
   if (gameState.mode === 'story') {
     if (success) {
       if (gameState.storyShiftIndex + 1 < STORY_SHIFTS.length) {
-        elBtnEndAction.textContent = `COMMENCE SHIFT ${gameState.storyShiftIndex + 2}`;
+        elBtnEndAction.textContent = "Next shift";
         elBtnEndAction.onclick = () => {
           prepareStoryShift(gameState.storyShiftIndex + 1);
         };
       } else {
-        elBtnEndAction.textContent = "CAMPAIGN COMPLETE!";
+        elBtnEndAction.textContent = "Campaign complete!";
         elBtnEndAction.onclick = showMainMenu;
       }
     } else {
-      elBtnEndAction.textContent = "RETRY SHIFT";
+      elBtnEndAction.textContent = "Retry shift";
       elBtnEndAction.onclick = () => {
         prepareStoryShift(gameState.storyShiftIndex);
       };
     }
   } else {
-    elBtnEndAction.textContent = "PLAY AGAIN (ARCADE)";
+    elBtnEndAction.textContent = "Play again";
     elBtnEndAction.onclick = () => {
       gameState.mode = 'arcade';
       startActualShift();
@@ -1518,6 +1550,7 @@ elBtnVocalize.addEventListener('click', () => {
   if (!gameState.active || !gameState.currentCase) return;
   const soundType = gameState.currentCase.vocalSound || 'squeak';
   sound.playVocal(soundType);
+  setPassengerMood(gameState.currentCase, 'nervous');
   elPassSpeech.textContent = VOCAL_REACTIONS[soundType] || VOCAL_REACTIONS.squeak;
 });
 
@@ -1576,6 +1609,7 @@ elBtnToolUV.addEventListener('click', () => setTool(gameState.activeTool === 'uv
 function updateDexBadge() {
   const count = StorageManager.getUserDex().filter(id => PET_DEX_MASTER.some(d => d.id === id)).length;
   document.getElementById('dexCountBadge').textContent = `(${count}/${PET_DEX_MASTER.length})`;
+  document.getElementById('logCount').textContent = `${count} / ${PET_DEX_MASTER.length}`;
 }
 
 function renderPetDex() {
@@ -1748,6 +1782,14 @@ elBtnSound.addEventListener('click', () => {
   sound.init();
   sound.muted = !sound.muted;
   elBtnSound.innerHTML = `${ICON(sound.muted ? 'sound-off' : 'sound-on')} ${sound.muted ? 'OFF' : 'ON'}`;
+});
+
+document.getElementById('btnMenuSound').addEventListener('click', () => {
+  elBtnSound.click();
+  document.getElementById('btnMenuSound').innerHTML = ICON(sound.muted ? 'sound-off' : 'sound-on');
+});
+document.getElementById('btnMenuHelp').addEventListener('click', () => {
+  elRulesModal.classList.remove('hidden');
 });
 
 elBtnHelp.addEventListener('click', () => {

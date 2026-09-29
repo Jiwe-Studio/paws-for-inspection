@@ -1,6 +1,6 @@
 # Paws for Inspection
 
-> Animal clearance at Mzinga International. A comedy airport-customs game in the spirit of *Papers, Please*: you're the rookie inspector in charge of searching, checking and clearing every animal that lands.
+> Animal clearance at Jambo International Airport. A comedy airport-customs game in the spirit of *Papers, Please*: you're the rookie inspector in charge of searching, checking and clearing every animal that lands.
 
 **Play:** https://jiwe-studio.github.io/paws-for-inspection/
 
@@ -10,7 +10,7 @@ Playable MVP web game prototype built with pure Vanilla JavaScript, HTML5 Canvas
 
 ## 🎮 Game Concept & Core Loop
 
-You're a rookie inspector at the **Wanyama Customs Authority (W.C.A.)** desk at Mzinga International Airport. Passengers arrive with their animals and a Wildlife Transit Permit. Your job is to catch the smugglers without turning away honest travellers.
+You're a rookie inspector at the **Wanyama Customs Authority (W.C.A.)** desk at Jambo International Airport. Passengers arrive with their animals and a Wildlife Transit Permit. Your job is to catch the smugglers without turning away honest travellers.
 
 Every case is generated fresh: a clean case is built first, then 0–2 rules are broken, drawn from what the current shift has taught you. About half of all cases are legal.
 

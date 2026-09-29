@@ -7,13 +7,16 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <title>Paws for Inspection</title>
-  <meta name="description" content="Clear, search and stamp animals through airport customs at Mzinga International." />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="art/ui/app-icon-192.svg" />
+  <link rel="apple-touch-icon" href="art/ui/app-icon-180.png" />
+  <meta name="description" content="Clear, search and stamp animals through airport customs at Jambo International Airport." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Special+Elite&family=Baloo+2:wght@400;600;800&display=swap" />
-  <link rel="stylesheet" href="style.css?v=17" />
-  <script src="tutorial.js?v=17" defer></script>
-  <script src="game.js?v=17" defer></script>
+  <link rel="stylesheet" href="style.css?v=20" />
+  <script src="tutorial.js?v=20" defer></script>
+  <script src="game.js?v=20" defer></script>
 </head>
 <body>
 
@@ -23,7 +26,7 @@
       <div class="agency-badge"><img src="art/ui/logo-wca.svg" alt="W.C.A. crest" /></div>
       <div class="agency-text">
         <h1>W.C.A.</h1>
-        <span>WANYAMA CUSTOMS AUTHORITY &middot; MZINGA INT'L AIRPORT</span>
+        <span>WANYAMA CUSTOMS AUTHORITY &middot; JAMBO INT'L AIRPORT</span>
       </div>
     </div>
 
@@ -199,7 +202,7 @@
   <!-- POPUP FEEDBACK TOAST -->
   <div class="verdict-feedback" id="verdictToast">
     <span id="toastIcon"></span>
-    <span id="toastMsg">CORRECT! Good catch officer! (+100 PTS)</span>
+    <span id="toastMsg"></span>
   </div>
 
   <!-- DIALOGUE + SPOTLIGHT (Orientation, shift briefings, story scenes) -->
@@ -215,116 +218,99 @@
     </div>
   </div>
 
-  <!-- 1. MAIN MENU OVERLAY -->
-  <div class="modal-backdrop" id="mainMenuModal">
-    <div class="modal-card">
+  <!-- 1. MAIN MENU (Batch 6a) -->
+  <div class="modal-backdrop screen-backdrop" id="mainMenuModal">
+    <div class="screen-corner-btns">
+      <button class="icon-square" id="btnMenuSound" aria-label="Toggle sound"><img class="icon" src="art/ui/icon-sound-on.svg" alt="" /></button>
+      <button class="icon-square" id="btnMenuHelp" aria-label="How to play"><img class="icon" src="art/ui/icon-help.svg" alt="" /></button>
+    </div>
+    <img class="menu-biscuit" src="art/crew/biscuit_happy.svg" alt="" />
+
+    <div class="menu-screen">
       <h2 class="menu-logo"><img src="art/ui/logo-game.svg" alt="Paws for Inspection" /></h2>
-      <div class="subtitle">Wanyama Customs Authority &middot; Dirisha 3</div>
 
-      <div class="high-score-banner">
-        <span>ARCADE HIGH SCORE</span>
-        <span class="hs-val" id="menuArcadeHighScore">0 PTS</span>
+      <div class="menu-main-btns">
+        <button class="big-btn big-btn-ochre" id="btnMenuStory">
+          Story
+          <span class="big-btn-sub" id="menuStoryBadge">SHIFT 1 / 10</span>
+        </button>
+        <button class="big-btn big-btn-teal" id="btnMenuArcade">
+          Arcade
+          <span class="big-btn-sub">90 SECONDS</span>
+        </button>
       </div>
 
-      <div class="menu-options-grid">
-        <!-- Story Mode Button -->
-        <div class="menu-big-btn" id="btnMenuStory">
-          <div class="menu-btn-content">
-            <div class="btn-heading">Story Campaign</div>
-            <div class="btn-sub">10-Shift narrative journey. Daily bulletins, quotas, and escalating fraud.</div>
+      <div class="menu-highscore">
+        <span class="hs-label">HIGH SCORE</span>
+        <span class="hs-val" id="menuArcadeHighScore">0</span>
+      </div>
+
+      <div class="menu-links">
+        <button class="text-link" id="btnReplayTutorial">Replay Orientation</button>
+        <button class="text-link" id="btnResetStory">Reset campaign</button>
+      </div>
+    </div>
+
+    <div class="menu-footer"><img src="art/ui/logo-wca.svg" alt="" /><span>W.C.A. &middot; Jambo International Airport</span></div>
+  </div>
+
+  <!-- 2. DAILY BULLETIN (Batch 6b) -->
+  <div class="modal-backdrop screen-backdrop hidden" id="bulletinModal">
+    <div class="bulletin-screen">
+      <div class="bulletin-sheet">
+        <div class="bulletin-body">
+          <div class="bulletin-kicker" id="bulletinKicker">DAILY BULLETIN &middot; SHIFT 1 &middot; 14 OCT</div>
+          <div class="bulletin-title" id="bulletinTitle">First Day at Jambo</div>
+          <div class="bulletin-story" id="bulletinStory"></div>
+          <div class="bulletin-rules">
+            <div class="bulletin-rules-title">TODAY'S RULES</div>
+            <ol class="bulletin-rules-list" id="bulletinRulesList"></ol>
           </div>
-          <span class="menu-btn-badge" id="menuStoryBadge">SHIFT 1 / 10</span>
-        </div>
-
-        <!-- Arcade Mode Button -->
-        <div class="menu-big-btn" id="btnMenuArcade">
-          <div class="menu-btn-content">
-            <div class="btn-heading">Arcade Score Attack</div>
-            <div class="btn-sub">Pure 90-second speed inspection. Catch max smugglers for the leaderboard!</div>
-          </div>
-          <span class="menu-btn-badge">90 SECONDS</span>
         </div>
       </div>
-
-      <div class="guide-box">
-        <p><strong>Quick Desk Instructions:</strong></p>
-        <p>&bull; <strong>Check the permit:</strong> the owner name must match the passenger exactly, and the permit must not have expired before today's date.</p>
-        <p>&bull; <strong>APPROVE</strong> clean cases and <strong>DENY</strong> anything wrong. New rules are added shift by shift.</p>
-      </div>
-
-      <div style="display:flex; gap:10px;">
-        <button class="secondary-btn" id="btnReplayTutorial">Replay Orientation</button>
-        <button class="secondary-btn" id="btnResetStory">Reset Campaign Progress</button>
+      <div class="bulletin-actions">
+        <div class="bulletin-nudge">Read it, rookie. Then stamp.</div>
+        <button class="big-btn big-btn-ochre" id="btnStartBulletinShift">Start shift</button>
       </div>
     </div>
   </div>
 
-  <!-- 2. DAILY BULLETIN SCREEN (STORY MODE DISPATCH) -->
-  <div class="modal-backdrop hidden" id="bulletinModal">
-    <div class="modal-card" style="max-width:620px;">
-      <h2>DAILY BULLETIN</h2>
-      <div class="subtitle">W.C.A. Official Staff Dispatch</div>
-
-      <div class="bulletin-paper">
-        <div class="bulletin-header-stamp">
-          <span class="b-agency">OFFICIAL MEMORANDUM // DEPT 9</span>
-          <span class="b-confidential">RESTRICTED ACCESS</span>
+  <!-- 3. SHIFT REPORT (Batch 6d) -->
+  <div class="modal-backdrop screen-backdrop hidden" id="gameOverModal">
+    <div class="paper-panel report-panel">
+      <div class="report-head">
+        <div>
+          <div class="report-kicker" id="endSubtitle">SHIFT 1 &middot; COMPLETE</div>
+          <h2 class="report-title" id="endTitle">Shift report</h2>
         </div>
-
-        <div class="bulletin-title" id="bulletinTitle">Shift 1: Rookie Orientation - The Paper Trail</div>
-        <div class="bulletin-story" id="bulletinStory">
-          Welcome to the customs desk, Officer. Your shift begins immediately. Keep your eyes sharp for forged dates and mismatched owner identities.
-        </div>
-
-        <div class="bulletin-rules-box">
-          <div class="bulletin-rules-title">TODAY'S OPERATIONAL DIRECTIVES &amp; RULES:</div>
-          <ul class="bulletin-rules-list" id="bulletinRulesList">
-            <li>&bull; Target Quota: Process 4 cases correctly.</li>
-            <li>&bull; Watch for expired permit dates prior to OCT 14, 2026.</li>
-          </ul>
-        </div>
+        <div class="report-rank" id="endRank">SENIOR INSPECTOR</div>
       </div>
 
-      <button class="primary-btn" id="btnStartBulletinShift">ACKNOWLEDGE &amp; COMMENCE SHIFT</button>
-    </div>
-  </div>
-
-  <!-- 3. SHIFT REPORT / GAME OVER MODAL -->
-  <div class="modal-backdrop hidden" id="gameOverModal">
-    <div class="modal-card">
-      <h2 id="endTitle">SHIFT CONCLUDED</h2>
-      <div class="subtitle" id="endSubtitle">Agency Performance Review</div>
-
-      <div class="rank-badge" id="endRank">A+</div>
-
-      <div class="summary-grid">
-        <div class="summary-tile">
-          <div class="s-label">Final Score</div>
-          <div class="s-value" id="endScore">800</div>
-        </div>
-        <div class="summary-tile">
-          <div class="s-label">Cases Cleared</div>
-          <div class="s-value" id="endCases">8</div>
-        </div>
-        <div class="summary-tile">
-          <div class="s-label">Smugglers Busted</div>
-          <div class="s-value" id="endSmugglers">5</div>
-        </div>
-        <div class="summary-tile">
-          <div class="s-label">Strikes Taken</div>
-          <div class="s-value" id="endStrikes">1 / 3</div>
-        </div>
+      <div class="report-stats">
+        <div class="report-stat"><div class="s-label">ACCURACY</div><div class="s-value" id="endAccuracy">0%</div></div>
+        <div class="report-stat"><div class="s-label">CASES</div><div class="s-value" id="endCases">0</div></div>
+        <div class="report-stat"><div class="s-label">SMUGGLERS BUSTED</div><div class="s-value" id="endSmugglers">0</div></div>
+        <div class="report-stat"><div class="s-label">STRIKES</div><div class="s-value"><span id="endStrikes">0</span><span class="report-strike-marks" id="endStrikeMarks"></span></div></div>
       </div>
 
-      <button class="primary-btn" id="btnEndAction">NEXT SHIFT</button>
-      <button class="secondary-btn" id="btnEndReturnMenu">RETURN TO MAIN MENU</button>
+      <div class="report-rescued hidden" id="endRescuedRow">
+        <div class="report-rescued-badges" id="endRescuedBadges"></div>
+        <div class="report-rescued-text" id="endRescuedText"></div>
+      </div>
+
+      <div class="report-score">SCORE <span id="endScore">0</span></div>
+
+      <div class="report-actions">
+        <button class="big-btn big-btn-ochre" id="btnEndAction">Next shift</button>
+        <button class="big-btn big-btn-paper" id="btnEndReturnMenu">Menu</button>
+      </div>
     </div>
   </div>
 
   <!-- 4. PET-DEX DOSSIER SCRAPBOOK MODAL -->
   <div class="modal-backdrop hidden" id="petdexModal">
     <div class="modal-card" style="max-width:680px;">
-      <h2>Rescue Log</h2>
+      <div class="log-head"><h2>Rescue Log</h2><span class="log-count" id="logCount">0 / 19</span></div>
       <div class="subtitle">Every animal you have cleared, seized or rescued</div>
 
       <div class="petdex-grid" id="petdexGrid">

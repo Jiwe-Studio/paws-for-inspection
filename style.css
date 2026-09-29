@@ -2596,3 +2596,589 @@ header {
     font-size: 0.7rem;
   }
 }
+
+/* ==========================================================================
+   BATCH 6 SCREENS: menu, bulletin, shift report, Rescue Log, dialogue
+   ========================================================================== */
+.screen-backdrop {
+  background: var(--terracotta) url(art/scene/desk-bg.svg) center / cover;
+  padding: 16px;
+}
+
+.big-btn {
+  min-height: 72px;
+  padding: 0 28px;
+  border: 3px solid var(--ink);
+  box-shadow: 0 6px 0 var(--ink);
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--ink);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+
+.big-btn:active {
+  transform: translateY(5px);
+  box-shadow: 0 1px 0 var(--ink);
+}
+
+.big-btn-ochre { background: var(--ochre); }
+.big-btn-ochre:hover { background: #EBB453; }
+.big-btn-teal { background: var(--teal); color: var(--bone); }
+.big-btn-teal:hover { background: #26999A; }
+.big-btn-paper { background: var(--paper); }
+
+.big-btn-sub {
+  font-family: var(--font-type);
+  font-size: 0.8rem;
+  margin-top: 4px;
+  opacity: 0.85;
+}
+
+.icon-square {
+  width: 48px;
+  height: 48px;
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  box-shadow: 0 4px 0 var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.icon-square .icon {
+  width: 26px;
+  height: 26px;
+}
+
+.icon-square:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--ink);
+}
+
+/* --- 6a Main menu --- */
+.screen-corner-btns {
+  position: absolute;
+  top: max(16px, env(safe-area-inset-top));
+  right: 16px;
+  display: flex;
+  gap: 12px;
+  z-index: 2;
+}
+
+.menu-biscuit {
+  position: absolute;
+  right: -30px;
+  bottom: -40px;
+  width: min(300px, 32vw);
+  pointer-events: none;
+}
+
+.menu-screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  width: 100%;
+  max-width: 720px;
+}
+
+.menu-screen .menu-logo {
+  width: min(700px, 100%);
+  max-width: none;
+  margin: 0;
+}
+
+.menu-main-btns {
+  display: flex;
+  gap: 24px;
+}
+
+.menu-main-btns .big-btn {
+  width: 280px;
+  min-height: 80px;
+  font-size: 2.25rem;
+}
+
+.menu-highscore {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  padding: 6px 18px;
+  transform: rotate(-1.5deg);
+}
+
+.menu-highscore .hs-label {
+  font-size: 0.875rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.menu-highscore .hs-val {
+  font-family: var(--font-type);
+  font-size: 1.75rem;
+}
+
+.menu-links {
+  display: flex;
+  gap: 18px;
+}
+
+.text-link {
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--bone);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  text-shadow: 0 1px 0 var(--ink);
+}
+
+.menu-footer {
+  position: absolute;
+  left: 16px;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--bone);
+  text-shadow: 0 1px 0 var(--ink);
+}
+
+.menu-footer img {
+  width: 44px;
+  height: 44px;
+}
+
+/* --- 6b Daily bulletin --- */
+.bulletin-screen {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  max-height: 100%;
+}
+
+.bulletin-sheet {
+  position: relative;
+  width: min(460px, 100%);
+  aspect-ratio: 620 / 800;
+  background: url(art/scene/bulletin-paper.svg) center / 100% 100% no-repeat;
+  box-shadow: 8px 8px 0 rgba(30, 34, 64, 0.35);
+  transform: rotate(-1deg);
+  flex-shrink: 0;
+}
+
+.bulletin-body {
+  position: absolute;
+  inset: 17% 9% 9% 9%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: auto;
+  color: var(--ink);
+}
+
+.bulletin-kicker {
+  font-family: var(--font-type);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.bulletin-screen .bulletin-title {
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  line-height: 1.05;
+  margin: 0;
+}
+
+.bulletin-screen .bulletin-story {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.bulletin-rules {
+  border-top: 2px dashed var(--ink);
+  padding-top: 8px;
+}
+
+.bulletin-screen .bulletin-rules-title {
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  font-size: 0.8rem;
+  color: var(--kanga-red);
+}
+
+.bulletin-screen .bulletin-rules-list {
+  list-style: decimal;
+  padding-left: 20px;
+  font-family: var(--font-type);
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.bulletin-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.bulletin-nudge {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  color: var(--bone);
+  text-shadow: 2px 2px 0 var(--ink);
+}
+
+/* --- Paper panel (9-slice) used by the report and Rescue Log --- */
+.paper-panel {
+  border: 40px solid transparent;
+  border-image: url(art/ui/panel-paper.svg) 40 fill round;
+  color: var(--ink);
+}
+
+/* --- 6d Shift report --- */
+.report-panel {
+  width: min(820px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.report-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.report-kicker {
+  font-family: var(--font-type);
+  font-size: 0.875rem;
+  color: var(--ink-soft);
+}
+
+.report-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 2.75rem;
+  line-height: 1;
+  margin: 0;
+  color: var(--ink);
+}
+
+.report-rank {
+  transform: rotate(-7deg);
+  border: 6px double var(--kanga-red);
+  padding: 6px 16px;
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  color: var(--kanga-red);
+  letter-spacing: 2px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.report-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.report-stat {
+  border: 2px solid var(--ink);
+  background: var(--bone);
+  padding: 10px 16px;
+}
+
+.report-stat .s-label {
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.report-stat .s-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-type);
+  font-size: 2.25rem;
+  line-height: 1.1;
+}
+
+.report-strike-marks {
+  display: flex;
+  gap: 4px;
+  margin-left: 6px;
+}
+
+.strike-mark {
+  width: 22px;
+  height: 22px;
+  border: 3px solid rgba(30, 34, 64, 0.3);
+}
+
+.strike-mark.used {
+  border-color: transparent;
+  background: url(art/ui/icon-strike.svg) center / 100% no-repeat;
+}
+
+.report-rescued {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.report-rescued-badges {
+  display: flex;
+  gap: 6px;
+}
+
+.report-rescued-badges span img {
+  width: 64px;
+  height: 64px;
+  display: block;
+}
+
+.report-rescued-text {
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.report-score {
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  font-size: 0.85rem;
+}
+
+.report-score span {
+  font-family: var(--font-type);
+  font-size: 1.2rem;
+  letter-spacing: 0;
+}
+
+.report-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.report-actions #btnEndAction {
+  flex: 1;
+}
+
+.report-actions #btnEndReturnMenu {
+  width: 180px;
+}
+
+/* --- 6e Rescue Log header --- */
+.log-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 14px;
+}
+
+.log-count {
+  font-family: var(--font-type);
+  font-size: 1.3rem;
+}
+
+/* --- 6c Dialogue: big portrait standing beside a paper speech panel --- */
+.dialogue-box {
+  width: min(900px, calc(100% - 16px));
+  padding: 26px 22px 16px calc(clamp(150px, 22vw, 260px) + 12px);
+  overflow: visible;
+  min-height: 150px;
+}
+
+.dialogue-portrait {
+  position: absolute;
+  left: -8px;
+  bottom: -6px;
+  width: clamp(150px, 22vw, 260px);
+  height: clamp(150px, 22vw, 260px);
+  background: none;
+  border: none;
+  pointer-events: none;
+}
+
+.dialogue-portrait.has-art img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.dialogue-name {
+  position: absolute;
+  top: -20px;
+  left: calc(clamp(150px, 22vw, 260px) + 4px);
+  background: var(--teal);
+  border: 3px solid var(--ink);
+  padding: 2px 12px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.2rem;
+  letter-spacing: 0.5px;
+  text-transform: none;
+  color: var(--bone);
+  transform: rotate(-2deg);
+}
+
+.dialogue-text {
+  font-size: 1.15rem;
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+.dialogue-next {
+  color: var(--terracotta);
+  letter-spacing: 1.5px;
+}
+
+/* --- Small screens --- */
+@media (max-width: 699px), (max-height: 520px) {
+  .menu-biscuit {
+    display: none;
+  }
+  .menu-main-btns {
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 320px;
+  }
+  .menu-main-btns .big-btn {
+    width: 100%;
+    min-height: 68px;
+    font-size: 1.9rem;
+  }
+  .menu-screen {
+    gap: 16px;
+  }
+  .menu-footer span {
+    font-size: 0.75rem;
+  }
+  .menu-footer img {
+    width: 32px;
+    height: 32px;
+  }
+  .bulletin-screen {
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+  }
+  .bulletin-sheet {
+    width: min(360px, 100%);
+    max-height: calc(100dvh - 120px);
+  }
+  .bulletin-nudge {
+    display: none;
+  }
+  .bulletin-actions {
+    align-items: center;
+    width: 100%;
+  }
+  .bulletin-actions .big-btn {
+    width: min(360px, 100%);
+  }
+  .bulletin-screen .bulletin-title {
+    font-size: 1.4rem;
+  }
+  .bulletin-screen .bulletin-story,
+  .bulletin-screen .bulletin-rules-list {
+    font-size: 0.8rem;
+  }
+  .paper-panel {
+    border-width: 26px;
+  }
+  .report-head {
+    flex-direction: column;
+  }
+  .report-title {
+    font-size: 2rem;
+  }
+  .report-rank {
+    font-size: 1.2rem;
+    transform: rotate(-4deg);
+  }
+  .report-stat .s-value {
+    font-size: 1.6rem;
+  }
+  .report-stat .s-label {
+    font-size: 0.65rem;
+  }
+  .report-actions #btnEndReturnMenu {
+    width: 110px;
+  }
+  .report-rescued-badges span img {
+    width: 44px;
+    height: 44px;
+  }
+  .dialogue-box {
+    padding: 24px 12px 10px 104px;
+    min-height: 110px;
+  }
+  .dialogue-portrait {
+    width: 104px;
+    height: 104px;
+    left: -6px;
+  }
+  .dialogue-name {
+    left: 96px;
+    font-size: 1rem;
+    top: -16px;
+  }
+  .dialogue-text {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-height: 520px) {
+  .menu-screen .menu-logo {
+    width: min(360px, 60vw);
+  }
+  .menu-main-btns {
+    flex-direction: row;
+    max-width: none;
+    width: auto;
+  }
+  .menu-main-btns .big-btn {
+    width: 200px;
+    min-height: 60px;
+  }
+}
+
+/* Keep the date line clear of the bulletin art's RESTRICTED stamp. */
+.bulletin-kicker {
+  padding-right: 30%;
+}
+
+@media (max-width: 699px), (max-height: 520px) {
+  .report-actions .big-btn {
+    font-size: 1.5rem;
+    min-height: 60px;
+    padding: 0 12px;
+  }
+}
+
+/* A hidden toast must stay hidden even while its position animates (e.g. rotating a phone). */
+.verdict-feedback:not(.show) {
+  visibility: hidden;
+}
