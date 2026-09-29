@@ -286,9 +286,7 @@ personality.
 | 5 | Crew + Kiboko (6 × 4) | ✅ in game |
 | 6 | Screens + app icon | ✅ in game |
 
-**Redraw needed after the Jambo rename:** `logo-game` (tagline), `stamp-approved`, `stamp-denied`,
-`airport-bg` (sign), `crate-cover` (stencil), `bulletin-paper` and `permit-paper` (letterhead) still
-read "Mzinga". Replace it with "Jambo" / "Jambo International Airport", same layout and file names.
+**Jambo rename:** the seven files that read "Mzinga" were redrawn in Round 2, Batch 7. ✅
 
 ---
 
@@ -396,7 +394,7 @@ Three short mini-games between shifts. Same style and outline rules; sizes as li
 
 | Batch | Contents | Status |
 |---|---|---|
-| 7 | Jambo rename redraws (7 files) | not started |
+| 7 | Jambo rename redraws (7 files) | ✅ in game |
 | 8 | Share image, maskable icon, splash | not started |
 | 9 | Story backgrounds + 5 story moments | not started |
 | 10 | Team-activity art + finale crate | not started |
