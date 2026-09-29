@@ -286,6 +286,115 @@ personality.
 | 5 | Crew + Kiboko (6 × 4) | ✅ in game |
 | 6 | Screens + app icon | ✅ in game |
 
-**Redraw needed after the Jambo rename:** `logo-game` (tagline), `stamp-approved`, `stamp-denied`,
-`airport-bg` (sign), `crate-cover` (stencil), `bulletin-paper` and `permit-paper` (letterhead) still
-read "Mzinga". Replace it with "Jambo" / "Jambo International Airport", same layout and file names.
+**Jambo rename:** the seven files that read "Mzinga" were redrawn in Round 2, Batch 7. ✅
+
+---
+
+# Round 2
+
+Paste the **Round 2 brief update** first, then one batch at a time. Batch 7 is needed now; Batches
+8–10 prepare the art for Phase 4 (the story and team activities).
+
+## Round 2 brief update (paste first)
+
+> **Brief update for Round 2.** Keep everything from the approved style guide. Three changes:
+> 1. The airport is now **Jambo International Airport** (short form "Jambo Int'l"). The word
+>    "Mzinga" must not appear anywhere.
+> 2. Rescued animals are handed to the **Kenya Wildlife Service**. Show rangers in a plain olive
+>    ranger uniform **with no real logos, badges or insignia**; do not draw the real KWS emblem.
+> 3. The story arc: a rookie inspector's first ten shifts. Mama Rehema (mentor, retiring), Chief
+>    Kiprop (boss), Tony Wafula (rival rookie who becomes a friend), Wiji Njoroge (lab tech),
+>    Biscuit (sniffer dog). Villain: Big Man Kiboko, who runs a wildlife-trafficking ring and is
+>    caught in the finale. Every two or three shifts the team does something together.
+>
+> Keep file names exactly as listed; the game loads art by file name.
+
+## Batch 7: Jambo rename redraws → same paths as before
+
+> **Batch 7: rename redraws.** Redraw these existing files with "Mzinga" replaced. Keep the same
+> layout, size, style and file name for each:
+> - `art/ui/logo-game.svg`: tagline "Animal clearance at Jambo International Airport".
+> - `art/ui/stamp-approved.svg` and `art/ui/stamp-denied.svg`: small line "W.C.A. · JAMBO INT'L".
+> - `art/scene/airport-bg.svg`: the terminal sign reads "JAMBO INTERNATIONAL".
+> - `art/scene/crate-cover.svg`: stencil "JAMBO AIR CARGO · LIVE ANIMAL".
+> - `art/scene/bulletin-paper.svg` and `art/scene/permit-paper.svg`: letterhead line
+>   "Jambo International Airport · Animal Import Desk".
+>
+> Also update any "Mzinga" text in the style-guide page itself (for example the Batch 6 menu
+> footer), and change the style guide's big heading from "Pet Detective" to "Paws for Inspection".
+
+## Batch 8: Sharing and app-store images → `art/ui/`
+
+> **Batch 8: sharing images.**
+> - `og-image` (1200×630, SVG): the image shown when the game link is shared on WhatsApp, X or
+>   Facebook. The logo on the left, a slice of the desk scene on the right (the crate half
+>   scrubbed, a disguised pangolin peeking out, the Jiwe paw seal on a permit), Biscuit in a corner.
+>   Keep all text inside the central 1000×500 so nothing is cropped.
+> - `app-icon-maskable-512` (512×512): the W.C.A. giraffe crest on ochre, with everything important
+>   inside the central 80% circle (Android crops icons to different shapes).
+> - `splash` (1080×1920): portrait loading screen; logo centred, Biscuit below, desk texture behind.
+
+## Batch 9: Story scenes → `art/scene/` and `art/story/`
+
+Backgrounds are 1280×720 with the important content inside the central 720×720, so the same file
+can be cropped for phones. Story illustrations are the same size and use the existing crew art style.
+
+> **Batch 9: story scenes.**
+>
+> *Backgrounds (for dialogue scenes away from the desk):*
+> - `scene/staffroom-bg`: the W.C.A. staff room. A big chai urn, lockers, a cork notice board with a
+>   "WANTED: BIG MAN KIBOKO" poster and shift rotas, a tired sofa.
+> - `scene/chief-office-bg`: Chief Kiprop's office. A tidy desk, a framed "Inspector of the Month"
+>   wall (empty frame waiting for the player), a window onto the runway.
+> - `scene/cctv-bg`: a security room with a wall of CCTV monitors (screens left blank so the game
+>   can place characters on them).
+>
+> *Story moments (full illustrations shown between shifts):*
+> - `story/first-day`: Mama Rehema handing the rookie a rubber stamp at the desk, Biscuit watching.
+> - `story/tony-rivalry`: Tony Wafula showing off a stack of approved permits; the rookie unimpressed.
+> - `story/kiboko-cctv`: Big Man Kiboko on a CCTV monitor, smug, a birdcage keyring spinning on his finger.
+> - `story/rehema-farewell`: Mama Rehema's retirement party in the staff room: a cake shaped like a
+>   rubber stamp, the whole crew, Biscuit in a party hat.
+> - `story/finale-bust`: the crew at the desk as Big Man Kiboko is led away (busted expression);
+>   rescued animals (a pangolin, African greys, a pancake tortoise) being carried out safely by
+>   rangers in plain olive uniforms with no real insignia.
+
+## Batch 10: Team activities → `art/activity/`
+
+Three short mini-games between shifts. Same style and outline rules; sizes as listed.
+
+> **Batch 10: team activities.**
+>
+> *K9 training with Biscuit (after Shift 2): Biscuit sniffs crates and the player guesses what's inside from the sound.*
+> - `activity/k9-yard-bg` (1280×720): an outdoor training yard behind the terminal; cones, a
+>   training ramp, Wiji holding a clipboard in the background.
+> - `activity/sniff-crate-closed` and `activity/sniff-crate-open` (240×200): a small numbered
+>   training crate, closed and open (empty inside, so any animal art can sit in it).
+> - `activity/treat` (96×96): a dog biscuit, used as the reward icon.
+>
+> *Warehouse raid (after Shift 5): the team scrubs a row of crates against the clock.*
+> - `activity/warehouse-bg` (1280×720): a dim cargo warehouse at night, torch beams, stacked pallets.
+> - `activity/raid-crate-1` to `activity/raid-crate-4` (280×200): four different crate fronts for
+>   variety, each with a stencilled number.
+> - `activity/torch-beam` (600×600, transparent): a soft torch-beam cone to overlay while scrubbing.
+>
+> *Quiz night (after Shift 8): rapid-fire rule questions, the player versus Tony.*
+> - `activity/quiz-bg` (1280×720): the staff room set up for quiz night; bunting in kanga colours,
+>   a scoreboard on the wall.
+> - `activity/buzzer-ochre` and `activity/buzzer-teal` (200×200): big arcade-style buzzers, up and
+>   pressed states (`-up`, `-down`).
+> - `activity/scoreboard` (600×220): a chalkboard scoreboard frame with two empty score areas.
+>
+> *Finale (Shift 10): Big Man Kiboko's own crate.*
+> - `scene/crate-cover-vip` (560×280): a gold-trimmed crate with "VIP · FRAGILE · DO NOT OPEN" stencils.
+> - `animals/finale_double`: the finale disguise, a pangolin in a hedgehog hat inside a teacup-pig
+>   costume, half coming off; plus `animals/finale_double_rescued`.
+
+## Round 2 status
+
+| Batch | Contents | Status |
+|---|---|---|
+| 7 | Jambo rename redraws (7 files) | ✅ in game |
+| 8 | Share image, maskable icon, splash | not started |
+| 9 | Story backgrounds + 5 story moments | not started |
+| 10 | Team-activity art + finale crate | not started |
