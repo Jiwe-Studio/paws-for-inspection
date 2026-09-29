@@ -1,5 +1,5 @@
 /* ==========================================================================
-   EXOTIC CUSTOMS: PET DETECTIVE - GAME CONTROLLER (v2.1)
+   PAWS FOR INSPECTION - GAME CONTROLLER
    Architecture: Modular JS Engine with Story Campaign, Daily Bulletin,
    Arcade Score Attack, and LocalStorage Persistence.
    ========================================================================== */
@@ -252,6 +252,7 @@ const STORY_SHIFTS = [
   },
   {
     shiftNumber: 2,
+    intro: "weight",
     title: "Shift 2: Heavy Luggage",
     story: "Someone has been stuffing carriers with contraband. The bio-mass scale has just been calibrated. If an animal weighs more than its permit allows, something else is in that crate.",
     rules: [
@@ -264,6 +265,7 @@ const STORY_SHIFTS = [
   },
   {
     shiftNumber: 3,
+    intro: "crate",
     title: "Shift 3: The Paint Job",
     story: "A dye cartel is painting farm animals to pass as fancy breeds. From today every animal arrives in a covered crate. Scrub the cover with the Solvent Sponge and check what's really inside.",
     rules: [
@@ -277,6 +279,7 @@ const STORY_SHIFTS = [
   },
   {
     shiftNumber: 4,
+    intro: "uv",
     title: "Shift 4: The Cyber Café Forgers",
     story: "Forged permits are circulating, printed with near-perfect seals. The lab has sent you a Blacklight UV torch. A genuine W.C.A. seal glows green under UV. A fake one stays dark.",
     rules: [
@@ -491,6 +494,7 @@ const DEFAULT_PASSENGERS = [
 ];
 
 // --- 5. LOCALSTORAGE PROGRESSION MANAGER ---
+// Keys keep the original 'petdetect_' prefix so players keep their progress after the rename.
 class StorageManager {
   static getArcadeHighScore() {
     return parseInt(localStorage.getItem('petdetect_arcade_high_score') || "0", 10);
@@ -515,6 +519,7 @@ class StorageManager {
 
   static resetStory() {
     localStorage.setItem('petdetect_story_shift', "1");
+    localStorage.removeItem('petdetect_intros_seen');
   }
 
   static getUserDex() {
@@ -529,6 +534,26 @@ class StorageManager {
       return true;
     }
     return false;
+  }
+
+  static isTutorialDone() {
+    return localStorage.getItem('petdetect_tutorial_done') === '1';
+  }
+
+  static setTutorialDone() {
+    localStorage.setItem('petdetect_tutorial_done', '1');
+  }
+
+  static hasSeenIntro(shiftNumber) {
+    return JSON.parse(localStorage.getItem('petdetect_intros_seen') || "[]").includes(shiftNumber);
+  }
+
+  static markIntroSeen(shiftNumber) {
+    const seen = JSON.parse(localStorage.getItem('petdetect_intros_seen') || "[]");
+    if (!seen.includes(shiftNumber)) {
+      seen.push(shiftNumber);
+      localStorage.setItem('petdetect_intros_seen', JSON.stringify(seen));
+    }
   }
 
   static getCustomSuspects() {
@@ -565,9 +590,11 @@ let gameState = {
   coffeeAvailable: true,
   isTimeFrozen: false,
   resolving: false,
+  introPause: false,
   coffeeTimeout: null,
   revealed: false,
   lastScratchPoint: null,
+  lastWipeSample: 0,
   lastSpongeSoundTime: 0
 };
 
@@ -746,8 +773,11 @@ function scratchAt(clientX, clientY) {
   sampleWipeProgress();
 }
 
-function sampleWipeProgress() {
+function sampleWipeProgress(force = false) {
   if (gameState.revealed) return;
+  const now = Date.now();
+  if (!force && now - gameState.lastWipeSample < 80) return;
+  gameState.lastWipeSample = now;
 
   const w = elScratchCanvas.width;
   const h = elScratchCanvas.height;
@@ -775,48 +805,44 @@ function sampleWipeProgress() {
     // Wipe the rest away so the player gets a clean look at the animal.
     gameState.revealed = true;
     clearScratchCanvas();
+    emitGameEvent('reveal');
     elWipeStatus.textContent = "🔍 Crate open. Compare with the permit!";
   }
 }
 
-// Scratch Touch & Mouse Events
-elScratchCanvas.addEventListener('mousedown', (e) => {
+// Scratch input: pointer events cover mouse, touch and stylus with one code path.
+elScratchCanvas.addEventListener('pointerdown', (e) => {
   gameState.isWiping = true;
+  gameState.lastScratchPoint = null;
   sound.init();
+  elScratchCanvas.setPointerCapture(e.pointerId);
   scratchAt(e.clientX, e.clientY);
+  e.preventDefault();
 });
 
-window.addEventListener('mousemove', (e) => {
+elScratchCanvas.addEventListener('pointermove', (e) => {
   if (!gameState.isWiping) return;
   scratchAt(e.clientX, e.clientY);
 });
 
-window.addEventListener('mouseup', () => {
+function endScratch() {
   gameState.isWiping = false;
   gameState.lastScratchPoint = null;
-});
+  sampleWipeProgress(true);
+}
 
-elScratchCanvas.addEventListener('touchstart', (e) => {
-  gameState.isWiping = true;
-  sound.init();
-  if (e.touches.length > 0) {
-    scratchAt(e.touches[0].clientX, e.touches[0].clientY);
-  }
-  e.preventDefault();
-}, { passive: false });
+elScratchCanvas.addEventListener('pointerup', endScratch);
+elScratchCanvas.addEventListener('pointercancel', endScratch);
 
-elScratchCanvas.addEventListener('touchmove', (e) => {
-  if (!gameState.isWiping) return;
-  if (e.touches.length > 0) {
-    scratchAt(e.touches[0].clientX, e.touches[0].clientY);
-  }
-  e.preventDefault();
-}, { passive: false });
-
-elScratchCanvas.addEventListener('touchend', () => {
-  gameState.isWiping = false;
-  gameState.lastScratchPoint = null;
-});
+// Tiny event hook so the tutorial can wait for "the player scrubbed the crate" etc.
+const gameEventListeners = [];
+function onGameEvent(fn) {
+  gameEventListeners.push(fn);
+  return () => gameEventListeners.splice(gameEventListeners.indexOf(fn), 1);
+}
+function emitGameEvent(name, data) {
+  [...gameEventListeners].forEach(fn => fn(name, data));
+}
 
 // --- 9. PROCEDURAL CASE GENERATOR ---
 // Build a clean, legal case first, then break 0-2 rules chosen from what this shift allows.
@@ -877,6 +903,9 @@ function getCombinedPassengers() {
 }
 
 function getActiveRules() {
+  if (gameState.mode === 'tutorial') {
+    return { violations: ["expired", "name"], doubleChance: 0 };
+  }
   if (gameState.mode === 'story') {
     const conf = STORY_SHIFTS[gameState.storyShiftIndex] || STORY_SHIFTS[0];
     return { violations: conf.violations, doubleChance: conf.doubleChance || 0 };
@@ -895,24 +924,27 @@ function pickViolations(rules) {
   return picked;
 }
 
-function generateNewCase() {
+// `overrides` lets the tutorial and shift intros script a case:
+// { violations, passengerName, animalSpecies, disguiseId, expiryDays, permitOwner, speech }
+function generateNewCase(overrides = {}) {
   const rules = getActiveRules();
-  const violations = pickViolations(rules);
-  const passenger = pick(getCombinedPassengers());
+  const violations = overrides.violations || pickViolations(rules);
+  const passengers = getCombinedPassengers();
+  const passenger = passengers.find(p => p.name === overrides.passengerName) || pick(passengers);
   const covered = rules.violations.includes('disguise');
 
   // Animal: disguise swaps what's under the cover, while the permit stays on the look-alike species.
   let declared, underEmoji, underTag, vocalSound, dexId;
   let disguise = null;
   if (violations.includes('disguise')) {
-    disguise = pick(DISGUISES);
+    disguise = DISGUISES.find(d => d.dexId === overrides.disguiseId) || pick(DISGUISES);
     declared = disguise.declared;
     underEmoji = disguise.emoji;
     underTag = disguise.revealTag;
     vocalSound = disguise.sound;
     dexId = disguise.dexId;
   } else {
-    const animal = pick(LEGAL_ANIMALS);
+    const animal = LEGAL_ANIMALS.find(a => overrides.animalSpecies && a.species.startsWith(overrides.animalSpecies)) || pick(LEGAL_ANIMALS);
     declared = animal;
     underEmoji = animal.emoji;
     underTag = `Looks like: ${animal.species.split(' (')[0]}`;
@@ -929,11 +961,13 @@ function generateNewCase() {
   scaleWeight = roundTo(scaleWeight, permitMax < 2 ? 0.01 : 0.1);
 
   // Expiry: valid permits run 3-500 days past today, expired ones lapsed 1-120 days ago.
-  const expiry = violations.includes('expired')
+  let expiry = violations.includes('expired')
     ? addDays(TODAY, -randInt(1, 120))
     : addDays(TODAY, randInt(3, 500));
+  if (overrides.expiryDays !== undefined) expiry = addDays(TODAY, overrides.expiryDays);
 
-  const permitOwner = violations.includes('name') ? forgeName(passenger.name) : passenger.name;
+  const permitOwner = overrides.permitOwner
+    || (violations.includes('name') ? forgeName(passenger.name) : passenger.name);
 
   // Forged seals look genuine in normal light; some have a visible misprint for sharp eyes.
   const sealGenuine = !violations.includes('seal');
@@ -953,6 +987,8 @@ function generateNewCase() {
   } else {
     speech = pick(GENERIC_LINES);
   }
+
+  if (overrides.speech) speech = overrides.speech;
 
   const newCase = {
     passengerName: passenger.name,
@@ -1034,7 +1070,14 @@ function describeViolation(c, v) {
 
 // --- 10. VERDICT HANDLING ---
 function handleVerdict(approvedByUser) {
+  if (gameState.mode === 'tutorial') {
+    Tutorial.onVerdict(approvedByUser);
+    return;
+  }
+  // No stamping while a briefing is on screen.
+  if (Dialogue.isOpen()) return;
   if (!gameState.active || !gameState.currentCase || gameState.resolving) return;
+  gameState.introPause = false;
 
   // Lock until the next case is on the desk so one case can't be stamped twice.
   gameState.resolving = true;
@@ -1140,7 +1183,7 @@ function updateHUD() {
   const secs = gameState.timeLeft % 60;
   elHudTimer.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 
-  if (gameState.isTimeFrozen) {
+  if (gameState.isTimeFrozen || gameState.introPause) {
     elTimerBox.classList.add('frozen');
   } else {
     elTimerBox.classList.remove('frozen');
@@ -1158,7 +1201,11 @@ function updateHUD() {
   elHudScore.textContent = gameState.score;
 
   // Quota Display for Story vs Arcade
-  if (gameState.mode === 'story') {
+  if (gameState.mode === 'tutorial') {
+    elHudQuotaCard.style.display = 'none';
+    elHudModeBadge.textContent = "ORIENTATION";
+    elHudTimer.textContent = "--:--";
+  } else if (gameState.mode === 'story') {
     elHudQuotaCard.style.display = 'block';
     elHudQuota.textContent = `${gameState.quotaMetCount} / ${gameState.targetQuota}`;
     elHudModeBadge.textContent = `STORY: SHIFT ${gameState.storyShiftIndex + 1}`;
@@ -1174,7 +1221,10 @@ function updateHUD() {
 
 // --- 11. NAVIGATION & SHIFT LIFECYCLE ---
 function showMainMenu() {
+  Dialogue.close();
+  if (gameState.mode === 'tutorial') gameState.mode = 'story';
   gameState.active = false;
+  gameState.introPause = false;
   clearInterval(gameState.shiftInterval);
 
   const highScore = StorageManager.getArcadeHighScore();
@@ -1228,6 +1278,7 @@ function startActualShift() {
   gameState.coffeeAvailable = true;
   gameState.isTimeFrozen = false;
   gameState.resolving = false;
+  gameState.introPause = false;
   clearTimeout(gameState.coffeeTimeout);
   elBtnCoffee.classList.remove('used');
 
@@ -1239,12 +1290,20 @@ function startActualShift() {
   elMainMenuModal.classList.add('hidden');
   elGameOverModal.classList.add('hidden');
 
+  // A shift that introduces a new rule opens with a scripted case and a short briefing.
+  const conf = gameState.mode === 'story' ? STORY_SHIFTS[gameState.storyShiftIndex] : null;
+  const intro = conf && conf.intro && !StorageManager.hasSeenIntro(conf.shiftNumber) ? SHIFT_INTROS[conf.intro] : null;
+  gameState.introPause = Boolean(intro);
+
   updateHUD();
-  generateNewCase();
+  generateNewCase(intro ? intro.firstCase : {});
+  if (intro) {
+    Dialogue.run(intro.steps).then(() => StorageManager.markIntroSeen(conf.shiftNumber));
+  }
 
   clearInterval(gameState.shiftInterval);
   gameState.shiftInterval = setInterval(() => {
-    if (!gameState.active || gameState.isTimeFrozen || gameState.resolving || isDeskPopupOpen()) return;
+    if (!gameState.active || gameState.isTimeFrozen || gameState.resolving || gameState.introPause || isDeskPopupOpen()) return;
     gameState.timeLeft--;
 
     if (gameState.timeLeft <= 10 && gameState.timeLeft > 0) {
@@ -1339,7 +1398,7 @@ elBtnCoffee.addEventListener('click', () => {
   elBtnCoffee.classList.add('used');
 
   sound.playCoffee();
-  showToast(true, "☕ COFFEE BREAK! Shift timer frozen for 5 seconds!");
+  showToast(true, "☕ Chai break! Timer frozen for 5 seconds.");
   updateHUD();
 
   gameState.coffeeTimeout = setTimeout(() => {
@@ -1375,6 +1434,7 @@ function getAvailableTools() {
 
 function setTool(tool) {
   gameState.activeTool = tool;
+  emitGameEvent('tool', tool);
   elBtnToolSponge.classList.toggle('active', tool === 'sponge');
   elBtnToolUV.classList.toggle('active', tool === 'uv');
   elPermitCard.classList.toggle('uv-on', tool === 'uv');
@@ -1476,6 +1536,7 @@ function isAnyPopupOpen() {
 
 window.addEventListener('keydown', (e) => {
   if (e.target.closest('input, textarea, select') || isAnyPopupOpen()) return;
+  if (Dialogue.handleKey(e)) return;
   if (e.key === 'a' || e.key === 'A') {
     handleVerdict(true);
   } else if (e.key === 'd' || e.key === 'D') {
@@ -1487,11 +1548,35 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
+// Small screens fold the header buttons into a menu.
+const elBtnMoreMenu = document.getElementById('btnMoreMenu');
+const elHeaderBtns = document.getElementById('headerBtns');
+
+function setHeaderMenuOpen(open) {
+  elHeaderBtns.classList.toggle('open', open);
+  elBtnMoreMenu.setAttribute('aria-expanded', String(open));
+}
+
+elBtnMoreMenu.addEventListener('click', (e) => {
+  e.stopPropagation();
+  setHeaderMenuOpen(!elHeaderBtns.classList.contains('open'));
+});
+elHeaderBtns.addEventListener('click', () => setHeaderMenuOpen(false));
+document.addEventListener('click', (e) => {
+  if (!elHeaderBtns.contains(e.target)) setHeaderMenuOpen(false);
+});
+
 // Menu Actions
 elBtnMenuStory.addEventListener('click', () => {
+  if (!StorageManager.isTutorialDone()) {
+    Tutorial.start();
+    return;
+  }
   const currentShift = StorageManager.getStoryShift();
   prepareStoryShift(currentShift - 1);
 });
+
+document.getElementById('btnReplayTutorial').addEventListener('click', () => Tutorial.start());
 
 elBtnMenuArcade.addEventListener('click', () => {
   gameState.mode = 'arcade';

@@ -1,6 +1,8 @@
-# 🐾 Exotic Customs: Pet Detective
+# Paws for Inspection
 
-> An arcade border-control comedy inspection simulator inspired by *Papers, Please* and *Ace Ventura: Pet Detective*.
+> Animal clearance at Mzinga International. A comedy airport-customs game in the spirit of *Papers, Please*: you're the rookie inspector in charge of searching, checking and clearing every animal that lands.
+
+**Play:** https://jiwe-studio.github.io/paws-for-inspection/
 
 Playable MVP web game prototype built with pure Vanilla JavaScript, HTML5 Canvas, CSS3, and the Web Audio API. Zero external dependencies.
 
@@ -21,6 +23,8 @@ Every case is generated fresh: a clean case is built first, then 0–2 rules are
 * **Stamp it:** **APPROVE (A)** or **DENY (D)**. Correct calls score +100. A wrong call is a strike and costs 10 seconds, and the game shows you which field you missed. Three strikes and you're sent home.
 
 ---
+
+New players start with **Orientation**: Mama Rehema, a veteran inspector, walks you through three practice cases with no timer. Shifts 2, 3 and 4 open with a short briefing when a new rule arrives, and the clock waits for your first stamp.
 
 ## 🚀 How to Play
 
