@@ -517,7 +517,7 @@ main.panic-glow {
 }
 
 .cites-permit::before {
-  content: "CITES VERIFIED";
+  content: "W.C.A. VERIFIED";
   position: absolute;
   top: 50%;
   left: 50%;
@@ -1209,4 +1209,63 @@ main.panic-glow {
     padding: 14px 10px;
     font-size: 1.05rem;
   }
+}
+
+/* ==========================================================================
+   BLACKLIGHT UV MODE — genuine seals glow, forgeries stay dark
+   ========================================================================== */
+.security-hologram .uv-mark {
+  display: none;
+}
+
+.cites-permit.uv-on {
+  background: #1b0f33 !important;
+  box-shadow: inset 0 0 50px rgba(170, 0, 255, 0.45), 0 10px 30px rgba(0,0,0,0.45);
+  transition: background 0.2s;
+}
+
+.cites-permit.uv-on * {
+  color: #9f8bc9 !important;
+  border-color: #4a2d7a !important;
+}
+
+.cites-permit.uv-on .security-hologram {
+  background: #120a24;
+}
+
+.cites-permit.uv-on .security-hologram .seal-text {
+  display: none;
+}
+
+.cites-permit.uv-on .security-hologram .uv-mark {
+  display: flex;
+  font-size: 0.62rem;
+  font-weight: 900;
+}
+
+.cites-permit.uv-on .uv-mark.genuine {
+  color: #76ff03 !important;
+  text-shadow: 0 0 6px #76ff03, 0 0 14px #76ff03;
+}
+
+.cites-permit.uv-on .uv-mark.fake {
+  color: #4a3b66 !important;
+  font-style: italic;
+  font-weight: 600;
+}
+
+.viewport-box.uv-cursor canvas {
+  cursor: not-allowed;
+}
+
+/* MISTAKE / BUST HIGHLIGHT — points at the field that proves the violation */
+.flagged {
+  outline: 3px solid #ff1744 !important;
+  outline-offset: 2px;
+  border-radius: 4px;
+  animation: flagPulse 0.45s ease-in-out 4;
+}
+
+@keyframes flagPulse {
+  50% { outline-color: transparent; }
 }

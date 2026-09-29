@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Exotic Customs: Pet Detective</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="game.js" defer></script>
+  <link rel="stylesheet" href="style.css?v=5" />
+  <script src="game.js?v=5" defer></script>
 </head>
 <body>
 
@@ -14,8 +14,8 @@
     <div class="agency-branding">
       <div class="agency-badge">🐾</div>
       <div class="agency-text">
-        <h1>B.C.E.S.R.A.</h1>
-        <span>BORDER CUSTOMS &amp; EXOTIC SPECIES AGENCY</span>
+        <h1>W.C.A.</h1>
+        <span>WANYAMA CUSTOMS AUTHORITY &middot; MZINGA INT'L AIRPORT</span>
       </div>
     </div>
 
@@ -62,11 +62,11 @@
     <!-- LEFT PANEL: PASSENGER & ANIMAL INSPECTION -->
     <section class="inspection-bay">
       <div class="passenger-booth">
-        <div class="passenger-avatar" id="passAvatar">🥸</div>
+        <div class="passenger-avatar" id="passAvatar">👩🏾‍🌾</div>
         <div class="passenger-details">
           <div class="passenger-name-tag">Passenger / Importer</div>
-          <div class="passenger-name" id="passName">Arthur "Fingers" McCoy</div>
-          <div class="speech-bubble" id="passSpeech">"Just bringing my prize-winning family zebra home, Inspector!"</div>
+          <div class="passenger-name" id="passName">Njeri Wambui</div>
+          <div class="speech-bubble" id="passSpeech">"Habari officer!"</div>
         </div>
       </div>
 
@@ -74,16 +74,16 @@
         <!-- SCALE READOUT -->
         <div class="scale-bar">
           <span class="scale-label">BIO-MASS DIGITAL SCALE:</span>
-          <span class="scale-digital-readout" id="scaleDisplay">340.2 KG</span>
+          <span class="scale-digital-readout" id="scaleDisplay">0.0 KG</span>
         </div>
 
         <!-- CAGE VIEWPORT & SCRATCH CANVAS -->
         <div class="viewport-box" id="viewportBox">
           <!-- Revealed true underlayer -->
           <div class="animal-underlayer">
-            <div class="animal-illustration" id="animalGraphic">🐴</div>
+            <div class="animal-illustration" id="animalGraphic">🐕</div>
             <div class="animal-revealed-tag" id="animalTrueTag">
-              <span>🔍 REVEALED: Gray Donkey (Equus asinus)</span>
+              🔍 Looks like: Border Collie
             </div>
           </div>
 
@@ -99,17 +99,17 @@
           <button class="gadget-btn coffee" id="btnCoffee">
             <span>☕</span> Inspector Coffee (Freeze 5s)
           </button>
-          <span class="wipe-progress-text" id="wipeStatus">Scrub animal to inspect!</span>
+          <span class="wipe-progress-text" id="wipeStatus"></span>
         </div>
 
         <!-- TOOL CONTROLS -->
-        <div class="toolbox">
+        <div class="toolbox" id="toolbox">
           <div class="tool-group">
             <button class="tool-btn active" id="btnToolSponge">
-              <span>🧽</span> Solvent Sponge (Rub)
+              <span>🧽</span> Solvent Sponge (scrub crate)
             </button>
             <button class="tool-btn" id="btnToolUV">
-              <span>🔦</span> Blacklight UV
+              <span>🔦</span> Blacklight UV (check seal)
             </button>
           </div>
           <span style="font-size:0.7rem; color:#78909c;">Hotkeys: [A] Approve &bull; [D] Deny &bull; [W/Space] Tool</span>
@@ -126,45 +126,44 @@
         <div>
           <div class="permit-header">
             <div class="permit-title-wrap">
-              <h2>CITES Import Permit</h2>
-              <span>CONVENTION ON INT'L TRADE IN EXOTIC SPECIES</span>
+              <h2>Wildlife Transit Permit</h2>
+              <span>WANYAMA CUSTOMS AUTHORITY &middot; IMPORT DIVISION</span>
             </div>
-            <div class="permit-code" id="docPermitId">#CITES-9921-A</div>
+            <div class="permit-code" id="docPermitId">#WTP-0000-K</div>
           </div>
 
           <div class="permit-fields">
             <div class="permit-field">
               <div class="p-label">Owner / Importer</div>
-              <div class="p-value" id="docOwner">Arthur McCoy</div>
+              <div class="p-value" id="docOwner">Njeri Wambui</div>
             </div>
 
             <div class="permit-field">
               <div class="p-label">Permit Valid Until</div>
-              <div class="p-value" id="docExpiry">OCT 15, 2026</div>
-              <div class="p-subtext" id="docExpirySub">Status: ACTIVE</div>
+              <div class="p-value" id="docExpiry">NOV 24, 2026</div>
             </div>
 
             <div class="permit-field full-width">
               <div class="p-label">Declared Species</div>
-              <div class="p-value" id="docSpecies">Plains Zebra (Equus quagga)</div>
-              <div class="p-subtext" id="docClassification">Schedule II: Regulated Transit</div>
+              <div class="p-value" id="docSpecies">Border Collie (Canis familiaris)</div>
             </div>
 
             <div class="permit-field">
               <div class="p-label">Permitted Max Weight</div>
-              <div class="p-value" id="docWeight">Max 380.0 KG</div>
+              <div class="p-value" id="docWeight">Max 20.0 KG</div>
             </div>
 
             <div class="permit-field">
               <div class="p-label">Microchip ID</div>
-              <div class="p-value" id="docChip">#CHIP-8841-US</div>
+              <div class="p-value" id="docChip">#CHIP-0000-KE</div>
             </div>
           </div>
         </div>
 
         <div class="official-seal-row">
           <div class="security-hologram" id="docSeal">
-            OFFICIAL<br>CITES SEAL
+            <span class="seal-text" id="docSealText">W.C.A.<br>OFFICIAL SEAL</span>
+            <span class="uv-mark genuine" id="docSealUV">✓ GENUINE</span>
           </div>
           <div class="customs-date-badge">
             <div class="c-label">TODAY'S CUSTOMS DATE:</div>
@@ -198,7 +197,7 @@
   <div class="modal-backdrop" id="mainMenuModal">
     <div class="modal-card">
       <h2>Exotic Customs: Pet Detective</h2>
-      <div class="subtitle">B.C.E.S.R.A. Bureau Terminal v2.1</div>
+      <div class="subtitle">Wanyama Customs Authority &middot; Mzinga International Airport</div>
 
       <div class="high-score-banner">
         <span>🏆 ALL-TIME ARCADE HIGH SCORE:</span>
@@ -227,8 +226,8 @@
 
       <div class="guide-box">
         <p><strong>Quick Desk Instructions:</strong></p>
-        <p>&bull; 🧽 <strong>Rub the animal's cage:</strong> Scrub off fake zebra stripes, capybara dye, and contraband vests.</p>
-        <p>&bull; ⚖️ <strong>Verify documents:</strong> Check expiration dates against today (OCT 2026), owner names, and scale limits.</p>
+        <p>&bull; 📄 <strong>Check the permit:</strong> the owner name must match the passenger exactly, and the permit must not have expired before today's date.</p>
+        <p>&bull; ✅ <strong>APPROVE</strong> clean cases and <strong>DENY</strong> anything wrong. New rules are added shift by shift.</p>
       </div>
 
       <div style="display:flex; gap:10px;">
@@ -241,7 +240,7 @@
   <div class="modal-backdrop hidden" id="bulletinModal">
     <div class="modal-card" style="max-width:620px;">
       <h2>DAILY BULLETIN</h2>
-      <div class="subtitle">B.C.E.S.R.A. Official Staff Dispatch</div>
+      <div class="subtitle">W.C.A. Official Staff Dispatch</div>
 
       <div class="bulletin-paper">
         <div class="bulletin-header-stamp">
@@ -302,7 +301,7 @@
   <!-- 4. PET-DEX DOSSIER SCRAPBOOK MODAL -->
   <div class="modal-backdrop hidden" id="petdexModal">
     <div class="modal-card" style="max-width:680px;">
-      <h2>📖 The B.C.E.S.R.A. Pet-Dex</h2>
+      <h2>📖 The W.C.A. Pet-Dex</h2>
       <div class="subtitle">Exotic Contraband &amp; Disguised Beast Scrapbook</div>
 
       <div class="petdex-grid" id="petdexGrid">
@@ -352,12 +351,13 @@
 
       <div class="guide-box">
         <p><strong>DENY ENTRY IF ANY OF THE FOLLOWING OCCUR:</strong></p>
-        <p>🔴 <strong>Animal is Disguised:</strong> Scrubbing reveals a different species (e.g. donkey painted as zebra, capybara disguised as retriever, smuggled macaws, warthog in makeup, alligator in sweater!).</p>
-        <p>🔴 <strong>Expired Permit:</strong> Expiry date is before today's customs date (OCT 14, 2026).</p>
-        <p>🔴 <strong>Weight Discrepancy:</strong> Scale reading significantly exceeds permitted limit on permit.</p>
-        <p>🔴 <strong>Name Mismatch:</strong> Passenger tag does not match the permit's declared owner.</p>
-        <p>🔴 <strong>Missing Official Seal:</strong> Permit lacks authentic CITES Hologram.</p>
-        <p>🟢 <strong>APPROVE:</strong> Clean animal, matching details, valid dates, matching weight, authentic seal.</p>
+        <p>🔴 <strong>Expired Permit:</strong> the "Valid Until" date is before today's customs date.</p>
+        <p>🔴 <strong>Name Mismatch:</strong> the permit owner isn't spelled exactly like the passenger's name. Watch for one-letter typos!</p>
+        <p>🔴 <strong>Overweight:</strong> the scale reads above the permit's max weight, even by a little.</p>
+        <p>🔴 <strong>Disguised Animal:</strong> scrub the crate with the 🧽 Sponge. DENY if the animal isn't the declared species. <em>Provoke Sound</em> can give it away too.</p>
+        <p>🔴 <strong>Forged Seal:</strong> switch to the 🔦 Blacklight UV. A genuine seal glows green. A fake stays dark.</p>
+        <p>🟢 <strong>APPROVE:</strong> everything checks out.</p>
+        <p style="color:#90a4ae;">Rules unlock shift by shift. Your Daily Bulletin always lists what to check.</p>
       </div>
 
       <button class="primary-btn" id="btnCloseRules">BACK TO DESK</button>
