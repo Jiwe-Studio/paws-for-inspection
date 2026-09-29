@@ -47,6 +47,14 @@ art/
 > covers to catch disguised animals (donkeys painted as zebras, capybaras dyed as retrievers), then
 > stamp APPROVE or DENY. The tone is warm and cheeky, like a Kenyan sitcom, never mean-spirited.
 >
+> **Story theme: wildlife trafficking.** Alongside small-time scammers (a donkey painted as a
+> zebra), the main villain, **Big Man Kiboko**, runs a ring smuggling endangered African wildlife
+> (cheetah cubs, pangolins, African grey parrots, pancake tortoises) disguised as ordinary pets.
+> Every bust is a **rescue**: the animals go to the fictional Mzinga Wildlife Rescue Centre. The
+> jokes are always on the smugglers and their terrible disguises. The animals are drawn with
+> dignity (curious, scared, then relieved), never hurt, never dead. No blood, no injured animals,
+> no animal parts.
+>
 > **Audience:** young Kenyan players on mid-range Android phones first, then tablets and desktop.
 > Played in short 90-second shifts.
 >
@@ -115,7 +123,7 @@ weight the same everywhere? Could the phone version be played one-handed?
 > Using the approved style guide, create the UI kit as separate SVGs on a transparent background.
 >
 > **Icons** (24×24 grid, 2px stroke in `ink`, drawn to work at 20–32px): `icon-menu`, `icon-home`,
-> `icon-petdex` (a scrapbook), `icon-suspects` (a mugshot board), `icon-sound-on`, `icon-sound-off`,
+> `icon-petdex` (a rescue-log scrapbook), `icon-suspects` (a mugshot board), `icon-sound-on`, `icon-sound-off`,
 > `icon-help`, `icon-sponge`, `icon-uv` (a blacklight torch), `icon-coffee` (a chai cup),
 > `icon-provoke` (a whistle), `icon-timer`, `icon-strike`, `icon-star`, `icon-lock`, `icon-close`.
 >
@@ -123,8 +131,15 @@ weight the same everywhere? Could the phone version be played one-handed?
 > slightly uneven edges, 360×140. Also `stamp-button-approve` and `stamp-button-deny`, the physical
 > rubber stamps seen from above, 200×200.
 >
-> **Seal:** `seal-genuine` (holographic W.C.A. crest, 140×88), `seal-uv-genuine` (the same crest
-> glowing `uv-glow` on dark violet), `seal-uv-fake` (dark, no glow, a faint smudge).
+> **Seal (a nod to Jiwe):** a holographic **paw print** with the word **"jiwe"** lettered inside
+> the large main pad and four toe pads above it, ringed by small text "W.C.A. · OFFICIAL SEAL".
+> Use the attached Jiwe logo for the lettering. It must stay readable at 64px wide, so keep the
+> lettering bold and the ring text optional at small sizes. Files, all 160×160:
+> - `seal-genuine`: the holographic paw seal in normal light.
+> - `seal-fake`: a forgery that looks almost identical in normal light, with one subtle flaw a
+>   sharp-eyed player can spot (the lettering reads "jiwf", or the paw has only three toes).
+> - `seal-uv-genuine`: the paw and the "jiwe" lettering glowing `uv-glow` on dark violet.
+> - `seal-uv-fake`: the same shape, dark with no glow, and a faint smudge.
 >
 > **Logo:** `logo-wca`, a W.C.A. crest badge (a customs shield with an animal silhouette, 256×256),
 > and `logo-game`, the "Paws for Inspection" wordmark in the signwriter style (a paw print
@@ -171,17 +186,29 @@ funny, not realistic.
 > `galla_goat` (a white Kenyan goat with a slightly judgemental face).
 >
 > **Disguised animals.** The player only sees these after scrubbing the crate, so each one is
-> the **real animal with its botched disguise half coming off**:
+> the **real animal with its botched disguise half coming off**. The trafficked animals should
+> look wary and a bit lost, not comic villains: the joke is the disguise, not the animal.
+>
+> *Trafficked wildlife (Big Man Kiboko's ring):*
+> - `cheetah_cat`: a cheetah cub smeared with brown shoe polish, wearing a cat bell
+> - `pangolin_hedgehog`: a pangolin curled into a ball with toothpicks glued on as "spikes"
+> - `greys_vest`: three African grey parrots poking out of a zipped poodle costume
+> - `tortoise_slider`: a flat pancake tortoise with a red stripe painted on to look like a pet turtle
+> - `galago_hamster`: a big-eyed bush baby squeezed into a hamster ball
+> - `penguin_butler`: an African penguin chick in a duck costume with a bow tie
+> - `croc_wiener`: a baby Nile crocodile in a knit dachshund sweater with felt ears
+> - `warthog_pig`: a warthog piglet in pink blush, tusks showing
+>
+> *Scams (ordinary animals dressed up to sell as exotic):*
 > - `donkey_zebra`: a grey donkey with dripping painted stripes and taped-up ears
 > - `capybara_dog`: a capybara with patchy blonde dye and a dog collar
-> - `cheetah_cat`: a cheetah cub smeared with brown shoe polish, wearing a cat bell
-> - `macaw_vest`: three macaws poking out of a zipped poodle costume
-> - `warthog_pig`: a warthog piglet in pink blush, tusks showing
-> - `croc_wiener`: a baby Nile crocodile in a knit dachshund sweater with felt ears
-> - `penguin_butler`: a penguin chick in a duck costume with a bow tie
 >
-> **Pet-Dex portraits:** for each of the 16 above, a 256×256 circular badge crop (`*_dex.svg`),
-> plus one `dex_locked.svg` silhouette with a question mark.
+> **Rescued pose:** for each trafficked animal, a second pose `*_rescued` (512×512): the disguise
+> gone, the animal calm and cleaned up, wrapped in a W.C.A. rescue blanket or sitting in a clean
+> rescue-centre crate. Shown after a successful bust.
+>
+> **Rescue Log portraits** (the in-game collection): for every animal above, a 256×256 circular
+> badge crop (`*_dex.svg`), plus one `dex_locked.svg` silhouette with a question mark.
 
 ---
 
@@ -223,9 +250,10 @@ personality.
 > - `biscuit`: **the sniffer dog.** A scruffy brown Kenyan mutt in a tiny W.C.A. vest. For Biscuit
 >   the expressions are `_neutral`, `_happy`, `_sniffing` and `_alert`.
 >
-> Also: `big_man_kiboko`, **the smuggling boss** (in the style of a hippo-like crime lord in a
-> leopard-print shirt, gold rings, sunglasses indoors), with `_neutral`, `_smug`, `_angry` and
-> `_busted`.
+> Also: `big_man_kiboko`, **the wildlife-trafficking boss** (a hippo-like crime lord in a
+> leopard-print shirt, gold rings, sunglasses indoors, an empty birdcage keyring), with
+> `_neutral`, `_smug`, `_angry` and `_busted`. Comic and pompous, the villain everyone loves to see
+> caught.
 
 ---
 
@@ -237,7 +265,8 @@ personality.
 > 2. **Daily bulletin:** a memo with the shift title, story text and today's rules.
 > 3. **Dialogue scene:** a coworker portrait with a speech box and a "tap to continue" hint.
 > 4. **Shift report:** the rank stamp, accuracy, cases, smugglers busted and strikes.
-> 5. **Pet-Dex:** a scrapbook grid of discovered and locked animals.
+> 5. **Rescue Log:** a scrapbook grid of rescued and locked animals. Each rescued card shows the
+>    `_dex` badge, the animal's name and a one-line conservation fact.
 >
 > Also export `app-icon` at 512×512 and 192×192 (the W.C.A. crest on ochre) for the phone home
 > screen.
@@ -248,10 +277,10 @@ personality.
 
 | Batch | Contents | Status |
 |---|---|---|
-| 0 | Style guide + test scene | not started |
-| 1 | UI kit | not started |
+| 0 | Style guide + test scene | ✅ approved |
+| 1 | UI kit (incl. Jiwe paw seal) | next |
 | 2 | Scene props | not started |
-| 3 | Animals (16 + dex badges) | not started |
+| 3 | Animals (9 legal + 10 disguised + 8 rescued poses + dex badges) | not started |
 | 4 | Passengers (8 × 4 + 4 custom) | not started |
 | 5 | Crew + Kiboko (6 × 4) | not started |
 | 6 | Screens + app icon | not started |
