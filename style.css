@@ -2551,3 +2551,48 @@ header {
 .guide-box .rule-approve {
   color: var(--stamp-green);
 }
+
+/* Rescue Log badges */
+.dex-card .dex-icon {
+  display: flex;
+  justify-content: center;
+}
+
+.dex-card .dex-icon.has-art img {
+  width: 84px;
+  height: 84px;
+}
+
+.dex-card.locked .dex-icon.has-art img {
+  filter: none;
+  opacity: 0.55;
+}
+
+.dex-card .dex-lore {
+  font-size: 0.68rem;
+  line-height: 1.35;
+  color: var(--ink);
+  margin-top: 4px;
+}
+
+.dex-card.kind-trafficked .dex-busted-tag {
+  background: var(--stamp-green);
+}
+
+.dex-card.kind-legal .dex-busted-tag {
+  background: var(--teal);
+}
+
+.petdex-grid {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+
+/* On small screens the scale reading sits on the crate's top edge, so the reveal tag moves to the bottom. */
+@media (max-width: 699px), (max-height: 520px) {
+  .animal-revealed-tag {
+    top: auto;
+    bottom: 6px;
+    max-width: calc(100% - 16px);
+    font-size: 0.7rem;
+  }
+}
