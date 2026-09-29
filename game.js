@@ -620,12 +620,16 @@ let gameState = {
   maxStrikes: 3,
   casesProcessed: 0,
   smugglersCaught: 0,
+  correctCalls: 0,
+  wrongCalls: 0,
   currentCase: null,
   activeTool: 'sponge',
   shiftInterval: null,
   isWiping: false,
   coffeeAvailable: true,
   isTimeFrozen: false,
+  resolving: false,
+  coffeeTimeout: null,
   lastSpongeSoundTime: 0
 };
 
@@ -879,12 +883,6 @@ function sampleWipeProgress() {
   } else {
     elWipeStatus.textContent = `🔍 UNDERLAYER FULLY EXPOSED! (${percent}%)`;
     elAnimalTrueTag.style.opacity = "1";
-    if (gameState.currentCase && gameState.currentCase.blueprint.type === 'disguise') {
-      if (StorageManager.saveDexItem(gameState.currentCase.blueprint.dexId)) {
-        updateDexBadge();
-        showToast(true, `📖 NEW PET-DEX ENTRY UNLOCKED!`);
-      }
-    }
   }
 }
 
@@ -969,7 +967,7 @@ function generateNewCase() {
     blueprint: blueprint,
     passengerName: passenger.name,
     passengerAvatar: passenger.avatar,
-    passengerSpeech: passenger.quote || blueprint.speech,
+    passengerSpeech: blueprint.speech,
     permitId: permitId,
     chipId: chipId,
     permitOwner: permitOwner,
@@ -983,6 +981,7 @@ function generateNewCase() {
   };
 
   gameState.currentCase = newCase;
+  gameState.resolving = false;
   renderCase(newCase);
 }
 
@@ -1026,9 +1025,12 @@ function renderCase(c) {
 
 // --- 10. VERDICT HANDLING ---
 function handleVerdict(approvedByUser) {
-  if (!gameState.active || !gameState.currentCase) return;
+  if (!gameState.active || !gameState.currentCase || gameState.resolving) return;
 
+  // Lock until the next case is on the desk so one case can't be stamped twice.
+  gameState.resolving = true;
   const c = gameState.currentCase;
+  gameState.currentCase = null;
   const isCorrect = (approvedByUser === c.shouldApprove);
 
   sound.init();
@@ -1041,12 +1043,14 @@ function handleVerdict(approvedByUser) {
     sound.playSuccess();
     gameState.score += 100;
     gameState.casesProcessed++;
+    gameState.correctCalls++;
     gameState.quotaMetCount++;
     if (!c.shouldApprove) {
       gameState.smugglersCaught++;
     }
 
-    if (StorageManager.saveDexItem(c.blueprint.dexId)) {
+    const dexMatchesCase = c.blueprint.type === 'disguise' || c.blueprint.type === 'legal';
+    if (dexMatchesCase && StorageManager.saveDexItem(c.blueprint.dexId)) {
       updateDexBadge();
     }
 
@@ -1057,6 +1061,7 @@ function handleVerdict(approvedByUser) {
 
     // In Story Mode: Check if target quota has been achieved!
     if (gameState.mode === 'story' && gameState.quotaMetCount >= gameState.targetQuota) {
+      gameState.active = false;
       updateHUD();
       setTimeout(() => {
         handleShiftEnd(true, "QUOTA COMPLETED!", "Excellent detective work! Shift requirements met.");
@@ -1067,6 +1072,7 @@ function handleVerdict(approvedByUser) {
     sound.playStrike();
     triggerScreenShake();
     gameState.strikes++;
+    gameState.wrongCalls++;
     gameState.timeLeft = Math.max(0, gameState.timeLeft - 10);
 
     let failDetail = "";
@@ -1081,6 +1087,7 @@ function handleVerdict(approvedByUser) {
   updateHUD();
 
   if (gameState.strikes >= gameState.maxStrikes) {
+    gameState.active = false;
     setTimeout(() => {
       handleShiftEnd(false, "FIRED BY INSPECTOR GENERAL", "3 Strikes! Dismissed from the customs desk.");
     }, 550);
@@ -1199,8 +1206,12 @@ function startActualShift() {
   gameState.strikes = 0;
   gameState.casesProcessed = 0;
   gameState.smugglersCaught = 0;
+  gameState.correctCalls = 0;
+  gameState.wrongCalls = 0;
   gameState.coffeeAvailable = true;
   gameState.isTimeFrozen = false;
+  gameState.resolving = false;
+  clearTimeout(gameState.coffeeTimeout);
   elBtnCoffee.classList.remove('used');
 
   if (gameState.mode === 'arcade') {
@@ -1216,7 +1227,7 @@ function startActualShift() {
 
   clearInterval(gameState.shiftInterval);
   gameState.shiftInterval = setInterval(() => {
-    if (!gameState.active || gameState.isTimeFrozen) return;
+    if (!gameState.active || gameState.isTimeFrozen || isDeskPopupOpen()) return;
     gameState.timeLeft--;
 
     if (gameState.timeLeft <= 10 && gameState.timeLeft > 0) {
@@ -1233,7 +1244,10 @@ function startActualShift() {
 
 function handleShiftEnd(success, title, subtitle) {
   gameState.active = false;
+  gameState.resolving = false;
   clearInterval(gameState.shiftInterval);
+  clearTimeout(gameState.coffeeTimeout);
+  gameState.isTimeFrozen = false;
   elDesk.classList.remove('panic-glow');
 
   // Arcade high score check
@@ -1253,12 +1267,16 @@ function handleShiftEnd(success, title, subtitle) {
   }
 
   // Calculate Rank
-  let rank = "F";
-  if (gameState.score >= 1000) rank = "S+ ACE DETECTIVE";
-  else if (gameState.score >= 700) rank = "A SENIOR INSPECTOR";
-  else if (gameState.score >= 400) rank = "B JUNIOR AGENT";
-  else if (gameState.score >= 200) rank = "C ROOKIE";
+  const totalCalls = gameState.correctCalls + gameState.wrongCalls;
+  const accuracy = totalCalls > 0 ? Math.round((gameState.correctCalls / totalCalls) * 100) : 0;
+  let rank;
+  if (totalCalls < 3) rank = "F DISMISSED";
+  else if (accuracy >= 95) rank = "S+ ACE DETECTIVE";
+  else if (accuracy >= 85) rank = "A SENIOR INSPECTOR";
+  else if (accuracy >= 70) rank = "B JUNIOR AGENT";
+  else if (accuracy >= 50) rank = "C ROOKIE";
   else rank = "F DISMISSED";
+  rank += ` · ${accuracy}%`;
 
   elEndTitle.textContent = title;
   elEndSubtitle.textContent = subtitle;
@@ -1307,7 +1325,7 @@ elBtnCoffee.addEventListener('click', () => {
   showToast(true, "☕ COFFEE BREAK! Shift timer frozen for 5 seconds!");
   updateHUD();
 
-  setTimeout(() => {
+  gameState.coffeeTimeout = setTimeout(() => {
     gameState.isTimeFrozen = false;
     updateHUD();
   }, 5000);
@@ -1389,12 +1407,15 @@ function renderSuspectsList() {
     item.className = "suspect-item";
     item.innerHTML = `
       <div class="s-info">
-        <span style="font-size:1.2rem; margin-right:6px;">${s.avatar}</span>
-        <strong>${s.name}</strong>
-        <div style="font-size:0.68rem; color:#90a4ae; font-style:italic;">"${s.quote}"</div>
+        <span style="font-size:1.2rem; margin-right:6px;"></span>
+        <strong></strong>
+        <div style="font-size:0.68rem; color:#90a4ae; font-style:italic;"></div>
       </div>
       ${idx >= DEFAULT_PASSENGERS.length ? `<button data-idx="${idx - DEFAULT_PASSENGERS.length}" class="btnDeleteSuspect" style="background:#d32f2f; border:none; color:#fff; border-radius:4px; padding:2px 6px; font-size:0.7rem; cursor:pointer;">Del</button>` : '<span style="font-size:0.65rem; color:#546e7a;">DEFAULT</span>'}
     `;
+    item.querySelector('.s-info span').textContent = s.avatar;
+    item.querySelector('.s-info strong').textContent = s.name;
+    item.querySelector('.s-info div').textContent = `"${s.quote}"`;
     list.appendChild(item);
   });
 
@@ -1413,12 +1434,23 @@ function renderSuspectsList() {
 elBtnApprove.addEventListener('click', () => handleVerdict(true));
 elBtnDeny.addEventListener('click', () => handleVerdict(false));
 
+function isDeskPopupOpen() {
+  return [elPetdexModal, elSuspectsModal, elRulesModal].some(m => !m.classList.contains('hidden'));
+}
+
+function isAnyPopupOpen() {
+  return document.querySelector('.modal-backdrop:not(.hidden)') !== null;
+}
+
 window.addEventListener('keydown', (e) => {
+  if (e.target.closest('input, textarea, select') || isAnyPopupOpen()) return;
   if (e.key === 'a' || e.key === 'A') {
     handleVerdict(true);
   } else if (e.key === 'd' || e.key === 'D') {
     handleVerdict(false);
   } else if (e.key === ' ' || e.key === 'w' || e.key === 'W') {
+    // Stop Space from also "clicking" whichever button still has focus.
+    e.preventDefault();
     toggleTool();
   }
 });

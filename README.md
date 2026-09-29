@@ -27,8 +27,8 @@ You are a customs inspector stationed at the **Border Customs & Exotic Species R
 
 ## 🚀 How to Play
 
-1. Clone this repository or download [`game.html`](./game.html).
-2. Double-click `game.html` to open it in any web browser (Chrome, Edge, Firefox, Safari).
+1. Clone this repository or download the repo.
+2. Double-click `index.html` to open it in any web browser (Chrome, Edge, Firefox, Safari).
 3. Click **START 90s SHIFT** (or press any key) to enable audio and begin inspecting!
 
 ### Controls
