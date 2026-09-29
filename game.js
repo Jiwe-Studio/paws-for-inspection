@@ -178,6 +178,27 @@ class SoundEngine {
       gain.connect(this.ctx.destination);
       osc.start(now);
       osc.stop(now + 0.46);
+    } else if (soundType === 'bark') {
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(320, now);
+      osc.frequency.exponentialRampToValueAtTime(160, now + 0.12);
+      gain.gain.setValueAtTime(0.18, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.14);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.15);
+    } else if (soundType === 'meow') {
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(600, now);
+      osc.frequency.linearRampToValueAtTime(900, now + 0.15);
+      osc.frequency.linearRampToValueAtTime(500, now + 0.45);
+      gain.gain.setValueAtTime(0.18, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.52);
     } else {
       osc.type = 'sine';
       osc.frequency.setValueAtTime(440, now);
@@ -211,347 +232,262 @@ class SoundEngine {
 const sound = new SoundEngine();
 
 // --- 2. 10-SHIFT STORY CAMPAIGN CONFIGURATION ---
+// Each shift unlocks the violation types it lists. 'disguise' puts every animal
+// under a crate cover (sponge needed); 'seal' introduces forged seals (UV needed).
+const ALL_VIOLATIONS = ["expired", "name", "weight", "disguise", "seal"];
+
 const STORY_SHIFTS = [
   {
     shiftNumber: 1,
-    title: "Shift 1: Rookie Orientation - The Paper Trail",
-    story: "Welcome to B.C.E.S.R.A. Checkpoint Charlie! The Inspector General has an eye on you today. Shady travelers frequently forge dates or borrow stolen passports. Keep your cool and double check every date against today's customs calendar.",
+    title: "Shift 1: First Day at Mzinga",
+    story: "Karibu to the Wanyama Customs desk at Mzinga International Airport, Officer! Today is paperwork only. Read every permit carefully: the date and the owner's name must both check out.",
     rules: [
       "Target Quota: Process 4 cases correctly.",
-      "Check PERMIT EXPIRY DATES (Any date prior to OCT 14, 2026 is an immediate DENY).",
-      "Check OWNER NAMES against the passenger badge."
+      "DENY if the permit expired before today's date.",
+      "DENY if the permit owner's name doesn't exactly match the passenger."
     ],
     quota: 4,
     timeLimit: 90,
-    allowedTypes: ["legal", "expired_date", "name_mismatch"]
+    violations: ["expired", "name"]
   },
   {
     shiftNumber: 2,
-    title: "Shift 2: Heavy Cargo - Scale Calibrations",
-    story: "Intelligence reports that gold bullion and lead weights are being smuggled inside ordinary domestic pet carriers. The bio-mass digital scale has been freshly calibrated. Watch it like a hawk!",
+    title: "Shift 2: Heavy Luggage",
+    story: "Someone has been stuffing carriers with contraband. The bio-mass scale has just been calibrated. If an animal weighs more than its permit allows, something else is in that crate.",
     rules: [
       "Target Quota: Process 5 cases correctly.",
-      "Compare scale reading to PERMITTED MAX WEIGHT.",
-      "Watch for MISSING CITES HOLOGRAPHIC SEALS."
+      "NEW: DENY if the scale reads above the permit's max weight."
     ],
     quota: 5,
     timeLimit: 90,
-    allowedTypes: ["legal", "weight_mismatch", "missing_seal", "expired_date"]
+    violations: ["expired", "name", "weight"]
   },
   {
     shiftNumber: 3,
-    title: "Shift 3: Paint & Powder - The Disguise Syndicate",
-    story: "A cosmetic hair dye cartel has breached the terminal! Travelers are attempting to pass off domestic farm animals as rare African wildlife. Grab your Solvent Sponge and scrub away suspicious coats.",
+    title: "Shift 3: The Paint Job",
+    story: "A dye cartel is painting farm animals to pass as fancy breeds. From today every animal arrives in a covered crate. Scrub the cover with the Solvent Sponge and check what's really inside.",
     rules: [
       "Target Quota: Process 5 cases correctly.",
-      "SCRUB SUSPICIOUS COATS with the Solvent Sponge.",
-      "DENY entry if the revealed creature does not match declared species!"
+      "NEW: Scrub every crate. DENY if the animal doesn't match the declared species.",
+      "Tip: Provoke Sound makes the animal call out. A 'zebra' shouldn't bray."
     ],
     quota: 5,
-    timeLimit: 85,
-    allowedTypes: ["legal", "disguise", "weight_mismatch", "expired_date"]
+    timeLimit: 90,
+    violations: ["expired", "name", "weight", "disguise"]
   },
   {
     shiftNumber: 4,
-    title: "Shift 4: The Avian Underground",
-    story: "High-roller smugglers have started stitching secret zipper pockets into winter coats and travel vests. Parrots, chameleons, and exotic reptiles are hiding under padded luggage.",
+    title: "Shift 4: The Cyber Café Forgers",
+    story: "Forged permits are circulating, printed with near-perfect seals. The lab has sent you a Blacklight UV torch. A genuine W.C.A. seal glows green under UV. A fake one stays dark.",
     rules: [
       "Target Quota: Process 6 cases correctly.",
-      "Check coats thoroughly for CONTRABAND POCKETS.",
-      "Provoke sounds with the Audio Tool to test reactions!"
+      "NEW: Switch to Blacklight UV [W/Space] and check the seal. DENY if it doesn't glow."
     ],
     quota: 6,
-    timeLimit: 85,
-    allowedTypes: ["legal", "disguise", "weight_mismatch", "name_mismatch"]
+    timeLimit: 90,
+    violations: ALL_VIOLATIONS
   },
   {
     shiftNumber: 5,
-    title: "Shift 5: High Society Scams",
-    story: "Nobility and eccentric millionaires are arriving with purebred prize beasts and forged diplomatic exemptions. Do not let titles intimidate you: the law is the law!",
+    title: "Shift 5: VIP Arrivals",
+    story: "Honourables, CEOs and socialites are flying in with prize animals. They will drop names. Ignore them: the law is the law.",
     rules: [
       "Target Quota: Process 6 cases correctly.",
-      "Full rigorous inspection: Name, Seals, Dates, Weights, and Disguises.",
-      "Remember to take an Inspector Coffee sip if the clock gets tight!"
+      "Full inspection: names, dates, weights, crates and seals."
     ],
     quota: 6,
-    timeLimit: 80,
-    allowedTypes: ["legal", "disguise", "missing_seal", "expired_date", "weight_mismatch"]
+    timeLimit: 90,
+    violations: ALL_VIOLATIONS
   },
   {
     shiftNumber: 6,
-    title: "Shift 6: Midnight Stampede",
-    story: "Terminal rush hour! The line stretches out into the tarmac. The Inspector General demands high velocity without sacrificing accuracy. 3 strikes and you will be escorted off the premises.",
+    title: "Shift 6: Rush Hour",
+    story: "Three flights landed at once and the queue reaches the car park. Keep the line moving, but don't get sloppy.",
     rules: [
       "Target Quota: Process 7 cases correctly.",
-      "Time is reduced to 75 seconds.",
-      "Zero tolerance on counterfeit seals and overweight carriers."
+      "Some smugglers now break more than one rule at once."
     ],
     quota: 7,
-    timeLimit: 75,
-    allowedTypes: ["legal", "disguise", "weight_mismatch", "expired_date", "name_mismatch"]
+    timeLimit: 85,
+    violations: ALL_VIOLATIONS,
+    doubleChance: 0.2
   },
   {
     shiftNumber: 7,
-    title: "Shift 7: Red Alert - The Chameleon Protocol",
-    story: "Counterfeiters have upgraded to high-grade industrial paints and heat-resistant wigs. Some animals look nearly identical until you scrub deeply into the underlayer.",
+    title: "Shift 7: Better Paint",
+    story: "The dye cartel has upgraded. The weights match, the paperwork is clean, and only the crate will tell you the truth.",
     rules: [
       "Target Quota: Process 7 cases correctly.",
-      "Scrub at least 40% of the animal surface to trigger full tag exposure."
+      "Scrub thoroughly. The reveal tag appears once enough of the crate is clear."
     ],
     quota: 7,
-    timeLimit: 75,
-    allowedTypes: ["legal", "disguise", "weight_mismatch", "expired_date"]
+    timeLimit: 85,
+    violations: ALL_VIOLATIONS,
+    doubleChance: 0.25
   },
   {
     shiftNumber: 8,
-    title: "Shift 8: The Weight Ring Crackdown",
-    story: "Federal marshals have seized a warehouse of lead-lined cages. Massive discrepancies between declared and scale weights are rampant today.",
+    title: "Shift 8: Heavy Cargo Week",
+    story: "The marshals raided a warehouse of lead-lined crates. Expect small weight differences, a kilo here and a kilo there.",
     rules: [
       "Target Quota: Process 8 cases correctly.",
-      "Scrutinize the green LED scale reading immediately."
+      "Read the scale to the decimal."
     ],
     quota: 8,
-    timeLimit: 70,
-    allowedTypes: ["legal", "weight_mismatch", "disguise", "missing_seal"]
+    timeLimit: 85,
+    violations: ALL_VIOLATIONS,
+    doubleChance: 0.25
   },
   {
     shiftNumber: 9,
-    title: "Shift 9: The Syndicate Boss Approaches",
-    story: "Rumors say the notorious smuggling ringleader 'Chester Copperpot' is personally flying in today with a cargo of disguised apex predators. Keep your hand on the DENY stamp.",
+    title: "Shift 9: Big Man Kiboko's Decoys",
+    story: "Word is that the smuggling boss Big Man Kiboko is flooding the queue with decoys to wear you down. Stay methodical.",
     rules: [
       "Target Quota: Process 8 cases correctly.",
-      "Stay calm, check permits methodically, and use your tools."
+      "Stay calm and check every field."
     ],
     quota: 8,
-    timeLimit: 70,
-    allowedTypes: ["legal", "disguise", "weight_mismatch", "name_mismatch", "expired_date"]
+    timeLimit: 80,
+    violations: ALL_VIOLATIONS,
+    doubleChance: 0.35
   },
   {
     shiftNumber: 10,
-    title: "Shift 10: The Master Inspector Trial",
-    story: "Final assessment for the permanent rank of CHIEF DETECTIVE GENERAL. Every trick, disguise, forged stamp, and identity mismatch in the book will cross your desk. Make the bureau proud!",
+    title: "Shift 10: The Final Inspection",
+    story: "This is your assessment for Chief Inspector. Every trick in the book will cross your desk today. Make Mzinga proud!",
     rules: [
       "Target Quota: Process 9 cases correctly.",
-      "Maintain flawless accuracy to earn the Golden Agency Crest.",
       "3 Strikes = Immediate Termination."
     ],
     quota: 9,
-    timeLimit: 65,
-    allowedTypes: ["legal", "disguise", "weight_mismatch", "missing_seal", "expired_date", "name_mismatch"]
+    timeLimit: 80,
+    violations: ALL_VIOLATIONS,
+    doubleChance: 0.4
   }
 ];
+
+const ARCADE_RULES = { violations: ALL_VIOLATIONS, doubleChance: 0.25 };
 
 // --- 3. PET-DEX DATABASE ---
 const PET_DEX_MASTER = [
-  { id: "donkey_zebra", name: "The Donkeyxote", emoji: "🐴", species: "Gray Donkey", disguise: "Painted Zebra", lore: "An ordinary farm donkey spray-painted with cheap acrylic stripes and taped ears." },
-  { id: "capybara_dog", name: "Sir Fluffsbark", emoji: "🦫", species: "Giant Capybara", disguise: "Golden Retriever", lore: "Dyed with supermarket bleach. Emits suspicious chirps instead of barks." },
-  { id: "cheetah_cat", name: "Barnaby the Tabby", emoji: "🐆", species: "African Cheetah", disguise: "House Cat", lore: "Purrs at 120 decibels. Smuggled under brown shoe polish." },
-  { id: "macaw_vest", name: "Trenchcoat Polly", emoji: "🦜", species: "Smuggled Macaws", disguise: "Poodle Vest", lore: "Three rare macaws tucked inside secret velvet-lined zipper pockets." },
-  { id: "warthog_pig", name: "Princess Piglet", emoji: "🐗", species: "Savannah Warthog", disguise: "Teacup Pig", lore: "Razor-sharp tusks concealed with thick layers of pink blush powder." },
-  { id: "croc_wiener", name: "The Wiener Croc", emoji: "🐊", species: "Baby Alligator", disguise: "Dachshund", lore: "Stuffed inside a knit sweater with glued felt puppy ears." },
-  { id: "gold_rabbit", name: "Lead-Foot Thumper", emoji: "🐰", species: "Holland Lop", disguise: "Contraband Weight", lore: "Legit bunny, but its travel carrier was lined with 26 kg of gold bars!" },
-  { id: "penguin_butler", name: "Sir Tuxedo", emoji: "🐧", species: "Emperor Penguin", disguise: "Formal Duck", lore: "Wearing a bow-tie. Owner claimed it was an emotional support mallard." },
-  { id: "legal_bengal", name: "Her Royal Paws", emoji: "🐱", species: "Purebred Bengal", disguise: "None", lore: "100% legal champion feline with verified diplomatic quarantine clearance." },
-  { id: "legal_alpaca", name: "Llama Del Rey", emoji: "🦙", species: "Huacaya Alpaca", disguise: "None", lore: "Legit wool prize alpaca travelling with valid documentation." },
-  { id: "legal_hedgehog", name: "Spike McFluff", emoji: "🦔", species: "Pygmy Hedgehog", disguise: "None", lore: "Verified captive-bred insectivore in peak health." },
-  { id: "legal_macaw", name: "Captain Feathers", emoji: "🦜", species: "Scarlet Macaw", disguise: "None", lore: "Registered zoological specimen with pristine CITES hologram." }
+  { id: "donkey_zebra", name: "The Donkeyxote", emoji: "🐴", species: "Grey Donkey", disguise: "Painted Zebra", lore: "An ordinary shamba donkey sprayed with cheap acrylic stripes. Brays when nervous." },
+  { id: "capybara_dog", name: "Sir Fluffsbark", emoji: "🦫", species: "Giant Capybara", disguise: "Golden Retriever", lore: "Dyed with supermarket bleach. Chirps instead of barking." },
+  { id: "cheetah_cat", name: "Barnaby the Tabby", emoji: "🐆", species: "Cheetah Cub", disguise: "House Cat", lore: "Smuggled under brown shoe polish. Purrs like a matatu engine." },
+  { id: "macaw_vest", name: "Trenchcoat Polly", emoji: "🦜", species: "Smuggled Macaws", disguise: "Poodle Vest", lore: "Three macaws zipped into a padded poodle costume." },
+  { id: "warthog_pig", name: "Princess Piglet", emoji: "🐗", species: "Warthog Piglet", disguise: "Teacup Pig", lore: "Tusks hidden under thick layers of pink blush. Pumbaa's cousin." },
+  { id: "croc_wiener", name: "The Wiener Croc", emoji: "🐊", species: "Baby Nile Crocodile", disguise: "Dachshund", lore: "Stuffed into a knit sweater with felt puppy ears glued on." },
+  { id: "penguin_butler", name: "Sir Tuxedo", emoji: "🐧", species: "Penguin Chick", disguise: "Pekin Duck", lore: "The owner said it was an emotional-support duck that likes cold showers." },
+  { id: "legal_bengal", name: "Her Royal Paws", emoji: "🐈", species: "Bengal Cat", disguise: "None", lore: "A fully legal champion cat with her papers in order." },
+  { id: "legal_alpaca", name: "Llama Del Rey", emoji: "🦙", species: "Huacaya Alpaca", disguise: "None", lore: "A prize wool alpaca travelling with valid papers." },
+  { id: "legal_hedgehog", name: "Spike McFluff", emoji: "🦔", species: "Pygmy Hedgehog", disguise: "None", lore: "A verified captive-bred hedgehog in peak health." },
+  { id: "legal_macaw", name: "Captain Feathers", emoji: "🦜", species: "Scarlet Macaw", disguise: "None", lore: "A registered zoo specimen with a pristine seal." },
+  { id: "legal_rooster", name: "Jogoo wa Mtaa", emoji: "🐓", species: "Kienyeji Rooster", disguise: "None", lore: "Crows at 4am sharp. Fully legal, extremely loud." }
 ];
 
-// --- 4. CASE BLUEPRINTS ---
-const CASE_BLUEPRINTS = [
+// --- 4. ANIMALS & DISGUISES ---
+// Weights are kg. A legal permit's max weight is the animal's `max`.
+const LEGAL_ANIMALS = [
+  { species: "Border Collie (Canis familiaris)", emoji: "🐕", min: 14, max: 20, sound: "bark" },
+  { species: "Persian Cat (Felis catus)", emoji: "🐱", min: 3, max: 5.5, sound: "meow" },
+  { species: "Bengal Cat (Felis catus)", emoji: "🐈", min: 4, max: 7, sound: "meow", dexId: "legal_bengal" },
+  { species: "Scarlet Macaw (Ara macao)", emoji: "🦜", min: 0.9, max: 1.4, sound: "squeak", dexId: "legal_macaw" },
+  { species: "African Pygmy Hedgehog (Atelerix albiventris)", emoji: "🦔", min: 0.3, max: 0.6, sound: "squeak", dexId: "legal_hedgehog" },
+  { species: "Huacaya Alpaca (Vicugna pacos)", emoji: "🦙", min: 50, max: 80, sound: "squeak", dexId: "legal_alpaca" },
+  { species: "Holland Lop Rabbit (Oryctolagus cuniculus)", emoji: "🐰", min: 1.3, max: 2.2, sound: "squeak" },
+  { species: "Kienyeji Rooster (Gallus gallus)", emoji: "🐓", min: 1.8, max: 3, sound: "squeak", dexId: "legal_rooster" },
+  { species: "Galla Goat (Capra hircus)", emoji: "🐐", min: 30, max: 50, sound: "bark" }
+];
+
+// Smugglers pick look-alike weights, so the scale won't catch a disguise.
+// Only scrubbing the crate (or provoking a sound) gives it away.
+const DISGUISES = [
   {
     dexId: "donkey_zebra",
-    type: "disguise",
-    speech: "Just an authentic Serengeti zebra! Loves rolling in dust, definitely don't wash him!",
-    declaredSpecies: "Plains Zebra (Equus quagga)",
-    declaredWeight: 350.0,
-    actualWeight: 210.5,
-    revealedEmoji: "🐴",
-    revealedTag: "Gray Donkey (Equus asinus) wearing tape!",
-    disguiseStyle: "zebra_paint",
-    vocalSound: "donkey",
-    violationReason: "DISGUISED ANIMAL! Paint rubbed off to reveal an ordinary donkey with taped ears!"
+    declared: { species: "Plains Zebra (Equus quagga)", min: 220, max: 350 },
+    emoji: "🐴", sound: "donkey",
+    revealTag: "Grey donkey with painted stripes!",
+    reason: "That 'zebra' was a painted donkey!",
+    speech: ["Authentic zebra from the Mara! Just don't wash him, he's allergic to water."]
   },
   {
     dexId: "capybara_dog",
-    type: "disguise",
-    speech: "He's just a funny-looking Golden Retriever puppy. Barks with a squeak!",
-    declaredSpecies: "Golden Retriever (Canis lupus familiaris)",
-    declaredWeight: 32.0,
-    actualWeight: 52.0,
-    revealedEmoji: "🦫",
-    revealedTag: "Wild Giant Capybara (Hydrochoerus hydrochaeris)",
-    disguiseStyle: "golden_fluff",
-    vocalSound: "capybara",
-    violationReason: "FRAUD! Scrubbing washed away yellow hair dye to reveal a wild Capybara!"
+    declared: { species: "Golden Retriever (Canis familiaris)", min: 25, max: 34 },
+    emoji: "🦫", sound: "capybara",
+    revealTag: "Capybara dyed blonde!",
+    reason: "That 'retriever' was a dyed capybara!",
+    speech: ["Golden Retriever puppy, sasa! He just barks with a squeak."]
   },
   {
     dexId: "cheetah_cat",
-    type: "disguise",
-    speech: "He's a domestic tabby, officer. Purrs like a chainsaw and eats whole gazelles!",
-    declaredSpecies: "Domestic Cat (Felis catus)",
-    declaredWeight: 4.5,
-    actualWeight: 39.0,
-    revealedEmoji: "🐆",
-    revealedTag: "African Cheetah (Acinonyx jubatus)",
-    disguiseStyle: "tabby_paint",
-    vocalSound: "cheetah",
-    violationReason: "ILLEGAL PREDATOR! Brown dye removed to reveal an endangered wild Cheetah!"
+    declared: { species: "Domestic Tabby (Felis catus)", min: 3.5, max: 6 },
+    emoji: "🐆", sound: "cheetah",
+    revealTag: "Cheetah cub under shoe polish!",
+    reason: "That 'tabby' was a cheetah cub!",
+    speech: ["Paka wa nyumbani tu. He purrs like a matatu engine."]
   },
   {
     dexId: "macaw_vest",
-    type: "disguise",
-    speech: "My poodle's coat is naturally bulky. Do not touch her vest, she is sensitive!",
-    declaredSpecies: "Standard Poodle (Canis familiaris)",
-    declaredWeight: 22.0,
-    actualWeight: 29.5,
-    revealedEmoji: "🦜",
-    revealedTag: "Smuggled Neon Macaws hidden under coat!",
-    disguiseStyle: "trenchcoat_contraband",
-    vocalSound: "squeak",
-    violationReason: "CONTRABAND SMUGGLING! Scrubbed undercoat revealed illegally hidden Macaws!"
+    declared: { species: "Standard Poodle (Canis familiaris)", min: 20, max: 30 },
+    emoji: "🦜", sound: "squeak",
+    revealTag: "Three macaws zipped into a poodle vest!",
+    reason: "That 'poodle' was a vest full of macaws!",
+    speech: ["My poodle's coat is naturally bulky. Usiguse, she is sensitive!"]
   },
   {
     dexId: "warthog_pig",
-    type: "disguise",
-    speech: "Micro miniature piglet! Those aren't tusks, those are just oversized baby teeth.",
-    declaredSpecies: "Teacup Pig (Sus domesticus)",
-    declaredWeight: 12.0,
-    actualWeight: 88.0,
-    revealedEmoji: "🐗",
-    revealedTag: "Savannah Warthog (Phacochoerus africanus)",
-    disguiseStyle: "pink_powder",
-    vocalSound: "growl",
-    violationReason: "DANGEROUS BEAST! Pink makeup scrubbed away revealing ferocious tusks!"
+    declared: { species: "Teacup Pig (Sus domesticus)", min: 8, max: 15 },
+    emoji: "🐗", sound: "cheetah",
+    revealTag: "Warthog piglet in pink blush!",
+    reason: "That 'teacup pig' was a warthog!",
+    speech: ["Teacup piglet! Those aren't tusks, ni meno ya mtoto."]
   },
   {
     dexId: "croc_wiener",
-    type: "disguise",
-    speech: "My dachshund has scaly skin because of allergies. Absolutely harmless lap dog!",
-    declaredSpecies: "Dachshund (Canis lupus)",
-    declaredWeight: 9.0,
-    actualWeight: 24.0,
-    revealedEmoji: "🐊",
-    revealedTag: "Wild American Alligator (Alligator mississippiensis)",
-    disguiseStyle: "green_knit",
-    vocalSound: "cheetah",
-    violationReason: "DEADLY REPTILE! Scrubbing revealed a baby alligator disguised in a sweater!"
-  },
-  {
-    dexId: "gold_rabbit",
-    type: "weight_mismatch",
-    speech: "My bunny is just slightly plump from all the carrots during the flight.",
-    declaredSpecies: "Holland Lop Rabbit (Oryctolagus cuniculus)",
-    declaredWeight: 2.5,
-    actualWeight: 28.5,
-    revealedEmoji: "🐰",
-    revealedTag: "Rabbit carrier padded with contraband bricks!",
-    disguiseStyle: "clean_dust",
-    vocalSound: "squeak",
-    violationReason: "WEIGHT FRAUD! Scale reads 28.5 KG vs declared maximum of 2.5 KG!"
+    declared: { species: "Dachshund (Canis familiaris)", min: 7, max: 11 },
+    emoji: "🐊", sound: "cheetah",
+    revealTag: "Baby crocodile in a knit sweater!",
+    reason: "That 'dachshund' was a baby crocodile!",
+    speech: ["My dachshund has scaly skin from allergies. Lap dog kabisa."]
   },
   {
     dexId: "penguin_butler",
-    type: "disguise",
-    speech: "He is my formal emotional support duck. He likes cold showers.",
-    declaredSpecies: "Pekin Duck (Anas platyrhynchos)",
-    declaredWeight: 3.5,
-    actualWeight: 22.0,
-    revealedEmoji: "🐧",
-    revealedTag: "Emperor Penguin (Aptenodytes forsteri)",
-    disguiseStyle: "tabby_paint",
-    vocalSound: "squeak",
-    violationReason: "PROTECTED SPECIES! Scrubbing revealed an Antarctic Emperor Penguin!"
-  },
-  // Paperwork Traps
-  {
-    dexId: "capybara_dog",
-    type: "expired_date",
-    speech: "Everything is in order! Just renewed it... well, a little while back.",
-    declaredSpecies: "Border Collie (Canis familiaris)",
-    declaredWeight: 20.0,
-    actualWeight: 19.8,
-    revealedEmoji: "🐶",
-    revealedTag: "Legitimate Border Collie",
-    disguiseStyle: "clean_dust",
-    vocalSound: "squeak",
-    violationReason: "EXPIRED PERMIT! Permit expired in 2024, prior to today's date (OCT 2026)!"
-  },
-  {
-    dexId: "donkey_zebra",
-    type: "name_mismatch",
-    speech: "I am definitely the registered owner. Pay no attention to my other passport.",
-    declaredSpecies: "Persian Cat (Felis catus)",
-    declaredWeight: 4.8,
-    actualWeight: 4.7,
-    revealedEmoji: "🐱",
-    revealedTag: "Legitimate Persian Cat",
-    disguiseStyle: "clean_dust",
-    vocalSound: "squeak",
-    violationReason: "IDENTITY MISMATCH! Passenger name does not match permit owner!"
-  },
-  {
-    dexId: "legal_alpaca",
-    type: "missing_seal",
-    speech: "This permit was printed fresh at the embassy this morning, pinky swear!",
-    declaredSpecies: "Huacaya Alpaca (Vicugna pacos)",
-    declaredWeight: 65.0,
-    actualWeight: 64.2,
-    revealedEmoji: "🦙",
-    revealedTag: "Domestic Alpaca",
-    disguiseStyle: "clean_dust",
-    vocalSound: "squeak",
-    violationReason: "FORGED DOCUMENT! Permit is missing the mandatory CITES holographic security seal!"
-  },
-  // Clean Legal Cases
-  {
-    dexId: "legal_bengal",
-    type: "legal",
-    speech: "Here is her pedigree and CITES certification. She's fully vaccinated!",
-    declaredSpecies: "Bengal Cat (Felis catus × Prionailurus)",
-    declaredWeight: 5.5,
-    actualWeight: 5.2,
-    revealedEmoji: "🐱",
-    revealedTag: "Verified Purebred Domestic Bengal",
-    disguiseStyle: "clean_dust",
-    vocalSound: "squeak",
-    violationReason: null
-  },
-  {
-    dexId: "legal_macaw",
-    type: "legal",
-    speech: "Registered breeder transport with active scientific transit papers.",
-    declaredSpecies: "Scarlet Macaw (Ara macao)",
-    declaredWeight: 1.2,
-    actualWeight: 1.15,
-    revealedEmoji: "🦜",
-    revealedTag: "Registered Aviary Specimen",
-    disguiseStyle: "clean_dust",
-    vocalSound: "squeak",
-    violationReason: null
-  },
-  {
-    dexId: "legal_hedgehog",
-    type: "legal",
-    speech: "My sweet little hedgehog. Loves belly rubs and mealworms.",
-    declaredSpecies: "African Pygmy Hedgehog (Atelerix albiventris)",
-    declaredWeight: 0.5,
-    actualWeight: 0.48,
-    revealedEmoji: "🦔",
-    revealedTag: "Verified Captive Bred Pygmy Hedgehog",
-    disguiseStyle: "clean_dust",
-    vocalSound: "squeak",
-    violationReason: null
+    declared: { species: "Pekin Duck (Anas platyrhynchos)", min: 3, max: 4.5 },
+    emoji: "🐧", sound: "squeak",
+    revealTag: "Penguin chick in a duck costume!",
+    reason: "That 'duck' was a penguin chick!",
+    speech: ["He's my emotional-support bata. He likes cold showers."]
   }
 ];
 
+// Lines any passenger might say, legal or not.
+const GENERIC_LINES = [
+  "Habari officer! Long flight, let's make this quick.",
+  "Everything is in order, I promise.",
+  "My cousin works at this airport, you know.",
+  "Sawa sawa, stamp stamp and I'm gone!",
+  "She hasn't eaten since Dubai, please hurry.",
+  "I have a matatu waiting outside.",
+  "Pole for the smell, he got nervous on the plane.",
+  "Is this the line for Nanyuki? No? Okay, I'll wait."
+];
+
+// Suspicious lines. Mostly said by rule-breakers, sometimes by honest people as red herrings.
+const HINT_LINES = {
+  expired: ["I renewed it... sometime. Recently-ish.", "Dates are just numbers, officer."],
+  name: ["Yes, that's me on the permit. More or less.", "My brother's permit, my animal. Same family!"],
+  weight: ["He's just big-boned. Very big-boned.", "Don't mind the scale, he ate well in transit."],
+  seal: ["I printed it fresh at a cyber café this morning!", "The embassy stamp was... on its way."]
+};
+
 const DEFAULT_PASSENGERS = [
-  { name: "Arthur 'Fingers' McCoy", avatar: "🥸", quote: "Just an authentic Serengeti zebra! Definitely don't wash him!" },
-  { name: "Baroness Von Fluff", avatar: "👒", quote: "My puppy is imported from the Austrian Alps, inspector!" },
-  { name: "Captain Jack O'Collar", avatar: "🤠", quote: "Don't mind the squawks coming from my coat." },
-  { name: "Madame Penelope Zaza", avatar: "👩‍🌾", quote: "He purrs loudly because he loves customs agents!" },
-  { name: "Chester Copperpot", avatar: "🧐", quote: "My rabbit has very heavy bones, that is all." },
-  { name: "Montgomery Burns", avatar: "🎩", quote: "Release the hounds! I mean, release my prize alpaca." }
+  { name: "Njeri Wambui", avatar: "👩🏾‍🌾", quote: "Officer, I have a matatu waiting outside!" },
+  { name: "Otieno Ochieng", avatar: "👴🏾", quote: "Mimi ni mzee wa heshima. I don't lie." },
+  { name: "Brian Kamau", avatar: "😎", quote: "Niaje officer! We keep it quick, sawa?" },
+  { name: "Akinyi Adhiambo", avatar: "👒", quote: "He is very well behaved, unlike my husband." },
+  { name: "Dr. Mwangi Karanja", avatar: "🧐", quote: "I am a doctor. Trust me, the animal is fine." },
+  { name: "Hon. Chebet Kiprono", avatar: "🎩", quote: "Do you know who I am? Stamp it, please." },
+  { name: "Kevin Mutua", avatar: "🤠", quote: "Fresh from Dubai, officer. Everything is legit." },
+  { name: "Halima Hassan", avatar: "🧕🏾", quote: "Please be gentle with her, she's shy." }
 ];
 
 // --- 5. LOCALSTORAGE PROGRESSION MANAGER ---
@@ -605,8 +541,8 @@ class StorageManager {
 }
 
 // --- 6. GAME CONTROLLER STATE ---
+const TODAY = new Date(2026, 9, 14);
 const TODAY_STR = "OCT 14, 2026";
-const TODAY_YEAR = 2026;
 
 let gameState = {
   mode: 'story', // 'story' or 'arcade'
@@ -620,12 +556,18 @@ let gameState = {
   maxStrikes: 3,
   casesProcessed: 0,
   smugglersCaught: 0,
+  correctCalls: 0,
+  wrongCalls: 0,
   currentCase: null,
   activeTool: 'sponge',
   shiftInterval: null,
   isWiping: false,
   coffeeAvailable: true,
   isTimeFrozen: false,
+  resolving: false,
+  coffeeTimeout: null,
+  revealed: false,
+  lastScratchPoint: null,
   lastSpongeSoundTime: 0
 };
 
@@ -654,9 +596,11 @@ const elScale = document.getElementById('scaleDisplay');
 const elAnimalGraphic = document.getElementById('animalGraphic');
 const elAnimalTrueTag = document.getElementById('animalTrueTag');
 const elScratchCanvas = document.getElementById('scratchCanvas');
+const elViewportBox = document.getElementById('viewportBox');
 const elWipeStatus = document.getElementById('wipeStatus');
 const elBtnToolSponge = document.getElementById('btnToolSponge');
 const elBtnToolUV = document.getElementById('btnToolUV');
+const elToolbox = document.getElementById('toolbox');
 const elBtnCoffee = document.getElementById('btnCoffee');
 const elBtnVocalize = document.getElementById('btnVocalize');
 
@@ -664,11 +608,12 @@ const elPermitCard = document.getElementById('permitCard');
 const elDocPermitId = document.getElementById('docPermitId');
 const elDocOwner = document.getElementById('docOwner');
 const elDocExpiry = document.getElementById('docExpiry');
-const elDocExpirySub = document.getElementById('docExpirySub');
 const elDocSpecies = document.getElementById('docSpecies');
 const elDocWeight = document.getElementById('docWeight');
 const elDocChip = document.getElementById('docChip');
 const elDocSeal = document.getElementById('docSeal');
+const elDocSealText = document.getElementById('docSealText');
+const elDocSealUV = document.getElementById('docSealUV');
 const elDocCurrentDate = document.getElementById('docCurrentDate');
 const elStampOverlay = document.getElementById('stampOverlay');
 
@@ -713,132 +658,84 @@ const elBtnCloseRules = document.getElementById('btnCloseRules');
 const canvasCtx = elScratchCanvas.getContext('2d');
 
 // --- 8. SCRATCH CANVAS REVEAL MECHANIC ---
-function setupScratchCanvas(style) {
+// Every animal arrives under the same crate cover, so the cover itself tells you nothing.
+function setupScratchCanvas(covered) {
   const w = elScratchCanvas.width;
   const h = elScratchCanvas.height;
 
   canvasCtx.globalCompositeOperation = 'source-over';
   canvasCtx.clearRect(0, 0, w, h);
+  gameState.revealed = !covered;
 
-  if (style === 'zebra_paint') {
-    canvasCtx.fillStyle = '#f5f5f5';
-    canvasCtx.fillRect(0, 0, w, h);
+  if (!covered) {
+    elScratchCanvas.style.pointerEvents = 'none';
+    elWipeStatus.textContent = "";
+    elAnimalTrueTag.style.opacity = "1";
+    return;
+  }
 
-    canvasCtx.fillStyle = '#111';
-    for (let x = 20; x < w; x += 40) {
-      canvasCtx.beginPath();
-      canvasCtx.moveTo(x, 0);
-      canvasCtx.lineTo(x + 22, 0);
-      canvasCtx.lineTo(x + 8, h * 0.75);
-      canvasCtx.lineTo(x - 5, h);
-      canvasCtx.lineTo(x - 18, h * 0.7);
-      canvasCtx.closePath();
-      canvasCtx.fill();
+  elScratchCanvas.style.pointerEvents = 'auto';
 
-      canvasCtx.beginPath();
-      canvasCtx.arc(x - 8, h - 20, 7, 0, Math.PI * 2);
-      canvasCtx.fill();
-    }
+  // Tarp base
+  canvasCtx.fillStyle = '#6d5a3a';
+  canvasCtx.fillRect(0, 0, w, h);
 
-    canvasCtx.fillStyle = '#d32f2f';
-    canvasCtx.font = 'bold 14px monospace';
-    canvasCtx.fillText("⚠ FRESH ACRYLIC STRIPES", 16, 26);
-  } 
-  else if (style === 'golden_fluff') {
-    canvasCtx.fillStyle = '#ffca28';
-    canvasCtx.fillRect(0, 0, w, h);
-
-    canvasCtx.fillStyle = '#f57f17';
-    for (let i = 0; i < 35; i++) {
-      const rx = Math.random() * w;
-      const ry = Math.random() * h;
-      canvasCtx.beginPath();
-      canvasCtx.arc(rx, ry, 15 + Math.random() * 20, 0, Math.PI * 2);
-      canvasCtx.fill();
-    }
-
-    canvasCtx.fillStyle = '#4e342e';
-    canvasCtx.font = 'bold 13px monospace';
-    canvasCtx.fillText("🏷️ 'SUPER RETRIEVER BLONDE DYE #4'", 16, 26);
-  } 
-  else if (style === 'tabby_paint') {
-    canvasCtx.fillStyle = '#8d6e63';
-    canvasCtx.fillRect(0, 0, w, h);
-
-    canvasCtx.fillStyle = '#5d4037';
-    for (let y = 30; y < h; y += 38) {
-      canvasCtx.fillRect(0, y, w, 14);
-    }
-    canvasCtx.fillStyle = '#fff';
-    canvasCtx.font = 'bold 13px monospace';
-    canvasCtx.fillText("🐾 CONCEALING COAT SPRAY", 16, 26);
-  } 
-  else if (style === 'trenchcoat_contraband') {
-    canvasCtx.fillStyle = '#37474f';
-    canvasCtx.fillRect(0, 0, w, h);
-
-    canvasCtx.strokeStyle = '#cfd8dc';
-    canvasCtx.lineWidth = 4;
-    canvasCtx.setLineDash([8, 8]);
+  // Random dust blotches so crates look different without hinting at contents
+  for (let i = 0; i < 18; i++) {
+    canvasCtx.fillStyle = Math.random() < 0.5 ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.06)';
     canvasCtx.beginPath();
-    canvasCtx.moveTo(w / 2, 0);
-    canvasCtx.lineTo(w / 2, h);
-    canvasCtx.stroke();
-    canvasCtx.setLineDash([]);
-
-    canvasCtx.fillStyle = '#eceff1';
-    canvasCtx.font = 'bold 13px monospace';
-    canvasCtx.fillText("🧥 PADDED HEAVY TRAVEL VEST", 16, 26);
-  }
-  else if (style === 'pink_powder') {
-    canvasCtx.fillStyle = '#f48fb1';
-    canvasCtx.fillRect(0, 0, w, h);
-
-    canvasCtx.fillStyle = '#f06292';
-    for (let i = 0; i < 25; i++) {
-      canvasCtx.beginPath();
-      canvasCtx.arc(Math.random() * w, Math.random() * h, 24, 0, Math.PI * 2);
-      canvasCtx.fill();
-    }
-    canvasCtx.fillStyle = '#880e4f';
-    canvasCtx.font = 'bold 13px monospace';
-    canvasCtx.fillText("🌸 'TEACUP BLUSH' POWDER", 16, 26);
-  }
-  else if (style === 'green_knit') {
-    canvasCtx.fillStyle = '#795548';
-    canvasCtx.fillRect(0, 0, w, h);
-    canvasCtx.fillStyle = '#e65100';
-    canvasCtx.font = 'bold 13px monospace';
-    canvasCtx.fillText("🌭 KNIT DACHSHUND BUN SUIT", 16, 26);
-  }
-  else {
-    canvasCtx.fillStyle = 'rgba(120, 144, 156, 0.45)';
-    canvasCtx.fillRect(0, 0, w, h);
-
-    canvasCtx.fillStyle = '#eceff1';
-    canvasCtx.font = '12px monospace';
-    canvasCtx.fillText("✨ TRAVEL TRANSIT CRATE (CLEAN COAT)", 16, 26);
+    canvasCtx.arc(Math.random() * w, Math.random() * h, 10 + Math.random() * 28, 0, Math.PI * 2);
+    canvasCtx.fill();
   }
 
-  elWipeStatus.textContent = "Scrub animal to inspect!";
-  elAnimalTrueTag.style.opacity = "0.2";
+  // Crate slats
+  canvasCtx.fillStyle = 'rgba(0,0,0,0.28)';
+  for (let x = 0; x < w; x += 56) {
+    canvasCtx.fillRect(x, 0, 4, h);
+  }
+  canvasCtx.fillRect(0, 34, w, 6);
+  canvasCtx.fillRect(0, h - 40, w, 6);
+
+  // Stencil markings
+  canvasCtx.textAlign = 'center';
+  canvasCtx.fillStyle = 'rgba(255, 224, 130, 0.85)';
+  canvasCtx.font = 'bold 16px monospace';
+  canvasCtx.fillText("MZINGA AIR CARGO · LIVE ANIMAL", w / 2, h / 2 - 6);
+  canvasCtx.fillStyle = 'rgba(255,255,255,0.75)';
+  canvasCtx.font = 'bold 13px monospace';
+  canvasCtx.fillText("🧽 SCRUB TO INSPECT", w / 2, h / 2 + 18);
+  canvasCtx.textAlign = 'start';
+
+  elWipeStatus.textContent = "Scrub the crate to see inside!";
+  elAnimalTrueTag.style.opacity = "0";
+}
+
+function clearScratchCanvas() {
+  canvasCtx.clearRect(0, 0, elScratchCanvas.width, elScratchCanvas.height);
+  elAnimalTrueTag.style.opacity = "1";
 }
 
 function scratchAt(clientX, clientY) {
+  if (gameState.activeTool !== 'sponge' || !gameState.active) return;
+
   const rect = elScratchCanvas.getBoundingClientRect();
   const scaleX = elScratchCanvas.width / rect.width;
   const scaleY = elScratchCanvas.height / rect.height;
   const x = (clientX - rect.left) * scaleX;
   const y = (clientY - rect.top) * scaleY;
 
+  // Erase a continuous stroke from the last point so fast swipes don't leave gaps.
+  const from = gameState.lastScratchPoint || { x, y };
   canvasCtx.save();
   canvasCtx.globalCompositeOperation = 'destination-out';
+  canvasCtx.lineWidth = 80;
+  canvasCtx.lineCap = 'round';
   canvasCtx.beginPath();
-
-  const radius = gameState.activeTool === 'sponge' ? 38 : 46;
-  canvasCtx.arc(x, y, radius, 0, Math.PI * 2);
-  canvasCtx.fill();
+  canvasCtx.moveTo(from.x, from.y);
+  canvasCtx.lineTo(x, y);
+  canvasCtx.stroke();
   canvasCtx.restore();
+  gameState.lastScratchPoint = { x, y };
 
   const now = Date.now();
   if (now - gameState.lastSpongeSoundTime > 90) {
@@ -850,6 +747,8 @@ function scratchAt(clientX, clientY) {
 }
 
 function sampleWipeProgress() {
+  if (gameState.revealed) return;
+
   const w = elScratchCanvas.width;
   const h = elScratchCanvas.height;
   const stepX = Math.floor(w / 12);
@@ -870,21 +769,13 @@ function sampleWipeProgress() {
 
   const percent = Math.min(100, Math.round((cleared / total) * 100));
 
-  if (percent < 15) {
+  if (percent < 45) {
     elWipeStatus.textContent = `Scrubbing... (${percent}% cleared)`;
-    elAnimalTrueTag.style.opacity = "0.2";
-  } else if (percent < 45) {
-    elWipeStatus.textContent = `Features emerging! (${percent}% cleared)`;
-    elAnimalTrueTag.style.opacity = "0.6";
   } else {
-    elWipeStatus.textContent = `🔍 UNDERLAYER FULLY EXPOSED! (${percent}%)`;
-    elAnimalTrueTag.style.opacity = "1";
-    if (gameState.currentCase && gameState.currentCase.blueprint.type === 'disguise') {
-      if (StorageManager.saveDexItem(gameState.currentCase.blueprint.dexId)) {
-        updateDexBadge();
-        showToast(true, `📖 NEW PET-DEX ENTRY UNLOCKED!`);
-      }
-    }
+    // Wipe the rest away so the player gets a clean look at the animal.
+    gameState.revealed = true;
+    clearScratchCanvas();
+    elWipeStatus.textContent = "🔍 Crate open. Compare with the permit!";
   }
 }
 
@@ -902,6 +793,7 @@ window.addEventListener('mousemove', (e) => {
 
 window.addEventListener('mouseup', () => {
   gameState.isWiping = false;
+  gameState.lastScratchPoint = null;
 });
 
 elScratchCanvas.addEventListener('touchstart', (e) => {
@@ -923,112 +815,231 @@ elScratchCanvas.addEventListener('touchmove', (e) => {
 
 elScratchCanvas.addEventListener('touchend', () => {
   gameState.isWiping = false;
+  gameState.lastScratchPoint = null;
 });
 
 // --- 9. PROCEDURAL CASE GENERATOR ---
+// Build a clean, legal case first, then break 0-2 rules chosen from what this shift allows.
+const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+
+const randFloat = (min, max) => min + Math.random() * (max - min);
+const randInt = (min, max) => Math.floor(randFloat(min, max + 1));
+const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+function formatDate(d) {
+  return `${MONTHS[d.getMonth()]} ${String(d.getDate()).padStart(2, '0')}, ${d.getFullYear()}`;
+}
+
+function addDays(d, days) {
+  const out = new Date(d);
+  out.setDate(out.getDate() + days);
+  return out;
+}
+
+const roundTo = (n, step) => Math.round(n / step) * step;
+
+// A believable typo: swap two inner letters, change a vowel, or swap the first name.
+const FIRST_NAMES = ["Wanjiru", "Kiptoo", "Achieng", "Mutua", "Nekesa", "Omondi", "Wairimu", "Kibet", "Zawadi", "Juma"];
+const VOWELS = "aeiou";
+
+function forgeName(name) {
+  const parts = name.split(' ');
+  const surname = parts[parts.length - 1];
+
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const strategy = randInt(0, 2);
+    let forged = surname;
+
+    if (strategy === 0 && surname.length >= 4) {
+      const i = randInt(1, surname.length - 3);
+      forged = surname.slice(0, i) + surname[i + 1] + surname[i] + surname.slice(i + 2);
+    } else if (strategy === 1) {
+      const vowelIdx = [...surname].map((ch, i) => (i > 0 && VOWELS.includes(ch) ? i : -1)).filter(i => i >= 0);
+      if (vowelIdx.length > 0) {
+        const i = pick(vowelIdx);
+        const replacement = pick([...VOWELS].filter(v => v !== surname[i]));
+        forged = surname.slice(0, i) + replacement + surname.slice(i + 1);
+      }
+    } else if (parts.length > 1) {
+      const newFirst = pick(FIRST_NAMES.filter(n => n !== parts[parts.length - 2]));
+      return [...parts.slice(0, -2), newFirst, surname].join(' ');
+    }
+
+    if (forged !== surname) {
+      return [...parts.slice(0, -1), forged].join(' ');
+    }
+  }
+  return name + "e";
+}
+
 function getCombinedPassengers() {
   return [...DEFAULT_PASSENGERS, ...StorageManager.getCustomSuspects()];
 }
 
-function generateNewCase() {
-  // Filter case blueprints based on shift allowedTypes if in Story Mode
-  let availablePool = CASE_BLUEPRINTS;
+function getActiveRules() {
   if (gameState.mode === 'story') {
-    const shiftConf = STORY_SHIFTS[gameState.storyShiftIndex] || STORY_SHIFTS[0];
-    if (shiftConf.allowedTypes && shiftConf.allowedTypes.length > 0) {
-      availablePool = CASE_BLUEPRINTS.filter(b => shiftConf.allowedTypes.includes(b.type));
-      if (availablePool.length === 0) availablePool = CASE_BLUEPRINTS;
-    }
+    const conf = STORY_SHIFTS[gameState.storyShiftIndex] || STORY_SHIFTS[0];
+    return { violations: conf.violations, doubleChance: conf.doubleChance || 0 };
+  }
+  return ARCADE_RULES;
+}
+
+function pickViolations(rules) {
+  if (Math.random() < 0.5) return []; // roughly half of all cases are legal
+  const pool = [...rules.violations];
+  const first = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+  const picked = [first];
+  if (pool.length > 0 && Math.random() < rules.doubleChance) {
+    picked.push(pick(pool));
+  }
+  return picked;
+}
+
+function generateNewCase() {
+  const rules = getActiveRules();
+  const violations = pickViolations(rules);
+  const passenger = pick(getCombinedPassengers());
+  const covered = rules.violations.includes('disguise');
+
+  // Animal: disguise swaps what's under the cover, while the permit stays on the look-alike species.
+  let declared, underEmoji, underTag, vocalSound, dexId;
+  let disguise = null;
+  if (violations.includes('disguise')) {
+    disguise = pick(DISGUISES);
+    declared = disguise.declared;
+    underEmoji = disguise.emoji;
+    underTag = disguise.revealTag;
+    vocalSound = disguise.sound;
+    dexId = disguise.dexId;
+  } else {
+    const animal = pick(LEGAL_ANIMALS);
+    declared = animal;
+    underEmoji = animal.emoji;
+    underTag = `Looks like: ${animal.species.split(' (')[0]}`;
+    vocalSound = animal.sound;
+    dexId = animal.dexId || null;
   }
 
-  const blueprint = availablePool[Math.floor(Math.random() * availablePool.length)];
-  const passengerList = getCombinedPassengers();
-  const passenger = passengerList[Math.floor(Math.random() * passengerList.length)];
-  
-  const permitId = "#CITES-" + Math.floor(1000 + Math.random() * 9000) + "-X";
-  const chipId = "#CHIP-" + Math.floor(1000 + Math.random() * 9000) + "-NAT";
-
-  let expiryYear = TODAY_YEAR;
-  let expiryMonth = "NOV";
-  let expiryDay = "24";
-
-  if (blueprint.type === 'expired_date') {
-    expiryYear = 2024;
-    expiryMonth = "MAY";
-    expiryDay = "12";
+  // Weight: normally under the limit; a weight violation goes 6-25% over.
+  const permitMax = declared.max;
+  let scaleWeight = randFloat(declared.min, permitMax * 0.97);
+  if (violations.includes('weight')) {
+    scaleWeight = permitMax * randFloat(1.06, 1.25);
   }
+  scaleWeight = roundTo(scaleWeight, permitMax < 2 ? 0.01 : 0.1);
 
-  const expiryStr = `${expiryMonth} ${expiryDay}, ${expiryYear}`;
+  // Expiry: valid permits run 3-500 days past today, expired ones lapsed 1-120 days ago.
+  const expiry = violations.includes('expired')
+    ? addDays(TODAY, -randInt(1, 120))
+    : addDays(TODAY, randInt(3, 500));
 
-  let permitOwner = passenger.name;
-  if (blueprint.type === 'name_mismatch') {
-    permitOwner = "Count Roderick Snodgrass";
+  const permitOwner = violations.includes('name') ? forgeName(passenger.name) : passenger.name;
+
+  // Forged seals look genuine in normal light; some have a visible misprint for sharp eyes.
+  const sealGenuine = !violations.includes('seal');
+  const sealMisprint = !sealGenuine && Math.random() < 0.35;
+
+  // Speech: disguise excuse, a hint for the broken rule, or small talk. Honest people sometimes sound shifty too.
+  let speech;
+  const hintable = violations.filter(v => HINT_LINES[v]);
+  if (disguise && Math.random() < 0.6) {
+    speech = pick(disguise.speech);
+  } else if (hintable.length > 0 && Math.random() < 0.4) {
+    speech = pick(HINT_LINES[pick(hintable)]);
+  } else if (violations.length === 0 && Math.random() < 0.15) {
+    speech = pick(HINT_LINES[pick(Object.keys(HINT_LINES))]);
+  } else if (Math.random() < 0.3 && passenger.quote) {
+    speech = passenger.quote;
+  } else {
+    speech = pick(GENERIC_LINES);
   }
 
   const newCase = {
-    blueprint: blueprint,
     passengerName: passenger.name,
     passengerAvatar: passenger.avatar,
-    passengerSpeech: passenger.quote || blueprint.speech,
-    permitId: permitId,
-    chipId: chipId,
-    permitOwner: permitOwner,
-    expiryDate: expiryStr,
-    isExpired: expiryYear < TODAY_YEAR,
-    hasSeal: blueprint.type !== 'missing_seal',
-    scaleWeight: blueprint.actualWeight,
-    declaredWeight: blueprint.declaredWeight,
-    declaredSpecies: blueprint.declaredSpecies,
-    shouldApprove: blueprint.type === 'legal'
+    passengerSpeech: speech,
+    permitId: "#WTP-" + randInt(1000, 9999) + "-K",
+    chipId: "#CHIP-" + randInt(1000, 9999) + "-KE",
+    permitOwner,
+    expiry,
+    declaredSpecies: declared.species,
+    permitMax,
+    scaleWeight,
+    sealGenuine,
+    sealMisprint,
+    covered,
+    underEmoji,
+    underTag,
+    vocalSound,
+    dexId,
+    disguise,
+    violations,
+    shouldApprove: violations.length === 0
   };
 
   gameState.currentCase = newCase;
+  gameState.resolving = false;
   renderCase(newCase);
+}
+
+function formatWeight(kg) {
+  return kg < 2 ? kg.toFixed(2) : kg.toFixed(1);
 }
 
 function renderCase(c) {
   elStampOverlay.className = "rubber-stamp-overlay";
+  document.querySelectorAll('.flagged').forEach(el => el.classList.remove('flagged'));
 
   elPassAvatar.textContent = c.passengerAvatar;
   elPassName.textContent = c.passengerName;
   elPassSpeech.textContent = `"${c.passengerSpeech}"`;
 
-  elScale.textContent = `${c.scaleWeight.toFixed(1)} KG`;
-  elAnimalGraphic.textContent = c.blueprint.revealedEmoji;
-  elAnimalTrueTag.innerHTML = `<span>🔍 ${c.blueprint.revealedTag}</span>`;
+  elScale.textContent = `${formatWeight(c.scaleWeight)} KG`;
+  elAnimalGraphic.textContent = c.underEmoji;
+  elAnimalTrueTag.textContent = `🔍 ${c.underTag}`;
 
   elDocPermitId.textContent = c.permitId;
   elDocOwner.textContent = c.permitOwner;
-  elDocExpiry.textContent = c.expiryDate;
+  elDocExpiry.textContent = formatDate(c.expiry);
   elDocSpecies.textContent = c.declaredSpecies;
-  elDocWeight.textContent = `Max ${c.declaredWeight.toFixed(1)} KG`;
+  elDocWeight.textContent = `Max ${formatWeight(c.permitMax)} KG`;
   elDocChip.textContent = c.chipId;
   elDocCurrentDate.textContent = TODAY_STR;
 
-  if (c.isExpired) {
-    elDocExpirySub.textContent = "Status: EXPIRED";
-    elDocExpirySub.style.color = "#d32f2f";
-  } else {
-    elDocExpirySub.textContent = "Status: ACTIVE";
-    elDocExpirySub.style.color = "#2e7d32";
-  }
+  elDocSealText.innerHTML = c.sealMisprint ? "W.C.A.<br>OFICIAL SEAL" : "W.C.A.<br>OFFICIAL SEAL";
+  elDocSealUV.textContent = c.sealGenuine ? "✓ GENUINE" : "no watermark";
+  elDocSealUV.className = `uv-mark ${c.sealGenuine ? 'genuine' : 'fake'}`;
 
-  if (c.hasSeal) {
-    elDocSeal.className = "security-hologram";
-    elDocSeal.innerHTML = "OFFICIAL<br>CITES SEAL";
-  } else {
-    elDocSeal.className = "security-hologram missing";
-    elDocSeal.innerHTML = "";
-  }
+  setupScratchCanvas(c.covered);
+  updateToolAvailability();
+}
 
-  setupScratchCanvas(c.blueprint.disguiseStyle);
+// Explain each broken rule and point at the fields that prove it.
+function describeViolation(c, v) {
+  switch (v) {
+    case 'expired':
+      return { text: `Permit expired ${formatDate(c.expiry)}. Today is ${TODAY_STR}.`, els: [elDocExpiry.parentElement, elDocCurrentDate.parentElement] };
+    case 'name':
+      return { text: `Permit says "${c.permitOwner}", but the passenger is ${c.passengerName}.`, els: [elDocOwner.parentElement, elPassName] };
+    case 'weight':
+      return { text: `Scale read ${formatWeight(c.scaleWeight)} KG, but the permit allows ${formatWeight(c.permitMax)} KG.`, els: [elDocWeight.parentElement, elScale.parentElement] };
+    case 'seal':
+      return { text: `The seal had no UV watermark. Forged permit!`, els: [elDocSeal] };
+    case 'disguise':
+      return { text: c.disguise.reason, els: [elViewportBox] };
+    default:
+      return { text: "", els: [] };
+  }
 }
 
 // --- 10. VERDICT HANDLING ---
 function handleVerdict(approvedByUser) {
-  if (!gameState.active || !gameState.currentCase) return;
+  if (!gameState.active || !gameState.currentCase || gameState.resolving) return;
 
+  // Lock until the next case is on the desk so one case can't be stamped twice.
+  gameState.resolving = true;
   const c = gameState.currentCase;
+  gameState.currentCase = null;
   const isCorrect = (approvedByUser === c.shouldApprove);
 
   sound.init();
@@ -1037,61 +1048,74 @@ function handleVerdict(approvedByUser) {
   elStampOverlay.textContent = approvedByUser ? "APPROVED" : "DENIED";
   elStampOverlay.className = `rubber-stamp-overlay active-stamp ${approvedByUser ? 'approved' : 'denied'}`;
 
+  // Show the truth: open the crate and point at whatever was wrong.
+  if (c.covered) {
+    clearScratchCanvas();
+    elWipeStatus.textContent = "";
+  }
+  const findings = c.violations.map(v => describeViolation(c, v));
+  findings.forEach(f => f.els.forEach(el => el.classList.add('flagged')));
+  const findingText = findings.map(f => f.text).join(' ');
+
   if (isCorrect) {
     sound.playSuccess();
     gameState.score += 100;
     gameState.casesProcessed++;
+    gameState.correctCalls++;
     gameState.quotaMetCount++;
     if (!c.shouldApprove) {
       gameState.smugglersCaught++;
     }
 
-    if (StorageManager.saveDexItem(c.blueprint.dexId)) {
+    let dexNote = "";
+    if (c.dexId && StorageManager.saveDexItem(c.dexId)) {
       updateDexBadge();
+      dexNote = " 📖 New Pet-Dex entry!";
     }
 
-    const reason = c.shouldApprove 
-      ? "Legitimate transit approved! (+100 PTS)" 
-      : `Busted! ${c.blueprint.violationReason} (+100 PTS)`;
-    showToast(true, reason);
+    const reason = c.shouldApprove
+      ? "Clean case, approved! (+100 PTS)"
+      : `Busted! ${findingText} (+100 PTS)`;
+    showToast(true, reason + dexNote);
 
     // In Story Mode: Check if target quota has been achieved!
     if (gameState.mode === 'story' && gameState.quotaMetCount >= gameState.targetQuota) {
+      gameState.active = false;
       updateHUD();
       setTimeout(() => {
         handleShiftEnd(true, "QUOTA COMPLETED!", "Excellent detective work! Shift requirements met.");
-      }, 550);
+      }, 1200);
       return;
     }
   } else {
     sound.playStrike();
     triggerScreenShake();
     gameState.strikes++;
+    gameState.wrongCalls++;
     gameState.timeLeft = Math.max(0, gameState.timeLeft - 10);
 
-    let failDetail = "";
-    if (approvedByUser && !c.shouldApprove) {
-      failDetail = `Illegal Entry Allowed! ${c.blueprint.violationReason} (-10s penalty)`;
-    } else {
-      failDetail = `False Rejection! That animal and permit were completely legitimate! (-10s penalty)`;
-    }
+    const failDetail = approvedByUser
+      ? `You let it through! ${findingText} (-10s)`
+      : `False rejection! Everything checked out on that one. (-10s)`;
     showToast(false, `STRIKE ${gameState.strikes}! ${failDetail}`);
   }
 
   updateHUD();
 
   if (gameState.strikes >= gameState.maxStrikes) {
+    gameState.active = false;
     setTimeout(() => {
-      handleShiftEnd(false, "FIRED BY INSPECTOR GENERAL", "3 Strikes! Dismissed from the customs desk.");
-    }, 550);
+      handleShiftEnd(false, "FIRED BY THE CHIEF", "3 Strikes! You've been sent home from the customs desk.");
+    }, 1400);
     return;
   }
 
+  // Mistakes stay on screen longer so the player can see what they missed. The clock is paused meanwhile.
   setTimeout(() => {
     if (gameState.active) {
       generateNewCase();
     }
-  }, 480);
+  }, isCorrect ? 900 : 2200);
 }
 
 function triggerScreenShake() {
@@ -1108,7 +1132,7 @@ function showToast(isCorrect, message) {
   clearTimeout(elToast.hideTimeout);
   elToast.hideTimeout = setTimeout(() => {
     elToast.className = 'verdict-feedback';
-  }, 2600);
+  }, 3800);
 }
 
 function updateHUD() {
@@ -1199,8 +1223,12 @@ function startActualShift() {
   gameState.strikes = 0;
   gameState.casesProcessed = 0;
   gameState.smugglersCaught = 0;
+  gameState.correctCalls = 0;
+  gameState.wrongCalls = 0;
   gameState.coffeeAvailable = true;
   gameState.isTimeFrozen = false;
+  gameState.resolving = false;
+  clearTimeout(gameState.coffeeTimeout);
   elBtnCoffee.classList.remove('used');
 
   if (gameState.mode === 'arcade') {
@@ -1216,7 +1244,7 @@ function startActualShift() {
 
   clearInterval(gameState.shiftInterval);
   gameState.shiftInterval = setInterval(() => {
-    if (!gameState.active || gameState.isTimeFrozen) return;
+    if (!gameState.active || gameState.isTimeFrozen || gameState.resolving || isDeskPopupOpen()) return;
     gameState.timeLeft--;
 
     if (gameState.timeLeft <= 10 && gameState.timeLeft > 0) {
@@ -1233,7 +1261,10 @@ function startActualShift() {
 
 function handleShiftEnd(success, title, subtitle) {
   gameState.active = false;
+  gameState.resolving = false;
   clearInterval(gameState.shiftInterval);
+  clearTimeout(gameState.coffeeTimeout);
+  gameState.isTimeFrozen = false;
   elDesk.classList.remove('panic-glow');
 
   // Arcade high score check
@@ -1253,12 +1284,16 @@ function handleShiftEnd(success, title, subtitle) {
   }
 
   // Calculate Rank
-  let rank = "F";
-  if (gameState.score >= 1000) rank = "S+ ACE DETECTIVE";
-  else if (gameState.score >= 700) rank = "A SENIOR INSPECTOR";
-  else if (gameState.score >= 400) rank = "B JUNIOR AGENT";
-  else if (gameState.score >= 200) rank = "C ROOKIE";
+  const totalCalls = gameState.correctCalls + gameState.wrongCalls;
+  const accuracy = totalCalls > 0 ? Math.round((gameState.correctCalls / totalCalls) * 100) : 0;
+  let rank;
+  if (totalCalls < 3) rank = "F DISMISSED";
+  else if (accuracy >= 95) rank = "S+ ACE DETECTIVE";
+  else if (accuracy >= 85) rank = "A SENIOR INSPECTOR";
+  else if (accuracy >= 70) rank = "B JUNIOR AGENT";
+  else if (accuracy >= 50) rank = "C ROOKIE";
   else rank = "F DISMISSED";
+  rank += ` · ${accuracy}%`;
 
   elEndTitle.textContent = title;
   elEndSubtitle.textContent = subtitle;
@@ -1307,51 +1342,66 @@ elBtnCoffee.addEventListener('click', () => {
   showToast(true, "☕ COFFEE BREAK! Shift timer frozen for 5 seconds!");
   updateHUD();
 
-  setTimeout(() => {
+  gameState.coffeeTimeout = setTimeout(() => {
     gameState.isTimeFrozen = false;
     updateHUD();
   }, 5000);
 });
 
+const VOCAL_REACTIONS = {
+  donkey: `"HEE-HAW! ...Er, that's just how zebras talk in the Mara!"`,
+  capybara: `"*High-pitched chirp!* ...He has a little throat tickle!"`,
+  cheetah: `"*LOW GROWL!* ...He's just purring passionately!"`,
+  bark: `"*Woof!* See? A good dog."`,
+  meow: `"*Meow.* She says hello, officer."`,
+  squeak: `"*Squeak!* Perfectly calm, as you can hear."`
+};
+
 elBtnVocalize.addEventListener('click', () => {
   if (!gameState.active || !gameState.currentCase) return;
-  const soundType = gameState.currentCase.blueprint.vocalSound || 'squeak';
+  const soundType = gameState.currentCase.vocalSound || 'squeak';
   sound.playVocal(soundType);
-
-  if (soundType === 'donkey') {
-    elPassSpeech.textContent = `"HEE-HAW! ...Er, I mean, that's just a dialect from the savannah!"`;
-  } else if (soundType === 'capybara') {
-    elPassSpeech.textContent = `"*High Pitch Chirp!* ...He has a little throat tickle!"`;
-  } else if (soundType === 'cheetah') {
-    elPassSpeech.textContent = `"*LOW MENACING ROAR!* ...He's just purring passionately!"`;
-  } else {
-    elPassSpeech.textContent = `"*Squeak!* Perfectly calm domestic behavior."`;
-  }
+  elPassSpeech.textContent = VOCAL_REACTIONS[soundType] || VOCAL_REACTIONS.squeak;
 });
 
-function toggleTool() {
-  if (gameState.activeTool === 'sponge') {
-    gameState.activeTool = 'uv';
-    elBtnToolUV.classList.add('active');
-    elBtnToolSponge.classList.remove('active');
-  } else {
-    gameState.activeTool = 'sponge';
-    elBtnToolSponge.classList.add('active');
-    elBtnToolUV.classList.remove('active');
-  }
+// Tools unlock with the rules that need them: sponge with covered crates, UV with forged seals.
+function getAvailableTools() {
+  const rules = getActiveRules();
+  const tools = [];
+  if (rules.violations.includes('disguise')) tools.push('sponge');
+  if (rules.violations.includes('seal')) tools.push('uv');
+  return tools;
 }
 
-elBtnToolSponge.addEventListener('click', () => {
-  gameState.activeTool = 'sponge';
-  elBtnToolSponge.classList.add('active');
-  elBtnToolUV.classList.remove('active');
-});
+function setTool(tool) {
+  gameState.activeTool = tool;
+  elBtnToolSponge.classList.toggle('active', tool === 'sponge');
+  elBtnToolUV.classList.toggle('active', tool === 'uv');
+  elPermitCard.classList.toggle('uv-on', tool === 'uv');
+  elViewportBox.classList.toggle('uv-cursor', tool === 'uv');
+}
 
-elBtnToolUV.addEventListener('click', () => {
-  gameState.activeTool = 'uv';
-  elBtnToolUV.classList.add('active');
-  elBtnToolSponge.classList.remove('active');
-});
+function updateToolAvailability() {
+  const tools = getAvailableTools();
+  elBtnToolSponge.classList.toggle('hidden', !tools.includes('sponge'));
+  elBtnToolUV.classList.toggle('hidden', !tools.includes('uv'));
+  elToolbox.classList.toggle('hidden', tools.length === 0);
+  // Each new case starts with the sponge in hand (or no tool if the sponge isn't unlocked yet).
+  setTool(tools.includes('sponge') ? 'sponge' : 'none');
+}
+
+function toggleTool() {
+  const tools = getAvailableTools();
+  if (!gameState.active || tools.length === 0) return;
+  if (tools.length === 1) {
+    setTool(gameState.activeTool === tools[0] ? 'none' : tools[0]);
+    return;
+  }
+  setTool(gameState.activeTool === 'sponge' ? 'uv' : 'sponge');
+}
+
+elBtnToolSponge.addEventListener('click', () => setTool('sponge'));
+elBtnToolUV.addEventListener('click', () => setTool(gameState.activeTool === 'uv' ? 'none' : 'uv'));
 
 // --- 13. PET-DEX & SUSPECT ROSTER VIEWERS ---
 function updateDexBadge() {
@@ -1389,12 +1439,15 @@ function renderSuspectsList() {
     item.className = "suspect-item";
     item.innerHTML = `
       <div class="s-info">
-        <span style="font-size:1.2rem; margin-right:6px;">${s.avatar}</span>
-        <strong>${s.name}</strong>
-        <div style="font-size:0.68rem; color:#90a4ae; font-style:italic;">"${s.quote}"</div>
+        <span style="font-size:1.2rem; margin-right:6px;"></span>
+        <strong></strong>
+        <div style="font-size:0.68rem; color:#90a4ae; font-style:italic;"></div>
       </div>
       ${idx >= DEFAULT_PASSENGERS.length ? `<button data-idx="${idx - DEFAULT_PASSENGERS.length}" class="btnDeleteSuspect" style="background:#d32f2f; border:none; color:#fff; border-radius:4px; padding:2px 6px; font-size:0.7rem; cursor:pointer;">Del</button>` : '<span style="font-size:0.65rem; color:#546e7a;">DEFAULT</span>'}
     `;
+    item.querySelector('.s-info span').textContent = s.avatar;
+    item.querySelector('.s-info strong').textContent = s.name;
+    item.querySelector('.s-info div').textContent = `"${s.quote}"`;
     list.appendChild(item);
   });
 
@@ -1413,12 +1466,23 @@ function renderSuspectsList() {
 elBtnApprove.addEventListener('click', () => handleVerdict(true));
 elBtnDeny.addEventListener('click', () => handleVerdict(false));
 
+function isDeskPopupOpen() {
+  return [elPetdexModal, elSuspectsModal, elRulesModal].some(m => !m.classList.contains('hidden'));
+}
+
+function isAnyPopupOpen() {
+  return document.querySelector('.modal-backdrop:not(.hidden)') !== null;
+}
+
 window.addEventListener('keydown', (e) => {
+  if (e.target.closest('input, textarea, select') || isAnyPopupOpen()) return;
   if (e.key === 'a' || e.key === 'A') {
     handleVerdict(true);
   } else if (e.key === 'd' || e.key === 'D') {
     handleVerdict(false);
   } else if (e.key === ' ' || e.key === 'w' || e.key === 'W') {
+    // Stop Space from also "clicking" whichever button still has focus.
+    e.preventDefault();
     toggleTool();
   }
 });
