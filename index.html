@@ -2,10 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#11161d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <title>Exotic Customs: Pet Detective</title>
-  <link rel="stylesheet" href="style.css?v=5" />
-  <script src="game.js?v=5" defer></script>
+  <link rel="stylesheet" href="style.css?v=9" />
+  <script src="game.js?v=9" defer></script>
 </head>
 <body>
 
@@ -46,7 +49,9 @@
         </div>
       </div>
 
-      <div class="header-btns">
+      <button class="btn-icon menu-toggle" id="btnMoreMenu" aria-expanded="false" aria-controls="headerBtns" aria-label="More options">☰</button>
+
+      <div class="header-btns" id="headerBtns">
         <button class="btn-icon" id="btnMainMenu" title="Return to Main Menu">🏠 Menu</button>
         <button class="btn-icon" id="btnOpenDex" title="View Pet-Dex Scrapbook">📖 Pet-Dex <span id="dexCountBadge">(0/12)</span></button>
         <button class="btn-icon" id="btnCustomSuspects" title="Add Friends to Suspect Roster">🥸 Suspects</button>
@@ -73,7 +78,7 @@
       <div class="animal-stage-container">
         <!-- SCALE READOUT -->
         <div class="scale-bar">
-          <span class="scale-label">BIO-MASS DIGITAL SCALE:</span>
+          <span class="scale-label"><span class="wide-only">BIO-MASS DIGITAL </span>SCALE</span>
           <span class="scale-digital-readout" id="scaleDisplay">0.0 KG</span>
         </div>
 
@@ -93,11 +98,11 @@
 
         <!-- GADGET TRAY (Vocalizer & Coffee Panic Button) -->
         <div class="gadget-tray">
-          <button class="gadget-btn" id="btnVocalize">
-            <span>🔊</span> Provoke Sound
+          <button class="gadget-btn" id="btnVocalize" title="Make the animal call out. A disguise might give itself away.">
+            <span>🔊</span> Provoke<span class="wide-only"> Sound</span>
           </button>
-          <button class="gadget-btn coffee" id="btnCoffee">
-            <span>☕</span> Inspector Coffee (Freeze 5s)
+          <button class="gadget-btn coffee" id="btnCoffee" title="Freeze the shift timer for 5 seconds. Once per shift.">
+            <span>☕</span> Chai<span class="wide-only"> Break (5s)</span>
           </button>
           <span class="wipe-progress-text" id="wipeStatus"></span>
         </div>
@@ -105,14 +110,14 @@
         <!-- TOOL CONTROLS -->
         <div class="toolbox" id="toolbox">
           <div class="tool-group">
-            <button class="tool-btn active" id="btnToolSponge">
-              <span>🧽</span> Solvent Sponge (scrub crate)
+            <button class="tool-btn active" id="btnToolSponge" title="Scrub the crate cover to see the animal inside.">
+              <span>🧽</span> Sponge
             </button>
-            <button class="tool-btn" id="btnToolUV">
-              <span>🔦</span> Blacklight UV (check seal)
+            <button class="tool-btn" id="btnToolUV" title="Check the permit seal. Genuine seals glow green.">
+              <span>🔦</span> UV<span class="wide-only"> Light</span>
             </button>
           </div>
-          <span style="font-size:0.7rem; color:#78909c;">Hotkeys: [A] Approve &bull; [D] Deny &bull; [W/Space] Tool</span>
+          <span class="hotkey-hint">Hotkeys: [A] Approve &bull; [D] Deny &bull; [W/Space] Tool</span>
         </div>
       </div>
     </section>
@@ -153,7 +158,7 @@
               <div class="p-value" id="docWeight">Max 20.0 KG</div>
             </div>
 
-            <div class="permit-field">
+            <div class="permit-field chip-field">
               <div class="p-label">Microchip ID</div>
               <div class="p-value" id="docChip">#CHIP-0000-KE</div>
             </div>

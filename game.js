@@ -568,6 +568,7 @@ let gameState = {
   coffeeTimeout: null,
   revealed: false,
   lastScratchPoint: null,
+  lastWipeSample: 0,
   lastSpongeSoundTime: 0
 };
 
@@ -746,8 +747,11 @@ function scratchAt(clientX, clientY) {
   sampleWipeProgress();
 }
 
-function sampleWipeProgress() {
+function sampleWipeProgress(force = false) {
   if (gameState.revealed) return;
+  const now = Date.now();
+  if (!force && now - gameState.lastWipeSample < 80) return;
+  gameState.lastWipeSample = now;
 
   const w = elScratchCanvas.width;
   const h = elScratchCanvas.height;
@@ -779,44 +783,29 @@ function sampleWipeProgress() {
   }
 }
 
-// Scratch Touch & Mouse Events
-elScratchCanvas.addEventListener('mousedown', (e) => {
+// Scratch input: pointer events cover mouse, touch and stylus with one code path.
+elScratchCanvas.addEventListener('pointerdown', (e) => {
   gameState.isWiping = true;
+  gameState.lastScratchPoint = null;
   sound.init();
+  elScratchCanvas.setPointerCapture(e.pointerId);
   scratchAt(e.clientX, e.clientY);
+  e.preventDefault();
 });
 
-window.addEventListener('mousemove', (e) => {
+elScratchCanvas.addEventListener('pointermove', (e) => {
   if (!gameState.isWiping) return;
   scratchAt(e.clientX, e.clientY);
 });
 
-window.addEventListener('mouseup', () => {
+function endScratch() {
   gameState.isWiping = false;
   gameState.lastScratchPoint = null;
-});
+  sampleWipeProgress(true);
+}
 
-elScratchCanvas.addEventListener('touchstart', (e) => {
-  gameState.isWiping = true;
-  sound.init();
-  if (e.touches.length > 0) {
-    scratchAt(e.touches[0].clientX, e.touches[0].clientY);
-  }
-  e.preventDefault();
-}, { passive: false });
-
-elScratchCanvas.addEventListener('touchmove', (e) => {
-  if (!gameState.isWiping) return;
-  if (e.touches.length > 0) {
-    scratchAt(e.touches[0].clientX, e.touches[0].clientY);
-  }
-  e.preventDefault();
-}, { passive: false });
-
-elScratchCanvas.addEventListener('touchend', () => {
-  gameState.isWiping = false;
-  gameState.lastScratchPoint = null;
-});
+elScratchCanvas.addEventListener('pointerup', endScratch);
+elScratchCanvas.addEventListener('pointercancel', endScratch);
 
 // --- 9. PROCEDURAL CASE GENERATOR ---
 // Build a clean, legal case first, then break 0-2 rules chosen from what this shift allows.
@@ -1339,7 +1328,7 @@ elBtnCoffee.addEventListener('click', () => {
   elBtnCoffee.classList.add('used');
 
   sound.playCoffee();
-  showToast(true, "☕ COFFEE BREAK! Shift timer frozen for 5 seconds!");
+  showToast(true, "☕ Chai break! Timer frozen for 5 seconds.");
   updateHUD();
 
   gameState.coffeeTimeout = setTimeout(() => {
@@ -1485,6 +1474,24 @@ window.addEventListener('keydown', (e) => {
     e.preventDefault();
     toggleTool();
   }
+});
+
+// Small screens fold the header buttons into a menu.
+const elBtnMoreMenu = document.getElementById('btnMoreMenu');
+const elHeaderBtns = document.getElementById('headerBtns');
+
+function setHeaderMenuOpen(open) {
+  elHeaderBtns.classList.toggle('open', open);
+  elBtnMoreMenu.setAttribute('aria-expanded', String(open));
+}
+
+elBtnMoreMenu.addEventListener('click', (e) => {
+  e.stopPropagation();
+  setHeaderMenuOpen(!elHeaderBtns.classList.contains('open'));
+});
+elHeaderBtns.addEventListener('click', () => setHeaderMenuOpen(false));
+document.addEventListener('click', (e) => {
+  if (!elHeaderBtns.contains(e.target)) setHeaderMenuOpen(false);
 });
 
 // Menu Actions

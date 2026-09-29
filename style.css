@@ -31,6 +31,7 @@ body {
   font-family: var(--font-sans);
   color: #eceff1;
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
@@ -338,12 +339,14 @@ main.panic-glow {
   background: radial-gradient(circle at center, #3b4d58 0%, #1f2a30 100%);
   border: 3px solid #455a64;
   border-radius: 8px;
-  height: 280px;
+  aspect-ratio: 2 / 1;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   box-shadow: inset 0 0 25px rgba(0,0,0,0.6);
+  container-type: inline-size;
 }
 
 .viewport-box::before {
@@ -371,7 +374,7 @@ main.panic-glow {
 }
 
 .animal-illustration {
-  font-size: 6.5rem;
+  font-size: min(6.5rem, 22cqw);
   filter: drop-shadow(0 12px 15px rgba(0,0,0,0.5));
   transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -514,6 +517,7 @@ main.panic-glow {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  overflow: clip;
 }
 
 .cites-permit::before {
@@ -820,6 +824,7 @@ main.panic-glow {
   box-shadow: 0 20px 50px rgba(0,0,0,0.8);
   text-align: center;
   max-height: 92vh;
+  max-height: 92dvh;
   overflow-y: auto;
 }
 
@@ -1191,26 +1196,6 @@ main.panic-glow {
   display: none !important;
 }
 
-@media (max-width: 900px) {
-  main {
-    grid-template-columns: 1fr;
-  }
-  .hud-metrics {
-    gap: 6px;
-  }
-  .metric-card {
-    min-width: 65px;
-    padding: 3px 6px;
-  }
-  .metric-card .value {
-    font-size: 1.1rem;
-  }
-  .stamp-btn {
-    padding: 14px 10px;
-    font-size: 1.05rem;
-  }
-}
-
 /* ==========================================================================
    BLACKLIGHT UV MODE — genuine seals glow, forgeries stay dark
    ========================================================================== */
@@ -1268,4 +1253,323 @@ main.panic-glow {
 
 @keyframes flagPulse {
   50% { outline-color: transparent; }
+}
+
+/* ==========================================================================
+   RESPONSIVE LAYOUT
+   Two columns wherever there's room (tablets, laptops, phones held sideways).
+   A compact single column for phones held upright and for short screens.
+   ========================================================================== */
+.menu-toggle {
+  display: none;
+}
+
+.hotkey-hint {
+  font-size: 0.7rem;
+  color: #78909c;
+}
+
+/* Keyboard hints only make sense with a keyboard and mouse. */
+@media not all and (hover: hover) and (pointer: fine) {
+  .hotkey-hint,
+  .stamp-btn .shortcut-tag {
+    display: none;
+  }
+}
+
+/* Finger-sized targets on touch screens. */
+@media (pointer: coarse) {
+  .btn-icon,
+  .gadget-btn,
+  .tool-btn,
+  .primary-btn,
+  .secondary-btn {
+    min-height: 44px;
+  }
+}
+
+/* Medium widths: keep two columns, tighten spacing. */
+@media (max-width: 1100px) {
+  main {
+    gap: 12px;
+    padding: 10px 12px;
+  }
+  .agency-text span {
+    display: none;
+  }
+}
+
+/* Header buttons fold into a menu once they'd start wrapping. */
+@media (max-width: 1000px) {
+  header {
+    flex-wrap: nowrap;
+    position: relative;
+  }
+  .menu-toggle {
+    display: flex;
+    font-size: 1.1rem;
+    min-width: 40px;
+    justify-content: center;
+  }
+  .header-btns {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 8px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    background: #11161d;
+    border: 1px solid #37474f;
+    border-radius: 8px;
+    padding: 6px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    z-index: 150;
+    min-width: 180px;
+  }
+  .header-btns.open {
+    display: flex;
+  }
+  .header-btns .btn-icon {
+    justify-content: flex-start;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+  .hud-metrics {
+    flex-wrap: nowrap;
+  }
+}
+
+/* Compact mode: phones held upright (narrow) or any short screen (phones sideways). */
+@media (max-width: 699px), (max-height: 520px) {
+  header {
+    padding: 6px 10px;
+    padding-top: max(6px, env(safe-area-inset-top));
+    gap: 8px;
+  }
+  .agency-branding,
+  .mode-badge {
+    display: none;
+  }
+  .hud-metrics {
+    width: 100%;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .metric-card {
+    min-width: 0;
+    flex: 1;
+    padding: 2px 4px;
+  }
+  .metric-card .label {
+    font-size: 0.55rem;
+    letter-spacing: 0.3px;
+  }
+  .metric-card .value {
+    font-size: 1rem;
+  }
+  .strike-box {
+    width: 14px;
+    height: 14px;
+    font-size: 0.6rem;
+  }
+
+  main {
+    padding: 8px;
+    padding-left: max(8px, env(safe-area-inset-left));
+    padding-right: max(8px, env(safe-area-inset-right));
+    gap: 8px;
+  }
+
+  .passenger-booth {
+    padding: 6px 10px;
+    gap: 8px;
+  }
+  .passenger-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+  .passenger-name-tag {
+    display: none;
+  }
+  .passenger-name {
+    font-size: 0.9rem;
+  }
+  .speech-bubble {
+    font-size: 0.74rem;
+    padding: 3px 6px;
+  }
+
+  .animal-stage-container {
+    padding: 8px;
+    gap: 6px;
+  }
+  .scale-bar {
+    padding: 3px 8px;
+  }
+  .wide-only {
+    display: none;
+  }
+
+  /* Gadgets and tools share one row under the crate. */
+  .animal-stage-container {
+    display: grid;
+    grid-template-columns: 1fr auto;
+  }
+  .scale-bar,
+  .viewport-box {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  /* The scale reading sits on the crate's corner instead of taking its own row. */
+  .scale-bar {
+    z-index: 6;
+    align-self: start;
+    justify-self: end;
+    margin: 6px;
+    padding: 2px 6px;
+    gap: 6px;
+    pointer-events: none;
+    background: rgba(17, 17, 17, 0.85);
+  }
+  .scale-label {
+    font-size: 0.6rem;
+  }
+  .permit-header {
+    display: none;
+  }
+  .viewport-box {
+    /* Never let the crate push the stamp buttons off a short screen. */
+    width: min(100%, calc((100dvh - 170px) * 2));
+    justify-self: center;
+  }
+  .gadget-tray,
+  .toolbox {
+    flex-wrap: nowrap;
+  }
+  .wipe-progress-text {
+    display: none;
+  }
+  .hotkey-hint {
+    display: none;
+  }
+  .scale-digital-readout {
+    font-size: 1.05rem;
+  }
+  .gadget-tray,
+  .toolbox {
+    padding: 4px 6px;
+    gap: 6px;
+  }
+  .gadget-btn,
+  .tool-btn {
+    font-size: 0.72rem;
+    padding: 6px 8px;
+  }
+  .wipe-progress-text {
+    font-size: 0.68rem;
+  }
+
+  .permit-panel {
+    gap: 8px;
+  }
+  .cites-permit {
+    padding: 10px 12px;
+  }
+  .permit-title-wrap h2 {
+    font-size: 0.9rem;
+  }
+  .permit-title-wrap span,
+  .chip-field {
+    display: none;
+  }
+  .permit-fields {
+    gap: 6px 10px;
+    margin: 8px 0;
+  }
+  .permit-field .p-value {
+    font-size: 0.82rem;
+  }
+  .official-seal-row {
+    padding-top: 6px;
+  }
+  .rubber-stamp-overlay {
+    font-size: 2rem;
+  }
+
+  .stamp-btn {
+    padding: 12px 10px;
+    font-size: 1.05rem;
+  }
+
+  /* Feedback appears at the top so it never covers the stamp buttons. */
+  .verdict-feedback {
+    top: 8px;
+    bottom: auto;
+    transform: translateX(-50%) translateY(-160px);
+    width: calc(100% - 16px);
+    max-width: 520px;
+    font-size: 0.82rem;
+    z-index: 300;
+  }
+  .verdict-feedback.show {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .modal-backdrop {
+    padding: 8px;
+  }
+  .modal-card {
+    padding: 16px 14px;
+  }
+  .modal-card h2 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Phones held upright: one column, APPROVE/DENY pinned at thumb reach. */
+@media (max-width: 699px) {
+  main {
+    grid-template-columns: 1fr;
+    padding-bottom: 0;
+  }
+  .verdict-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    margin: 0 -8px;
+    padding: 8px;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, rgba(35, 43, 54, 0) 0%, var(--bg-desk) 30%);
+  }
+}
+
+/* Phones held sideways: two tight columns, stamps pinned to the bottom of the permit column. */
+@media (min-width: 700px) and (max-height: 520px) {
+  main {
+    grid-template-columns: 1.1fr 1fr;
+  }
+  .passenger-avatar {
+    width: 34px;
+    height: 34px;
+    font-size: 1.2rem;
+  }
+  .permit-header {
+    padding-bottom: 4px;
+  }
+  .permit-fields {
+    margin: 4px 0;
+  }
+  .security-hologram {
+    height: 36px;
+  }
+  .verdict-actions {
+    position: sticky;
+    bottom: 0;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .stamp-btn {
+    padding: 8px;
+  }
 }
