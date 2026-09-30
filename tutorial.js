@@ -24,6 +24,7 @@ const CREW = {
 //   position 'top' | 'bottom' | 'crate'; defaults to whichever side the spotlight isn't on
 const Dialogue = (() => {
   const layer = document.getElementById('dialogueLayer');
+  const backdrop = document.getElementById('dialogueBackdrop');
   const svg = document.getElementById('spotlightSvg');
   const box = document.getElementById('dialogueBox');
   const portrait = document.getElementById('dialoguePortrait');
@@ -184,8 +185,11 @@ const Dialogue = (() => {
     });
   }
 
-  async function run(steps) {
+  // opts.backdrop: an image path shown full-screen behind the speakers (story scenes away from the desk).
+  async function run(steps, opts = {}) {
     const gen = ++generation;
+    layer.classList.toggle('scene-mode', Boolean(opts.backdrop));
+    backdrop.style.backgroundImage = opts.backdrop ? `url(${opts.backdrop})` : '';
     for (const step of steps) {
       const result = await show(step, gen);
       if (gen !== generation || result === null) return false;
@@ -202,6 +206,7 @@ const Dialogue = (() => {
   }
 
   function hide() {
+    layer.classList.remove('scene-mode');
     clearInterval(spotTimer);
     clearInterval(typing);
     typing = null;

@@ -3182,3 +3182,303 @@ header {
 .verdict-feedback:not(.show) {
   visibility: hidden;
 }
+
+/* ==========================================================================
+   PHASE 4: story scenes and team activities
+   ========================================================================== */
+.dialogue-backdrop {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: var(--terracotta) center / cover no-repeat;
+}
+
+/* The desk band along the bottom, like the Batch 6 dialogue screen. */
+.dialogue-backdrop::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 34%;
+  background: var(--terracotta) url(art/scene/desk-bg.svg) center / cover;
+  border-top: 3px solid var(--ink);
+}
+
+.dialogue-layer.scene-mode .dialogue-backdrop {
+  display: block;
+}
+
+.dialogue-layer.scene-mode .spotlight-svg {
+  display: none;
+}
+
+.dialogue-layer.scene-mode .dialogue-box {
+  bottom: max(28px, env(safe-area-inset-bottom));
+  top: auto;
+}
+
+/* --- Activity screen --- */
+.activity-panel {
+  width: min(760px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.activity-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.activity-progress {
+  font-family: var(--font-type);
+  font-size: 1.4rem;
+  border: 2px solid var(--ink);
+  background: var(--bone);
+  padding: 2px 10px;
+  white-space: nowrap;
+}
+
+.activity-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.activity-prompt {
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-align: center;
+  min-height: 1.5em;
+}
+
+.activity-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+
+.activity-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 6px;
+  background: var(--bone);
+  border: 3px solid var(--ink);
+  box-shadow: 0 5px 0 var(--ink);
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.activity-option:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--ink);
+}
+
+.activity-option:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.activity-option-art img {
+  width: 72px;
+  height: 72px;
+  display: block;
+}
+
+.activity-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+  width: 100%;
+}
+
+.activity-result-line {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  line-height: 1.2;
+}
+
+.activity-perk {
+  border: 3px solid var(--ink);
+  background: var(--ochre);
+  padding: 10px 16px;
+  box-shadow: 4px 4px 0 var(--ink);
+  transform: rotate(-1deg);
+}
+
+.activity-perk-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+}
+
+.activity-perk-text {
+  font-weight: 600;
+}
+
+/* K9 training */
+.k9-stage {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 18px;
+}
+
+.k9-biscuit img {
+  width: 150px;
+  height: 150px;
+  display: block;
+}
+
+.k9-crate {
+  width: 150px;
+  height: 110px;
+  border: 3px solid var(--ink);
+  background: url(art/scene/crate-cover.svg) center / cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.k9-crate.open {
+  background: url(art/scene/crate-inside.svg) center / cover;
+}
+
+.k9-crate img {
+  width: 90px;
+  height: 90px;
+}
+
+/* Warehouse raid */
+.raid-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+
+.raid-crate {
+  position: relative;
+  aspect-ratio: 2 / 1;
+  border: 3px solid var(--ink);
+  background: url(art/scene/crate-inside.svg) center / cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.raid-crate.rescued {
+  box-shadow: 0 0 0 4px var(--stamp-green);
+}
+
+.raid-inside img {
+  height: 80%;
+  max-height: 80px;
+  display: block;
+}
+
+.raid-empty {
+  font-family: var(--font-type);
+  color: var(--bone);
+  text-shadow: 0 1px 0 var(--ink);
+}
+
+.raid-cover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: crosshair;
+  transition: opacity 0.3s;
+}
+
+/* Quiz night */
+.quiz-board {
+  display: flex;
+  gap: 16px;
+}
+
+.quiz-score {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  background: var(--ochre);
+  border: 3px solid var(--ink);
+  padding: 4px 18px;
+}
+
+.quiz-score.tony {
+  background: var(--teal);
+  color: var(--bone);
+}
+
+.quiz-question {
+  font-family: var(--font-type);
+  font-size: 1.3rem;
+  line-height: 1.4;
+  text-align: center;
+  background: var(--bone);
+  border: 2px solid var(--ink);
+  padding: 14px 18px;
+  width: 100%;
+}
+
+.quiz-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  width: 100%;
+}
+
+.quiz-buttons .stamp-btn {
+  min-height: 64px;
+  font-size: 1.5rem;
+}
+
+.quiz-buttons .stamp-btn:disabled {
+  opacity: 0.55;
+}
+
+@media (max-width: 699px), (max-height: 520px) {
+  .activity-options {
+    gap: 8px;
+  }
+  .activity-option {
+    font-size: 0.9rem;
+  }
+  .activity-option-art img {
+    width: 52px;
+    height: 52px;
+  }
+  .k9-biscuit img {
+    width: 110px;
+    height: 110px;
+  }
+  .k9-crate {
+    width: 120px;
+    height: 88px;
+  }
+  .raid-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .quiz-question {
+    font-size: 1rem;
+  }
+  .activity-result-line {
+    font-size: 1.25rem;
+  }
+}
