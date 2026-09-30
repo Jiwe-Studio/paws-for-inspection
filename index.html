@@ -14,9 +14,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Special+Elite&family=Baloo+2:wght@400;600;800&display=swap" />
-  <link rel="stylesheet" href="style.css?v=20" />
-  <script src="tutorial.js?v=20" defer></script>
-  <script src="game.js?v=20" defer></script>
+  <link rel="stylesheet" href="style.css?v=22" />
+  <script src="tutorial.js?v=22" defer></script>
+  <script src="story.js?v=22" defer></script>
+  <script src="game.js?v=22" defer></script>
 </head>
 <body>
 
@@ -108,6 +109,9 @@
         <div class="gadget-tray">
           <button class="gadget-btn" id="btnVocalize" title="Make the animal call out. A disguise might give itself away.">
             <img class="icon" src="art/ui/icon-provoke.svg" alt=""> Provoke<span class="wide-only"> Sound</span>
+          </button>
+          <button class="gadget-btn hidden" id="btnBiscuit" title="Biscuit sniffs the crate once per shift.">
+            <img class="icon" src="art/crew/biscuit_sniffing.svg" alt=""><span class="wide-only"> Biscuit</span>
           </button>
           <button class="gadget-btn coffee" id="btnCoffee" title="Freeze the shift timer for 5 seconds. Once per shift.">
             <img class="icon" src="art/ui/icon-coffee.svg" alt=""> Chai<span class="wide-only"> Break (5s)</span>
@@ -207,6 +211,7 @@
 
   <!-- DIALOGUE + SPOTLIGHT (Orientation, shift briefings, story scenes) -->
   <div class="dialogue-layer hidden" id="dialogueLayer">
+    <div class="dialogue-backdrop" id="dialogueBackdrop"></div>
     <svg class="spotlight-svg" id="spotlightSvg" aria-hidden="true"></svg>
     <div class="dialogue-box" id="dialogueBox" role="dialog" aria-live="polite">
       <div class="dialogue-portrait" id="dialoguePortrait"></div>
@@ -272,6 +277,20 @@
         <div class="bulletin-nudge">Read it, rookie. Then stamp.</div>
         <button class="big-btn big-btn-ochre" id="btnStartBulletinShift">Start shift</button>
       </div>
+    </div>
+  </div>
+
+  <!-- TEAM ACTIVITY (K9 training, warehouse raid, quiz night) -->
+  <div class="modal-backdrop screen-backdrop hidden" id="activityModal">
+    <div class="paper-panel activity-panel">
+      <div class="activity-head">
+        <div>
+          <div class="report-kicker" id="activityKicker">TEAM ACTIVITY</div>
+          <h2 class="report-title" id="activityTitle"></h2>
+        </div>
+        <div class="activity-progress" id="activityProgress"></div>
+      </div>
+      <div class="activity-body" id="activityBody"></div>
     </div>
   </div>
 

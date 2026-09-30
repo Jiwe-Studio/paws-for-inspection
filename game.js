@@ -591,6 +591,7 @@ class StorageManager {
   static resetStory() {
     localStorage.setItem('petdetect_story_shift', "1");
     localStorage.removeItem('petdetect_intros_seen');
+    Story.reset();
   }
 
   static getUserDex() {
@@ -836,7 +837,7 @@ function scratchAt(clientX, clientY) {
   const from = gameState.lastScratchPoint || { x, y };
   canvasCtx.save();
   canvasCtx.globalCompositeOperation = 'destination-out';
-  canvasCtx.lineWidth = 80;
+  canvasCtx.lineWidth = gameState.mode === 'story' && Story.hasPerk('big_sponge') ? 120 : 80;
   canvasCtx.lineCap = 'round';
   canvasCtx.beginPath();
   canvasCtx.moveTo(from.x, from.y);
@@ -990,7 +991,7 @@ function getCombinedPassengers() {
 // Passengers react: nervous when the animal is provoked, relieved when approved, busted when caught.
 function setPassengerMood(c, mood) {
   if (!c) return;
-  const moodId = `${c.passengerArt}_${mood}`;
+  const moodId = `${c.passengerArt}_${(c.moodMap && c.moodMap[mood]) || mood}`;
   setArt(elPassAvatar, ART_FILES.has(moodId) ? moodId : c.passengerArt, c.passengerAvatar);
 }
 
@@ -1019,10 +1020,14 @@ function pickViolations(rules) {
 // `overrides` lets the tutorial and shift intros script a case:
 // { violations, passengerName, animalSpecies, disguiseId, expiryDays, permitOwner, speech }
 function generateNewCase(overrides = {}) {
+  const kiboko = Story.kibokoOverrides();
+  if (kiboko) overrides = kiboko;
   const rules = getActiveRules();
   const violations = overrides.violations || pickViolations(rules);
   const passengers = getCombinedPassengers();
-  const passenger = passengers.find(p => p.name === overrides.passengerName) || pick(passengers);
+  const passenger = overrides.passenger
+    || passengers.find(p => p.name === overrides.passengerName)
+    || pick(passengers);
   const covered = rules.violations.includes('disguise');
 
   // Animal: disguise swaps what's under the cover, while the permit stays on the look-alike species.
@@ -1088,6 +1093,8 @@ function generateNewCase(overrides = {}) {
     passengerName: passenger.name,
     passengerAvatar: passenger.avatar,
     passengerArt: passenger.art,
+    moodMap: passenger.moodMap || null,
+    isKiboko: Boolean(overrides.isKiboko),
     passengerSpeech: speech,
     permitId: "#WTP-" + randInt(1000, 9999) + "-K",
     chipId: "#CHIP-" + randInt(1000, 9999) + "-KE",
@@ -1112,6 +1119,7 @@ function generateNewCase(overrides = {}) {
   gameState.currentCase = newCase;
   gameState.resolving = false;
   renderCase(newCase);
+  if (newCase.isKiboko) Story.kibokoArrives();
 }
 
 function formatWeight(kg) {
@@ -1203,6 +1211,7 @@ function handleVerdict(approvedByUser) {
     if (!c.shouldApprove) {
       gameState.smugglersCaught++;
     }
+    if (c.isKiboko) gameState.kibokoCaught = true;
 
     let dexNote = "";
     if (c.dexId && StorageManager.saveDexItem(c.dexId)) {
@@ -1221,9 +1230,11 @@ function handleVerdict(approvedByUser) {
       if (trafficked) gameState.rescuedThisShift.push(c.disguise.dexId);
     }
 
-    const reason = c.shouldApprove
-      ? "Clean case, approved! (+100 PTS)"
-      : `Busted! ${findingText}${rescueNote} (+100 PTS)`;
+    const reason = c.isKiboko
+      ? "Big Man Kiboko is under arrest! His animals are going home."
+      : c.shouldApprove
+        ? "Clean case, approved! (+100 PTS)"
+        : `Busted! ${findingText}${rescueNote} (+100 PTS)`;
     showToast(true, reason + dexNote);
 
     // In Story Mode: Check if target quota has been achieved!
@@ -1373,7 +1384,7 @@ function prepareStoryShift(shiftIndex) {
 
   elMainMenuModal.classList.add('hidden');
   elGameOverModal.classList.add('hidden');
-  elBulletinModal.classList.remove('hidden');
+  Story.before(conf.shiftNumber).then(() => elBulletinModal.classList.remove('hidden'));
 }
 
 function startActualShift() {
@@ -1387,7 +1398,11 @@ function startActualShift() {
   gameState.correctCalls = 0;
   gameState.wrongCalls = 0;
   gameState.rescuedThisShift = [];
+  gameState.kibokoCaught = false;
+  gameState.kibokoSeen = false;
+  gameState.biscuitAvailable = true;
   gameState.coffeeAvailable = true;
+  gameState.coffeeLeft = gameState.mode === 'story' && Story.hasPerk('double_chai') ? 2 : 1;
   gameState.isTimeFrozen = false;
   gameState.resolving = false;
   gameState.introPause = false;
@@ -1497,11 +1512,16 @@ function handleShiftEnd(success, outcome) {
       if (gameState.storyShiftIndex + 1 < STORY_SHIFTS.length) {
         elBtnEndAction.textContent = "Next shift";
         elBtnEndAction.onclick = () => {
-          prepareStoryShift(gameState.storyShiftIndex + 1);
+          const finished = gameState.storyShiftIndex;
+          elGameOverModal.classList.add('hidden');
+          Story.after(finished + 1).then(() => prepareStoryShift(finished + 1));
         };
       } else {
         elBtnEndAction.textContent = "Campaign complete!";
-        elBtnEndAction.onclick = showMainMenu;
+        elBtnEndAction.onclick = () => {
+          elGameOverModal.classList.add('hidden');
+          Story.after(gameState.storyShiftIndex + 1).then(showMainMenu);
+        };
       }
     } else {
       elBtnEndAction.textContent = "Retry shift";
@@ -1522,10 +1542,11 @@ function handleShiftEnd(success, outcome) {
 
 // --- 12. GADGETS & TOOLS ---
 elBtnCoffee.addEventListener('click', () => {
-  if (!gameState.active || !gameState.coffeeAvailable) return;
-  gameState.coffeeAvailable = false;
+  if (!gameState.active || !gameState.coffeeAvailable || gameState.isTimeFrozen) return;
+  gameState.coffeeLeft--;
+  gameState.coffeeAvailable = gameState.coffeeLeft > 0;
   gameState.isTimeFrozen = true;
-  elBtnCoffee.classList.add('used');
+  elBtnCoffee.classList.toggle('used', !gameState.coffeeAvailable);
 
   sound.playCoffee();
   showToast(true, "Chai break! Timer frozen for 5 seconds.");
@@ -1552,6 +1573,20 @@ elBtnVocalize.addEventListener('click', () => {
   sound.playVocal(soundType);
   setPassengerMood(gameState.currentCase, 'nervous');
   elPassSpeech.textContent = VOCAL_REACTIONS[soundType] || VOCAL_REACTIONS.squeak;
+});
+
+document.getElementById('btnBiscuit').addEventListener('click', () => {
+  const c = gameState.currentCase;
+  if (!gameState.active || !c || !gameState.biscuitAvailable || Dialogue.isOpen()) return;
+  gameState.biscuitAvailable = false;
+  document.getElementById('btnBiscuit').classList.add('hidden');
+  if (c.disguise) {
+    sound.playVocal('bark');
+    setPassengerMood(c, 'nervous');
+    showToast(false, "Biscuit growls at the crate. Something in there isn't what the permit says.");
+  } else {
+    showToast(true, "Biscuit sniffs and wags his tail. The crate smells like what the permit says.");
+  }
 });
 
 // Tools unlock with the rules that need them: sponge with covered crates, UV with forged seals.
@@ -1584,6 +1619,9 @@ function setTool(tool) {
 }
 
 function updateToolAvailability() {
+  const c = gameState.currentCase;
+  const biscuitReady = gameState.mode === 'story' && Story.hasPerk('biscuit') && c && c.covered && gameState.biscuitAvailable;
+  document.getElementById('btnBiscuit').classList.toggle('hidden', !biscuitReady);
   const tools = getAvailableTools();
   elBtnToolSponge.classList.toggle('hidden', !tools.includes('sponge'));
   elBtnToolUV.classList.toggle('hidden', !tools.includes('uv'));
