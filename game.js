@@ -5,26 +5,76 @@
    ========================================================================== */
 
 // --- 1. AUDIO SYNTHESIZER ENGINE (Pure Web Audio API - Zero External Assets) ---
+// Sounds play through three buses (music, sfx, ambience) into a master gain, each with a
+// saved volume. A recorded sample from audio/manifest.json replaces a synthesised sound
+// whenever one exists (see audio.js and docs/AUDIO_WORK_ORDER.md).
+const AUDIO_DEFAULTS = { music: 0.45, sfx: 0.9, ambience: 0.5, muted: false };
+
 class SoundEngine {
   constructor() {
     this.ctx = null;
-    this.muted = false;
+    this.settings = { ...AUDIO_DEFAULTS };
+    try { Object.assign(this.settings, JSON.parse(localStorage.getItem('petdetect_audio') || "{}")); } catch (e) { /* defaults */ }
+    this.muted = this.settings.muted;
   }
 
   init() {
     if (!this.ctx) {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (AudioContext) {
-        this.ctx = new AudioContext();
-      }
+      if (!AudioContext) return;
+      this.ctx = new AudioContext();
+      this.master = this.ctx.createGain();
+      this.master.connect(this.ctx.destination);
+      ['music', 'sfx', 'ambience'].forEach(bus => {
+        this[`${bus}Bus`] = this.ctx.createGain();
+        this[`${bus}Bus`].connect(this.master);
+      });
+      this.applySettings();
+      AudioLibrary.load(this.ctx).then(() => Music.restart());
     }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
+    if (this.ctx.state === 'suspended') {
+      this.ctx.resume().then(() => { Music.resume(); Ambience.resume(); });
+    } else {
+      Music.resume();
+      Ambience.resume();
     }
+  }
+
+  applySettings() {
+    this.muted = this.settings.muted;
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime;
+    this.master.gain.setTargetAtTime(this.muted ? 0 : 1, t, 0.05);
+    this.musicBus.gain.setTargetAtTime(this.settings.music, t, 0.05);
+    this.sfxBus.gain.setTargetAtTime(this.settings.sfx, t, 0.05);
+    this.ambienceBus.gain.setTargetAtTime(this.settings.ambience, t, 0.05);
+  }
+
+  saveSettings(next) {
+    Object.assign(this.settings, next);
+    localStorage.setItem('petdetect_audio', JSON.stringify(this.settings));
+    this.applySettings();
+  }
+
+  // Play a recorded effect if one is loaded; slight pitch variation keeps repeats from grating.
+  playSample(name, level = 1) {
+    if (!this.ctx) return false;
+    const buffer = AudioLibrary.get('sfx', name);
+    if (!buffer) return false;
+    const src = this.ctx.createBufferSource();
+    src.buffer = buffer;
+    src.playbackRate.value = 0.96 + Math.random() * 0.08;
+    const g = this.ctx.createGain();
+    g.gain.value = level;
+    src.connect(g);
+    g.connect(this.sfxBus);
+    src.start();
+    return true;
   }
 
   playStamp(approved) {
     if (this.muted || !this.ctx) return;
+    if (this.playSample(approved ? 'stamp-approve' : 'stamp-deny')) return;
     const now = this.ctx.currentTime;
     
     const osc = this.ctx.createOscillator();
@@ -37,7 +87,7 @@ class SoundEngine {
     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
 
     osc.connect(gain);
-    gain.connect(this.ctx.destination);
+    gain.connect(this.sfxBus);
     osc.start(now);
     osc.stop(now + 0.22);
 
@@ -55,12 +105,13 @@ class SoundEngine {
     noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
 
     noise.connect(noiseGain);
-    noiseGain.connect(this.ctx.destination);
+    noiseGain.connect(this.sfxBus);
     noise.start(now);
   }
 
   playSponge() {
     if (this.muted || !this.ctx) return;
+    if (this.playSample('scrub', 0.6)) return;
     const now = this.ctx.currentTime;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
@@ -72,13 +123,14 @@ class SoundEngine {
     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
 
     osc.connect(gain);
-    gain.connect(this.ctx.destination);
+    gain.connect(this.sfxBus);
     osc.start(now);
     osc.stop(now + 0.07);
   }
 
   playSuccess() {
     if (this.muted || !this.ctx) return;
+    if (this.playSample('correct')) return;
     const now = this.ctx.currentTime;
     const notes = [523.25, 659.25, 783.99, 1046.50];
     notes.forEach((freq, idx) => {
@@ -90,7 +142,7 @@ class SoundEngine {
       gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.25);
 
       osc.connect(gain);
-      gain.connect(this.ctx.destination);
+      gain.connect(this.sfxBus);
       osc.start(now + idx * 0.07);
       osc.stop(now + idx * 0.07 + 0.26);
     });
@@ -98,6 +150,7 @@ class SoundEngine {
 
   playStrike() {
     if (this.muted || !this.ctx) return;
+    if (this.playSample('strike')) return;
     const now = this.ctx.currentTime;
     const osc1 = this.ctx.createOscillator();
     const osc2 = this.ctx.createOscillator();
@@ -113,7 +166,7 @@ class SoundEngine {
 
     osc1.connect(gain);
     osc2.connect(gain);
-    gain.connect(this.ctx.destination);
+    gain.connect(this.sfxBus);
 
     osc1.start(now);
     osc2.start(now);
@@ -123,6 +176,7 @@ class SoundEngine {
 
   playCoffee() {
     if (this.muted || !this.ctx) return;
+    if (this.playSample('chai')) return;
     const now = this.ctx.currentTime;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
@@ -135,13 +189,14 @@ class SoundEngine {
     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.55);
 
     osc.connect(gain);
-    gain.connect(this.ctx.destination);
+    gain.connect(this.sfxBus);
     osc.start(now);
     osc.stop(now + 0.55);
   }
 
   playVocal(soundType) {
     if (this.muted || !this.ctx) return;
+    if (this.playSample(`animal-${soundType}`)) return;
     const now = this.ctx.currentTime;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
@@ -155,7 +210,7 @@ class SoundEngine {
       gain.gain.setValueAtTime(0.25, now);
       gain.gain.exponentialRampToValueAtTime(0.01, now + 0.65);
       osc.connect(gain);
-      gain.connect(this.ctx.destination);
+      gain.connect(this.sfxBus);
       osc.start(now);
       osc.stop(now + 0.68);
     } else if (soundType === 'capybara') {
@@ -165,7 +220,7 @@ class SoundEngine {
       gain.gain.setValueAtTime(0.2, now);
       gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
       osc.connect(gain);
-      gain.connect(this.ctx.destination);
+      gain.connect(this.sfxBus);
       osc.start(now);
       osc.stop(now + 0.22);
     } else if (soundType === 'cheetah') {
@@ -175,7 +230,7 @@ class SoundEngine {
       gain.gain.setValueAtTime(0.3, now);
       gain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
       osc.connect(gain);
-      gain.connect(this.ctx.destination);
+      gain.connect(this.sfxBus);
       osc.start(now);
       osc.stop(now + 0.46);
     } else if (soundType === 'bark') {
@@ -185,7 +240,7 @@ class SoundEngine {
       gain.gain.setValueAtTime(0.18, now);
       gain.gain.exponentialRampToValueAtTime(0.01, now + 0.14);
       osc.connect(gain);
-      gain.connect(this.ctx.destination);
+      gain.connect(this.sfxBus);
       osc.start(now);
       osc.stop(now + 0.15);
     } else if (soundType === 'meow') {
@@ -196,7 +251,7 @@ class SoundEngine {
       gain.gain.setValueAtTime(0.18, now);
       gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
       osc.connect(gain);
-      gain.connect(this.ctx.destination);
+      gain.connect(this.sfxBus);
       osc.start(now);
       osc.stop(now + 0.52);
     } else {
@@ -206,7 +261,7 @@ class SoundEngine {
       gain.gain.setValueAtTime(0.15, now);
       gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
       osc.connect(gain);
-      gain.connect(this.ctx.destination);
+      gain.connect(this.sfxBus);
       osc.start(now);
       osc.stop(now + 0.22);
     }
@@ -214,6 +269,7 @@ class SoundEngine {
 
   playWarning() {
     if (this.muted || !this.ctx) return;
+    if (this.playSample('tick')) return;
     const now = this.ctx.currentTime;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
@@ -223,13 +279,83 @@ class SoundEngine {
     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
 
     osc.connect(gain);
-    gain.connect(this.ctx.destination);
+    gain.connect(this.sfxBus);
     osc.start(now);
     osc.stop(now + 0.09);
   }
 }
 
+// Short filtered-noise burst, the basis of paper and click sounds.
+SoundEngine.prototype.noiseBurst = function (length, filterType, freq, level) {
+  const ctx = this.ctx;
+  const n = Math.floor(ctx.sampleRate * length);
+  const buf = ctx.createBuffer(1, n, ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.sin(Math.PI * i / n);
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  const f = ctx.createBiquadFilter();
+  f.type = filterType;
+  f.frequency.value = freq;
+  const g = ctx.createGain();
+  g.gain.value = level;
+  src.connect(f);
+  f.connect(g);
+  g.connect(this.sfxBus);
+  src.start();
+};
+
+SoundEngine.prototype.playPaper = function () {
+  if (this.muted || !this.ctx) return;
+  if (this.playSample('paper-slide', 0.8)) return;
+  this.noiseBurst(0.22, 'bandpass', 2500, 0.25);
+};
+
+SoundEngine.prototype.playPop = function () {
+  if (this.muted || !this.ctx) return;
+  if (this.playSample('crate-pop')) return;
+  const t = this.ctx.currentTime;
+  const osc = this.ctx.createOscillator();
+  const g = this.ctx.createGain();
+  osc.frequency.setValueAtTime(320, t);
+  osc.frequency.exponentialRampToValueAtTime(880, t + 0.08);
+  g.gain.setValueAtTime(0.25, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+  osc.connect(g);
+  g.connect(this.sfxBus);
+  osc.start(t);
+  osc.stop(t + 0.13);
+};
+
+SoundEngine.prototype.playClick = function () {
+  if (this.muted || !this.ctx) return;
+  if (this.playSample('uv-click')) return;
+  this.noiseBurst(0.03, 'highpass', 3000, 0.4);
+};
+
+SoundEngine.prototype.playBell = function () {
+  if (this.muted || !this.ctx) return;
+  if (this.playSample('counter-bell', 0.7)) return;
+  const t = this.ctx.currentTime;
+  [1318, 1975].forEach((f, i) => {
+    const osc = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = f;
+    g.gain.setValueAtTime(i ? 0.03 : 0.07, t);
+    g.gain.exponentialRampToValueAtTime(0.0005, t + 0.9);
+    osc.connect(g);
+    g.connect(this.sfxBus);
+    osc.start(t);
+    osc.stop(t + 0.95);
+  });
+};
+
 const sound = new SoundEngine();
+
+// Browsers only allow audio after a user gesture: the first tap anywhere unlocks it.
+window.addEventListener('pointerdown', () => sound.init(), { once: true });
+window.addEventListener('keydown', () => sound.init(), { once: true });
 
 // --- 2. 10-SHIFT STORY CAMPAIGN CONFIGURATION ---
 // Each shift unlocks the violation types it lists. 'disguise' puts every animal
@@ -906,6 +1032,7 @@ function sampleWipeProgress(force = false) {
     // Wipe the rest away so the player gets a clean look at the animal.
     gameState.revealed = true;
     clearScratchCanvas();
+    sound.playPop();
     emitGameEvent('reveal');
     elWipeStatus.textContent = "Crate open. Compare with the permit!";
   }
@@ -1157,6 +1284,7 @@ function renderCase(c) {
   document.querySelectorAll('.flagged').forEach(el => el.classList.remove('flagged'));
 
   setPassengerMood(c, 'neutral');
+  sound.playPaper();
   document.getElementById('bribeOffer').classList.toggle('hidden', !c.bribe);
   elPassName.textContent = c.passengerName;
   elPassSpeech.textContent = `"${c.passengerSpeech}"`;
@@ -1351,6 +1479,10 @@ function updateHUD() {
   }
 
   elHudScore.textContent = gameState.score;
+  Music.setIntensity({
+    urgent: gameState.active && gameState.timeLeft <= 20,
+    tension: gameState.active && gameState.strikes >= 2
+  });
 
   // Quota Display for Story vs Arcade
   if (gameState.mode === 'tutorial') {
@@ -1373,6 +1505,8 @@ function updateHUD() {
 
 // --- 11. NAVIGATION & SHIFT LIFECYCLE ---
 function showMainMenu() {
+  Music.setScene('menu');
+  Ambience.set(false);
   Dialogue.close();
   document.getElementById('storyMapModal').classList.add('hidden');
   if (gameState.mode === 'tutorial') gameState.mode = 'story';
@@ -1454,6 +1588,9 @@ function startActualShift() {
   elMainMenuModal.classList.add('hidden');
   elGameOverModal.classList.add('hidden');
 
+  Music.setScene('desk');
+  Ambience.set(true);
+
   // A shift that introduces a new rule opens with a scripted case and a short briefing.
   const conf = gameState.mode === 'story' ? STORY_SHIFTS[gameState.storyShiftIndex] : null;
   const intro = conf && conf.intro && !StorageManager.hasSeenIntro(conf.shiftNumber) ? SHIFT_INTROS[conf.intro] : null;
@@ -1484,6 +1621,8 @@ function startActualShift() {
 }
 
 function handleShiftEnd(success, outcome) {
+  Music.setScene('menu');
+  Ambience.set(false);
   gameState.active = false;
   gameState.resolving = false;
   clearInterval(gameState.shiftInterval);
@@ -1818,6 +1957,7 @@ function updateSealImage() {
 }
 
 function setTool(tool) {
+  if (tool === 'uv' && gameState.activeTool !== 'uv') sound.playClick();
   gameState.activeTool = tool;
   emitGameEvent('tool', tool);
   updateSealImage();
@@ -1921,7 +2061,7 @@ elBtnApprove.addEventListener('click', () => handleVerdict(true));
 elBtnDeny.addEventListener('click', () => handleVerdict(false));
 
 function isDeskPopupOpen() {
-  return [elPetdexModal, elSuspectsModal, elRulesModal].some(m => !m.classList.contains('hidden'));
+  return [elPetdexModal, elSuspectsModal, elRulesModal, document.getElementById('audioModal')].some(m => !m.classList.contains('hidden'));
 }
 
 function isAnyPopupOpen() {
@@ -2024,16 +2164,38 @@ document.getElementById('btnAddSuspect').addEventListener('click', () => {
   renderSuspectsList();
 });
 
-elBtnSound.addEventListener('click', () => {
-  sound.init();
-  sound.muted = !sound.muted;
-  elBtnSound.innerHTML = `${ICON(sound.muted ? 'sound-off' : 'sound-on')} ${sound.muted ? 'OFF' : 'ON'}`;
-});
+// --- SOUND SETTINGS ---
+const elAudioModal = document.getElementById('audioModal');
 
-document.getElementById('btnMenuSound').addEventListener('click', () => {
-  elBtnSound.click();
+function refreshSoundButtons() {
+  elBtnSound.innerHTML = `${ICON(sound.muted ? 'sound-off' : 'sound-on')} ${sound.muted ? 'OFF' : 'ON'}`;
   document.getElementById('btnMenuSound').innerHTML = ICON(sound.muted ? 'sound-off' : 'sound-on');
+}
+
+function openSoundSettings() {
+  sound.init();
+  document.getElementById('volMusic').value = Math.round(sound.settings.music * 100);
+  document.getElementById('volSfx').value = Math.round(sound.settings.sfx * 100);
+  document.getElementById('volAmbience').value = Math.round(sound.settings.ambience * 100);
+  document.getElementById('audioMute').checked = sound.settings.muted;
+  elAudioModal.classList.remove('hidden');
+}
+
+[['volMusic', 'music'], ['volSfx', 'sfx'], ['volAmbience', 'ambience']].forEach(([id, key]) => {
+  document.getElementById(id).addEventListener('input', (e) => {
+    sound.saveSettings({ [key]: Number(e.target.value) / 100 });
+  });
+  // Preview the effects volume once, when the slider is released.
+  if (key === 'sfx') document.getElementById(id).addEventListener('change', () => sound.playStamp(true));
 });
+document.getElementById('audioMute').addEventListener('change', (e) => {
+  sound.saveSettings({ muted: e.target.checked });
+  refreshSoundButtons();
+});
+document.getElementById('btnCloseAudio').addEventListener('click', () => elAudioModal.classList.add('hidden'));
+elBtnSound.addEventListener('click', openSoundSettings);
+document.getElementById('btnMenuSound').addEventListener('click', openSoundSettings);
+refreshSoundButtons();
 document.getElementById('btnMenuHelp').addEventListener('click', () => {
   elRulesModal.classList.remove('hidden');
 });
