@@ -14,10 +14,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Special+Elite&family=Baloo+2:wght@400;600;800&display=swap" />
-  <link rel="stylesheet" href="style.css?v=22" />
-  <script src="tutorial.js?v=22" defer></script>
-  <script src="story.js?v=22" defer></script>
-  <script src="game.js?v=22" defer></script>
+  <link rel="stylesheet" href="style.css?v=29" />
+  <script src="tutorial.js?v=29" defer></script>
+  <script src="story.js?v=29" defer></script>
+  <script src="game.js?v=29" defer></script>
 </head>
 <body>
 
@@ -83,6 +83,13 @@
           <div class="passenger-name-tag">Passenger / Importer</div>
           <div class="passenger-name" id="passName">Njeri Wambui</div>
           <div class="speech-bubble" id="passSpeech">"Habari officer!"</div>
+          <div class="bribe-offer hidden" id="bribeOffer">
+            <div class="bribe-note">An envelope slides under the window: <em>"a little chai money, officer"</em>.</div>
+            <div class="bribe-actions">
+              <button class="bribe-btn take" id="btnTakeBribe">Take it &amp; approve</button>
+              <button class="bribe-btn refuse" id="btnRefuseBribe">Slide it back</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -280,6 +287,27 @@
     </div>
   </div>
 
+  <!-- STORY MAP (Batch 7e): pick a shift, see bests and endings -->
+  <div class="modal-backdrop screen-backdrop hidden" id="storyMapModal">
+    <div class="map-screen">
+      <div class="map-head">
+        <button class="icon-square" id="btnMapBack" aria-label="Back to menu"><img class="icon" src="art/ui/icon-home.svg" alt="" /></button>
+        <div class="map-title">Story &middot; first ten shifts</div>
+        <div class="map-endings" id="mapEndings"></div>
+      </div>
+      <div class="map-board">
+        <img class="map-bg" src="art/ui/story-map-bg.svg" alt="" />
+        <div class="map-nodes" id="mapNodes"></div>
+      </div>
+      <button class="big-btn big-btn-ochre" id="btnMapStart">Start shift 1</button>
+    </div>
+  </div>
+
+  <!-- SHIFT TITLE CARD (Batch 7d) -->
+  <div class="shift-card-layer hidden" id="shiftCardLayer">
+    <img class="shift-card" id="shiftCardImg" src="art/ui/shift-card-01.svg" alt="" />
+  </div>
+
   <!-- TEAM ACTIVITY (K9 training, warehouse raid, quiz night) -->
   <div class="modal-backdrop screen-backdrop hidden" id="activityModal">
     <div class="paper-panel activity-panel">
@@ -307,7 +335,7 @@
 
       <div class="report-stats">
         <div class="report-stat"><div class="s-label">ACCURACY</div><div class="s-value" id="endAccuracy">0%</div></div>
-        <div class="report-stat"><div class="s-label">CASES</div><div class="s-value" id="endCases">0</div></div>
+        <div class="report-stat"><div class="s-label">SPEED</div><div class="s-value"><span id="endSpeed">0.0s</span><span class="s-unit">per case</span></div></div>
         <div class="report-stat"><div class="s-label">SMUGGLERS BUSTED</div><div class="s-value" id="endSmugglers">0</div></div>
         <div class="report-stat"><div class="s-label">STRIKES</div><div class="s-value"><span id="endStrikes">0</span><span class="report-strike-marks" id="endStrikeMarks"></span></div></div>
       </div>
@@ -317,10 +345,12 @@
         <div class="report-rescued-text" id="endRescuedText"></div>
       </div>
 
-      <div class="report-score">SCORE <span id="endScore">0</span></div>
+      <div class="report-score">SCORE <span id="endScore">0</span> &middot; <span id="endCases">0</span> CASES</div>
+      <div class="report-best" id="endBest"></div>
 
       <div class="report-actions">
         <button class="big-btn big-btn-ochre" id="btnEndAction">Next shift</button>
+        <button class="big-btn big-btn-teal" id="btnShareResult" aria-label="Share your result">Share</button>
         <button class="big-btn big-btn-paper" id="btnEndReturnMenu">Menu</button>
       </div>
     </div>

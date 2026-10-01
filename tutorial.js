@@ -11,6 +11,7 @@ const CREW = {
   wiji: { name: "Wiji Njoroge", role: "Lab Tech", emoji: "👩🏾‍🔬", art: "wiji_njoroge", moods: STAFF_MOODS, defaultMood: "talking" },
   kiprop: { name: "Chief Kiprop", role: "Chief Inspector", emoji: "👮🏾‍♂️", art: "chief_kiprop", moods: STAFF_MOODS, defaultMood: "talking" },
   tony: { name: "Tony Wafula", role: "Rookie Inspector", emoji: "🧑🏾‍💼", art: "tony_wafula", moods: STAFF_MOODS, defaultMood: "talking" },
+  baraka: { name: "Ranger Baraka", role: "Kenya Wildlife Service", emoji: "🧑🏾‍🌾", art: "ranger_baraka", moods: STAFF_MOODS, defaultMood: "talking" },
   biscuit: { name: "Biscuit", role: "Sniffer Dog", emoji: "🐕", art: "biscuit", moods: ["neutral", "happy", "sniffing", "alert"], defaultMood: "neutral" },
   kiboko: { name: "Big Man Kiboko", role: "Smuggling Boss", emoji: "🦛", art: "big_man_kiboko", moods: ["neutral", "smug", "angry", "busted"], defaultMood: "smug" }
 };
@@ -150,6 +151,10 @@ const Dialogue = (() => {
   async function show(step, gen) {
     const who = CREW[step.who] || CREW.rehema;
     setArt(portrait, `crew/${who.art}_${step.mood || who.defaultMood}`, who.emoji);
+    // A line can move the scene somewhere else (e.g. from the rescue handover to the CCTV room).
+    if (step.bg && layer.classList.contains('scene-mode')) {
+      setBackdrop(sceneBackdrop(step.bg));
+    }
     nameEl.textContent = who.name;
     spotGetter = step.spot || null;
     layer.classList.remove('hidden');
@@ -185,11 +190,17 @@ const Dialogue = (() => {
     });
   }
 
+  // Story illustrations are complete scenes and show in full; plain backgrounds get the desk band.
+  function setBackdrop(path) {
+    backdrop.style.backgroundImage = path ? `url(${path})` : '';
+    backdrop.classList.toggle('full-scene', Boolean(path && path.includes('/story/')));
+  }
+
   // opts.backdrop: an image path shown full-screen behind the speakers (story scenes away from the desk).
   async function run(steps, opts = {}) {
     const gen = ++generation;
     layer.classList.toggle('scene-mode', Boolean(opts.backdrop));
-    backdrop.style.backgroundImage = opts.backdrop ? `url(${opts.backdrop})` : '';
+    setBackdrop(opts.backdrop);
     for (const step of steps) {
       const result = await show(step, gen);
       if (gen !== generation || result === null) return false;

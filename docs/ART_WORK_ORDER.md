@@ -396,5 +396,7 @@ Three short mini-games between shifts. Same style and outline rules; sizes as li
 |---|---|---|
 | 7 | Jambo rename redraws (7 files) | ✅ in game |
 | 8 | Share image, maskable icon, splash | not started |
-| 9 | Story backgrounds + 5 story moments | not started |
-| 10 | Team-activity art + finale crate | not started |
+| 9 | Story backgrounds + story moments | ✅ staff room, CCTV, rescue handover, Kiboko CCTV, farewell, finale bust · still needed: chief-office-bg, first-day, tony-rivalry |
+| 10 | Team-activity art + finale crate | ✅ yard / warehouse / quiz backgrounds · still needed: sniff crates, treat, raid crates, torch beam, buzzers, scoreboard, crate-cover-vip, finale_double |
+| — | Ranger Baraka, shift title cards 1–10, story-map background | ✅ in game |
+| — | Endings art (ending-escape, ending-bribe), bribe envelope, share card | not started (chief ending uses finale-bust) |
