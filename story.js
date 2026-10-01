@@ -87,8 +87,10 @@ const STORY_SCENES = {
       { who: "kiprop", mood: "worried", text: "The painted animals are a distraction. Intelligence says someone big is moving real wildlife behind them." },
       { who: "rehema", text: "Then we scrub every crate. Every single one." }
     ] },
-    after: { bg: 'scene/cctv-bg', steps: [
-      { who: "kiboko", mood: "smug", text: "Ah, the new inspector. Scrubbing crates like a car-wash attendant. Cute." },
+    after: { bg: 'story/rescue-handover', steps: [
+      { who: "baraka", mood: "happy", text: "Ranger Baraka, Kenya Wildlife Service. I hear you've been finding animals that don't belong in crates." },
+      { who: "baraka", text: "Every one you catch, I take home. Keep scrubbing, inspector." },
+      { who: "kiboko", mood: "smug", bg: 'story/kiboko-cctv', text: "Ah, the new inspector. Scrubbing crates like a car-wash attendant. Cute." },
       { who: "kiboko", mood: "smug", text: "They call me Big Man Kiboko. Enjoy your little desk while you still have it." },
       { who: "kiprop", mood: "worried", text: "He hacked our CCTV. Kiboko runs the biggest wildlife-trafficking ring in the region, and now he knows your face." }
     ] }
@@ -130,9 +132,9 @@ const STORY_SCENES = {
     before: { bg: 'scene/chief-office-bg', steps: [
       { who: "kiprop", text: "Kiboko's crew is lining crates with lead to fool the scale. Read every number to the decimal." }
     ] },
-    after: { bg: 'activity/quiz-bg', steps: [
+    after: { bg: 'story/rehema-farewell', steps: [
       { who: "rehema", mood: "happy", text: "That was my last shift at this desk. Thirty years. Asante sana, all of you." },
-      { who: "tony", mood: "happy", text: "Quiz night in the staff room for Mama Rehema! Rookie versus me. Loser buys the chai." }
+      { who: "tony", mood: "happy", bg: 'activity/quiz-bg', text: "Quiz night in the staff room for Mama Rehema! Rookie versus me. Loser buys the chai." }
     ] },
     activity: 'quiz'
   },
@@ -151,9 +153,10 @@ const STORY_SCENES = {
       { who: "kiprop", text: "Your final assessment for Chief Inspector. And somewhere in today's queue is Big Man Kiboko." },
       { who: "rehema", mood: "happy", text: "I came back to watch. Names, dates, weight, crate, seal. You know this." }
     ] },
-    after: { bg: 'scene/staffroom-bg', steps: [
+    after: { bg: 'story/finale-bust', steps: [
       { who: "kiboko", mood: "busted", text: "This is outrageous! Do you know who I am?" },
       { who: "kiprop", mood: "happy", text: "We do. So does the Kenya Wildlife Service, who are taking every animal from your crates home." },
+      { who: "baraka", mood: "happy", text: "Every animal from his crates goes home today. Asante sana, inspector." },
       { who: "tony", mood: "happy", text: "Rookie of the year! Okay, fine. Inspector of the year." },
       { who: "rehema", mood: "happy", text: "Thirty years I waited to see that man in handcuffs. Welcome to the team, Chief Inspector." },
       { who: "biscuit", mood: "happy", text: "Woof!" }
@@ -183,7 +186,7 @@ const BRANCH_LINES = {
 // Three endings: honest and sharp, honest but sloppy, or corrupt.
 const ENDINGS = {
   chief: {
-    number: 1, title: "Chief Inspector", art: 'story/ending-chief',
+    number: 1, title: "Chief Inspector", art: 'story/finale-bust',
     text: "Kiboko is in handcuffs, his animals are on their way home with the Kenya Wildlife Service, and the desk is yours.",
     steps: STORY_SCENES[10].after.steps
   },
@@ -230,7 +233,8 @@ const Activity = (() => {
   const body = () => document.getElementById('activityBody');
   const progress = () => document.getElementById('activityProgress');
 
-  function open(kicker, title) {
+  function open(kicker, title, bg) {
+    modal().style.backgroundImage = bg && ART_FILES.has(bg) ? `url(art/${bg}.svg)` : '';
     document.getElementById('activityKicker').textContent = kicker;
     document.getElementById('activityTitle').textContent = title;
     progress().textContent = "";
@@ -282,7 +286,7 @@ const Activity = (() => {
   ];
 
   async function k9() {
-    open("TEAM ACTIVITY · AFTER SHIFT 2", "K9 training with Biscuit");
+    open("TEAM ACTIVITY · AFTER SHIFT 2", "K9 training with Biscuit", 'activity/k9-yard-bg');
     const rounds = shuffle(K9_ANIMALS);
     let score = 0;
 
@@ -334,7 +338,7 @@ const Activity = (() => {
 
   // Warehouse raid: scrub six crates before the lorry returns; three hide trafficked animals.
   async function raid() {
-    open("TEAM ACTIVITY · AFTER SHIFT 5", "Warehouse raid");
+    open("TEAM ACTIVITY · AFTER SHIFT 5", "Warehouse raid", 'activity/warehouse-bg');
     const trafficked = shuffle(PET_DEX_MASTER.filter(d => d.kind === 'trafficked')).slice(0, 3);
     const contents = shuffle([...trafficked, null, null, null]);
     let found = 0;
@@ -438,7 +442,7 @@ const Activity = (() => {
   ];
 
   async function quiz() {
-    open("TEAM ACTIVITY · AFTER SHIFT 8", "Quiz night: you vs Tony");
+    open("TEAM ACTIVITY · AFTER SHIFT 8", "Quiz night: you vs Tony", 'activity/quiz-bg');
     const questions = shuffle(QUIZ).slice(0, 6);
     let you = 0;
     let tony = 0;
@@ -598,6 +602,98 @@ const Story = {
   endingsUnlocked: () => StoryProgress.endings().length,
   endingsTotal: () => Object.keys(ENDINGS).length,
 
+  // Title card before each story shift. Tap (or wait) to continue.
+  shiftCard(shiftNumber) {
+    const id = `ui/shift-card-${String(shiftNumber).padStart(2, '0')}`;
+    if (!ART_FILES.has(id)) return Promise.resolve();
+    const layer = document.getElementById('shiftCardLayer');
+    document.getElementById('shiftCardImg').src = `art/${id}.svg`;
+    layer.classList.remove('hidden');
+    return new Promise(resolve => {
+      const done = () => {
+        clearTimeout(timer);
+        layer.removeEventListener('click', done);
+        layer.classList.add('hidden');
+        resolve();
+      };
+      const timer = setTimeout(done, 1600);
+      layer.addEventListener('click', done);
+    });
+  },
+
   hasPerk: (id) => StoryProgress.hasPerk(id),
   reset: () => StoryProgress.reset()
 };
+
+// --- STORY MAP (Batch 7e): ten stops along the path, done / current / locked ---
+const MAP_STOPS = [
+  { label: "First day", x: 10.6, y: 79 },
+  { label: "K9 training", x: 23.5, y: 67 },
+  { label: "Kiboko on CCTV", x: 32, y: 50 },
+  { label: "UV help for Tony", x: 44, y: 38 },
+  { label: "Warehouse raid", x: 57, y: 51 },
+  { label: "Rush hour", x: 67, y: 68 },
+  { label: "Better paint", x: 80, y: 66 },
+  { label: "Rehema's farewell", x: 90, y: 44 },
+  { label: "Decoys", x: 81, y: 25 },
+  { label: "The arrest", x: 65, y: 14 }
+];
+
+const StoryMap = {
+  open() {
+    const current = StorageManager.getStoryShift();
+    const nodes = document.getElementById('mapNodes');
+    nodes.replaceChildren();
+    MAP_STOPS.forEach((stop, i) => {
+      const n = i + 1;
+      const state = n < current ? 'done' : n === current ? 'current' : 'locked';
+      const node = document.createElement('button');
+      node.className = `map-node ${state}${stop.x > 75 ? ' flip' : ''}`;
+      node.style.left = `${stop.x}%`;
+      node.style.top = `${stop.y}%`;
+      node.disabled = state === 'locked';
+
+      const dot = document.createElement('span');
+      dot.className = 'map-dot';
+      if (state === 'locked') dot.innerHTML = ICON('lock');
+      else dot.textContent = n;
+      const text = document.createElement('span');
+      text.className = 'map-text';
+      const best = StorageManager.getBest(`story-${n}`);
+      text.innerHTML = `<span class="map-shift">Shift ${n}</span><span class="map-label"></span>`;
+      text.querySelector('.map-label').textContent = stop.label;
+      if (best) {
+        const grade = document.createElement('span');
+        grade.className = 'map-grade';
+        grade.textContent = best.grade;
+        text.appendChild(grade);
+      }
+      node.append(dot, text);
+      node.addEventListener('click', () => StoryMap.start(i));
+      nodes.appendChild(node);
+    });
+
+    const endings = Story.endingsUnlocked();
+    document.getElementById('mapEndings').textContent = endings ? `Endings ${endings}/${Story.endingsTotal()}` : '';
+    const startBtn = document.getElementById('btnMapStart');
+    startBtn.textContent = `Start shift ${Math.min(current, MAP_STOPS.length)}`;
+    startBtn.onclick = () => StoryMap.start(Math.min(current, MAP_STOPS.length) - 1);
+
+    elMainMenuModal.classList.add('hidden');
+    document.getElementById('storyMapModal').classList.remove('hidden');
+  },
+
+  start(shiftIndex) {
+    document.getElementById('storyMapModal').classList.add('hidden');
+    prepareStoryShift(shiftIndex);
+  },
+
+  close() {
+    document.getElementById('storyMapModal').classList.add('hidden');
+  }
+};
+
+document.getElementById('btnMapBack').addEventListener('click', () => {
+  StoryMap.close();
+  showMainMenu();
+});

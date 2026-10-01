@@ -540,7 +540,12 @@ const ART_FILES = new Set([
   ...Object.values(CREW).flatMap(c => c.moods.map(m => `crew/${c.art}_${m}`)),
   "animals/dex_locked",
   ...PET_DEX_MASTER.flatMap(d => [`animals/${d.art}`, `animals/${d.art}_dex`]),
-  ...DISGUISES.map(d => `animals/${d.dexId}_rescued`)
+  ...DISGUISES.map(d => `animals/${d.dexId}_rescued`),
+  "scene/staffroom-bg", "scene/cctv-bg",
+  "activity/k9-yard-bg", "activity/warehouse-bg", "activity/quiz-bg",
+  "story/rescue-handover", "story/kiboko-cctv", "story/rehema-farewell", "story/finale-bust",
+  "ui/story-map-bg",
+  ...Array.from({ length: 10 }, (_, i) => `ui/shift-card-${String(i + 1).padStart(2, '0')}`)
 ]);
 
 
@@ -1366,6 +1371,7 @@ function updateHUD() {
 // --- 11. NAVIGATION & SHIFT LIFECYCLE ---
 function showMainMenu() {
   Dialogue.close();
+  document.getElementById('storyMapModal').classList.add('hidden');
   if (gameState.mode === 'tutorial') gameState.mode = 'story';
   gameState.active = false;
   gameState.introPause = false;
@@ -1408,7 +1414,9 @@ function prepareStoryShift(shiftIndex) {
 
   elMainMenuModal.classList.add('hidden');
   elGameOverModal.classList.add('hidden');
-  Story.before(conf.shiftNumber).then(() => elBulletinModal.classList.remove('hidden'));
+  Story.shiftCard(conf.shiftNumber)
+    .then(() => Story.before(conf.shiftNumber))
+    .then(() => elBulletinModal.classList.remove('hidden'));
 }
 
 function startActualShift() {
@@ -1491,7 +1499,7 @@ function handleShiftEnd(success, outcome) {
   // Story progression check
   if (gameState.mode === 'story' && success) {
     const nextShift = gameState.storyShiftIndex + 2; // convert 0-based to 1-based next
-    if (nextShift <= STORY_SHIFTS.length) {
+    if (nextShift <= STORY_SHIFTS.length && nextShift > StorageManager.getStoryShift()) {
       StorageManager.setStoryShift(nextShift);
     }
   }
@@ -1858,8 +1866,7 @@ elBtnMenuStory.addEventListener('click', () => {
     Tutorial.start();
     return;
   }
-  const currentShift = StorageManager.getStoryShift();
-  prepareStoryShift(currentShift - 1);
+  StoryMap.open();
 });
 
 document.getElementById('btnReplayTutorial').addEventListener('click', () => Tutorial.start());

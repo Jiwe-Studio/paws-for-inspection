@@ -14,10 +14,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Special+Elite&family=Baloo+2:wght@400;600;800&display=swap" />
-  <link rel="stylesheet" href="style.css?v=25" />
-  <script src="tutorial.js?v=25" defer></script>
-  <script src="story.js?v=25" defer></script>
-  <script src="game.js?v=25" defer></script>
+  <link rel="stylesheet" href="style.css?v=29" />
+  <script src="tutorial.js?v=29" defer></script>
+  <script src="story.js?v=29" defer></script>
+  <script src="game.js?v=29" defer></script>
 </head>
 <body>
 
@@ -285,6 +285,27 @@
         <button class="big-btn big-btn-ochre" id="btnStartBulletinShift">Start shift</button>
       </div>
     </div>
+  </div>
+
+  <!-- STORY MAP (Batch 7e): pick a shift, see bests and endings -->
+  <div class="modal-backdrop screen-backdrop hidden" id="storyMapModal">
+    <div class="map-screen">
+      <div class="map-head">
+        <button class="icon-square" id="btnMapBack" aria-label="Back to menu"><img class="icon" src="art/ui/icon-home.svg" alt="" /></button>
+        <div class="map-title">Story &middot; first ten shifts</div>
+        <div class="map-endings" id="mapEndings"></div>
+      </div>
+      <div class="map-board">
+        <img class="map-bg" src="art/ui/story-map-bg.svg" alt="" />
+        <div class="map-nodes" id="mapNodes"></div>
+      </div>
+      <button class="big-btn big-btn-ochre" id="btnMapStart">Start shift 1</button>
+    </div>
+  </div>
+
+  <!-- SHIFT TITLE CARD (Batch 7d) -->
+  <div class="shift-card-layer hidden" id="shiftCardLayer">
+    <img class="shift-card" id="shiftCardImg" src="art/ui/shift-card-01.svg" alt="" />
   </div>
 
   <!-- TEAM ACTIVITY (K9 training, warehouse raid, quiz night) -->
