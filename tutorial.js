@@ -12,6 +12,8 @@ const CREW = {
   kiprop: { name: "Chief Kiprop", role: "Chief Inspector", emoji: "👮🏾‍♂️", art: "chief_kiprop", moods: STAFF_MOODS, defaultMood: "talking" },
   tony: { name: "Tony Wafula", role: "Rookie Inspector", emoji: "🧑🏾‍💼", art: "tony_wafula", moods: STAFF_MOODS, defaultMood: "talking" },
   baraka: { name: "Ranger Baraka", role: "Kenya Wildlife Service", emoji: "🧑🏾‍🌾", art: "ranger_baraka", moods: STAFF_MOODS, defaultMood: "talking" },
+  rookie: { name: "You", role: "Inspector", emoji: "🧑🏾", art: "rookie", moods: ["neutral", "happy", "busted", "chief"], defaultMood: "neutral" },
+  police: { name: "Airport Police", role: "Jambo Int'l", emoji: "👮🏾", art: "airport_police", moods: ["neutral"], defaultMood: "neutral" },
   biscuit: { name: "Biscuit", role: "Sniffer Dog", emoji: "🐕", art: "biscuit", moods: ["neutral", "happy", "sniffing", "alert"], defaultMood: "neutral" },
   kiboko: { name: "Big Man Kiboko", role: "Smuggling Boss", emoji: "🦛", art: "big_man_kiboko", moods: ["neutral", "smug", "angry", "busted"], defaultMood: "smug" }
 };

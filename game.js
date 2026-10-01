@@ -544,7 +544,10 @@ const ART_FILES = new Set([
   "scene/staffroom-bg", "scene/cctv-bg",
   "activity/k9-yard-bg", "activity/warehouse-bg", "activity/quiz-bg",
   "story/rescue-handover", "story/kiboko-cctv", "story/rehema-farewell", "story/finale-bust",
-  "ui/story-map-bg",
+  "ui/story-map-bg", "ui/story-map", "ui/bribe-envelope", "ui/share-card",
+  "ui/map-stop-done", "ui/map-stop-current", "ui/map-stop-locked",
+  "ui/map-ending-chief", "ui/map-ending-escape", "ui/map-ending-bribe",
+  "story/ending-chief", "story/ending-escape", "story/ending-bribe",
   ...Array.from({ length: 10 }, (_, i) => `ui/shift-card-${String(i + 1).padStart(2, '0')}`)
 ]);
 
@@ -1522,7 +1525,13 @@ function handleShiftEnd(success, outcome) {
     elBest.textContent = previous ? `Your best: ${previous.grade}-rank · ${previous.accuracy}% · ${previous.speed}s per case` : "";
   }
   if (gameState.mode === 'story' && success) Story.recordShift(gameState.storyShiftIndex + 1, accuracy);
-  gameState.lastResult = { ...result, label: gameState.mode === 'story' ? `Shift ${gameState.storyShiftIndex + 1}` : "Arcade", rescued: gameState.rescuedThisShift.length };
+  gameState.lastResult = {
+    ...result,
+    rank,
+    label: gameState.mode === 'story' ? `Shift ${gameState.storyShiftIndex + 1}` : "Arcade",
+    rescued: gameState.rescuedThisShift.length,
+    rescuedIds: [...gameState.rescuedThisShift]
+  };
 
   const modeLabel = gameState.mode === 'story' ? `SHIFT ${gameState.storyShiftIndex + 1}` : "ARCADE";
   elEndSubtitle.textContent = `${modeLabel} · ${outcome}`;
@@ -1601,22 +1610,113 @@ function isBetterResult(result, previous) {
   return result.speed < previous.speed;
 }
 
-// Share the shift result: the system share sheet on phones, the clipboard elsewhere.
+const SHARE_URL = 'https://jiwe-studio.github.io/paws-for-inspection/';
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+// Draw the 1080×1080 share card (Claude Design Batch 8e) with this shift's result.
+// Slots come from art/ui/share-card.svg: rank box, three stat boxes, six rescue circles.
+async function buildShareImage(r) {
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = 1080;
+  const ctx = canvas.getContext('2d');
+  await Promise.all([
+    document.fonts.load("150px 'Lilita One'"),
+    document.fonts.load("60px 'Special Elite'"),
+    document.fonts.load("800 24px 'Baloo 2'")
+  ]);
+  ctx.drawImage(await loadImage('art/ui/share-card.svg'), 0, 0, 1080, 1080);
+
+  // Rank stamp in the dashed box (rotated -4° around its centre)
+  ctx.save();
+  ctx.translate(352, 500);
+  ctx.rotate(-4 * Math.PI / 180);
+  ctx.fillStyle = '#B8202E';
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'center';
+  ctx.font = "170px 'Lilita One'";
+  ctx.fillText(r.grade, -185, 8);
+  ctx.textAlign = 'left';
+  ctx.font = "800 26px 'Baloo 2'";
+  ctx.fillStyle = '#1E2240';
+  ctx.fillText(`${r.label.toUpperCase()} · JAMBO INT'L`, -95, -48);
+  ctx.font = "44px 'Lilita One'";
+  ctx.fillStyle = '#B8202E';
+  ctx.fillText(r.rank, -95, 8);
+  ctx.font = "800 24px 'Baloo 2'";
+  ctx.fillStyle = '#1E2240';
+  ctx.fillText(`SCORE ${r.score.toLocaleString('en-US')}`, -95, 58);
+  ctx.restore();
+
+  // Three stat boxes
+  const stats = [
+    ["ACCURACY", `${r.accuracy}%`],
+    ["SPEED", `${r.speed}s`],
+    ["RESCUED", String(r.rescued)]
+  ];
+  stats.forEach(([label, value], i) => {
+    const x = 78 + i * 312;
+    ctx.fillStyle = '#1E2240';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = "800 22px 'Baloo 2'";
+    ctx.fillText(label, x + 146, 662);
+    ctx.font = "72px 'Special Elite'";
+    ctx.fillText(value, x + 146, 750);
+  });
+
+  // Rescued animals in the circles
+  for (let i = 0; i < Math.min(6, r.rescuedIds.length); i++) {
+    const entry = PET_DEX_MASTER.find(d => d.id === r.rescuedIds[i]);
+    const id = entry && `animals/${entry.art}_dex`;
+    if (!id || !ART_FILES.has(id)) continue;
+    const badge = await loadImage(`art/${id}.svg`);
+    ctx.drawImage(badge, 140 + i * 160 - 50, 914 - 50, 100, 100);
+  }
+
+  return new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+}
+
+// Share: the result card as an image where the device supports it, otherwise the text.
 document.getElementById('btnShareResult').addEventListener('click', async () => {
   const r = gameState.lastResult;
   if (!r) return;
-  const url = 'https://jiwe-studio.github.io/paws-for-inspection/';
   const rescued = r.rescued ? `, ${r.rescued} ${r.rescued === 1 ? 'animal' : 'animals'} rescued` : '';
   const text = `Paws for Inspection · ${r.label} at Jambo Int'l: ${r.grade}-rank, ${r.accuracy}% accuracy, ${r.speed}s per case${rescued}. Can you beat it?`;
   try {
-    if (navigator.share) {
-      await navigator.share({ title: "Paws for Inspection", text, url });
+    let file = null;
+    if (ART_FILES.has('ui/share-card')) {
+      const blob = await buildShareImage(r);
+      if (blob) file = new File([blob], 'paws-for-inspection-result.png', { type: 'image/png' });
+    }
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], text: `${text} ${SHARE_URL}` });
       return;
     }
-    await navigator.clipboard.writeText(`${text} ${url}`);
-    showToast(true, "Result copied. Paste it anywhere to share.");
+    if (navigator.share) {
+      await navigator.share({ title: "Paws for Inspection", text, url: SHARE_URL });
+      return;
+    }
+    await navigator.clipboard.writeText(`${text} ${SHARE_URL}`);
+    if (file) {
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(file);
+      link.download = file.name;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(link.href), 2000);
+      showToast(true, "Result card saved and text copied. Post them anywhere.");
+    } else {
+      showToast(true, "Result copied. Paste it anywhere to share.");
+    }
   } catch (e) {
-    // The player closed the share sheet, or the clipboard isn't available.
+    // The player closed the share sheet, or sharing isn't available here.
   }
 });
 
