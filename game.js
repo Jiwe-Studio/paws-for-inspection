@@ -373,7 +373,7 @@ const STORY_SHIFTS = [
       "DENY if the permit owner's name doesn't exactly match the passenger."
     ],
     quota: 4,
-    timeLimit: 90,
+    timeLimit: 60,
     violations: ["expired", "name"]
   },
   {
@@ -386,7 +386,7 @@ const STORY_SHIFTS = [
       "NEW: DENY if the scale reads above the permit's max weight."
     ],
     quota: 5,
-    timeLimit: 90,
+    timeLimit: 70,
     violations: ["expired", "name", "weight"]
   },
   {
@@ -400,7 +400,7 @@ const STORY_SHIFTS = [
       "Tip: Provoke Sound makes the animal call out. A 'zebra' shouldn't bray."
     ],
     quota: 5,
-    timeLimit: 90,
+    timeLimit: 85,
     violations: ["expired", "name", "weight", "disguise"]
   },
   {
@@ -409,11 +409,11 @@ const STORY_SHIFTS = [
     title: "Shift 4: The Cyber Café Forgers",
     story: "Forged permits are circulating, printed with near-perfect seals. The lab has sent you a Blacklight UV torch. A genuine W.C.A. seal glows green under UV. A fake one stays dark.",
     rules: [
-      "Target Quota: Process 6 cases correctly.",
+      "Target Quota: Process 5 cases correctly.",
       "NEW: Switch to Blacklight UV [W/Space] and check the seal. DENY if it doesn't glow."
     ],
-    quota: 6,
-    timeLimit: 90,
+    quota: 5,
+    timeLimit: 95,
     violations: ALL_VIOLATIONS
   },
   {
@@ -425,7 +425,7 @@ const STORY_SHIFTS = [
       "Full inspection: names, dates, weights, crates and seals."
     ],
     quota: 6,
-    timeLimit: 90,
+    timeLimit: 110,
     violations: ALL_VIOLATIONS
   },
   {
@@ -433,11 +433,11 @@ const STORY_SHIFTS = [
     title: "Shift 6: Rush Hour",
     story: "Three flights landed at once and the queue reaches the car park. Keep the line moving, but don't get sloppy.",
     rules: [
-      "Target Quota: Process 7 cases correctly.",
+      "Target Quota: Process 6 cases correctly.",
       "Some smugglers now break more than one rule at once."
     ],
-    quota: 7,
-    timeLimit: 85,
+    quota: 6,
+    timeLimit: 100,
     violations: ALL_VIOLATIONS,
     doubleChance: 0.2
   },
@@ -450,7 +450,7 @@ const STORY_SHIFTS = [
       "Scrub thoroughly. The reveal tag appears once enough of the crate is clear."
     ],
     quota: 7,
-    timeLimit: 85,
+    timeLimit: 110,
     violations: ALL_VIOLATIONS,
     doubleChance: 0.25
   },
@@ -459,11 +459,11 @@ const STORY_SHIFTS = [
     title: "Shift 8: Heavy Cargo Week",
     story: "The marshals raided a warehouse of lead-lined crates. Expect small weight differences, a kilo here and a kilo there.",
     rules: [
-      "Target Quota: Process 8 cases correctly.",
+      "Target Quota: Process 7 cases correctly.",
       "Read the scale to the decimal."
     ],
-    quota: 8,
-    timeLimit: 85,
+    quota: 7,
+    timeLimit: 105,
     violations: ALL_VIOLATIONS,
     doubleChance: 0.25
   },
@@ -476,7 +476,7 @@ const STORY_SHIFTS = [
       "Stay calm and check every field."
     ],
     quota: 8,
-    timeLimit: 80,
+    timeLimit: 115,
     violations: ALL_VIOLATIONS,
     doubleChance: 0.35
   },
@@ -485,11 +485,11 @@ const STORY_SHIFTS = [
     title: "Shift 10: The Final Inspection",
     story: "This is your assessment for Chief Inspector. Every trick in the book will cross your desk today. Make Jambo proud!",
     rules: [
-      "Target Quota: Process 9 cases correctly.",
+      "Target Quota: Process 8 cases correctly.",
       "3 Strikes = Immediate Termination."
     ],
-    quota: 9,
-    timeLimit: 80,
+    quota: 8,
+    timeLimit: 108,
     violations: ALL_VIOLATIONS,
     doubleChance: 0.4
   }
@@ -1733,10 +1733,22 @@ function handleShiftEnd(success, outcome) {
   elGameOverModal.classList.remove('hidden');
 }
 
-// Grade from accuracy and speed (seconds per case the clock was running).
+// Seconds a careful, quick inspector needs per case, given which checks are active.
+// Matches the balance model in docs/BALANCE.md.
+function parSecondsPerCase() {
+  const rules = getActiveRules().violations;
+  let par = 4;                                  // names, dates, decide
+  if (rules.includes('weight')) par += 1;
+  if (rules.includes('disguise')) par += 3.8;   // scrub and compare
+  if (rules.includes('seal')) par += 1.5;       // UV check
+  return par;
+}
+
+// Grade from accuracy and speed (seconds per case the clock was running). S needs both
+// near-perfect accuracy and beating the shift's par speed.
 function gradeShift(accuracy, speed, totalCalls) {
   if (totalCalls < 3) return { grade: "D", rank: "SENT HOME" };
-  if (accuracy >= 95 && speed <= 7) return { grade: "S", rank: "CHIEF INSPECTOR" };
+  if (accuracy >= 95 && speed <= parSecondsPerCase() * 0.9) return { grade: "S", rank: "CHIEF INSPECTOR" };
   if (accuracy >= 90) return { grade: "A", rank: "SENIOR INSPECTOR" };
   if (accuracy >= 75) return { grade: "B", rank: "JUNIOR INSPECTOR" };
   if (accuracy >= 50) return { grade: "C", rank: "ROOKIE" };
