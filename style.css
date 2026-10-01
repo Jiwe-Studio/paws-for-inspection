@@ -3846,3 +3846,93 @@ header {
 .dialogue-backdrop.full-scene::after {
   display: none;
 }
+
+/* ==========================================================================
+   BATCH 8: branching map stops, ending portraits, envelope art
+   ========================================================================== */
+.map-dot.has-art {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border: none;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.map-dot.has-art img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.map-num {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--ink);
+}
+
+.map-node.current .map-dot.has-art {
+  background: none;
+}
+
+.map-node {
+  transform: translate(-26px, -26px);
+}
+
+.map-node.flip {
+  transform: translate(calc(-100% + 26px), -26px);
+}
+
+.map-node.ending .map-label {
+  color: var(--stamp-green);
+}
+
+.ending-portrait img {
+  width: 150px;
+  height: 150px;
+  display: block;
+}
+
+.bribe-offer {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 10px;
+  align-items: center;
+}
+
+.bribe-envelope {
+  grid-row: span 2;
+  width: 64px;
+  height: auto;
+}
+
+@media (max-width: 699px) {
+  .map-node,
+  .map-node.flip {
+    transform: none;
+  }
+  .map-dot.has-art {
+    width: 40px;
+    height: 40px;
+  }
+  .bribe-envelope {
+    width: 44px;
+  }
+}
+
+/* Desktop map: locked stops are just sockets on the path; their labels appear once reached. */
+@media (min-width: 700px) {
+  .map-node.locked .map-text {
+    display: none;
+  }
+}
+
+.activity-progress:empty {
+  display: none;
+}

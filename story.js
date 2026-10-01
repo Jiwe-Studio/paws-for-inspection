@@ -186,12 +186,12 @@ const BRANCH_LINES = {
 // Three endings: honest and sharp, honest but sloppy, or corrupt.
 const ENDINGS = {
   chief: {
-    number: 1, title: "Chief Inspector", art: 'story/finale-bust',
+    number: 1, title: "Chief Inspector", art: 'story/ending-chief', portrait: 'crew/rookie_chief',
     text: "Kiboko is in handcuffs, his animals are on their way home with the Kenya Wildlife Service, and the desk is yours.",
     steps: STORY_SCENES[10].after.steps
   },
   escape: {
-    number: 2, title: "The One That Got Away", art: 'story/ending-escape',
+    number: 2, title: "The One That Got Away", art: 'story/ending-escape', portrait: 'crew/rookie_neutral',
     text: "You stamped DENIED, but Kiboko's lawyer had a diplomatic letter and his jet was already taxiing. Sharper shifts would have stopped him.",
     steps: [
       { who: "kiboko", mood: "smug", text: "A diplomatic letter, inspector. Signed this morning. Ta-ta!" },
@@ -201,11 +201,12 @@ const ENDINGS = {
     ]
   },
   bribe: {
-    number: 3, title: "Chai Money", art: 'story/ending-bribe',
+    number: 3, title: "Chai Money", art: 'story/ending-bribe', portrait: 'crew/rookie_busted',
     text: "Kiboko kept a list of every officer who took his envelopes. Your name was on it.",
     steps: [
       { who: "kiboko", mood: "busted", text: "If I'm going down, I'm taking my favourite inspector with me! It's all in my little book." },
       { who: "kiprop", mood: "worried", text: "Envelopes, rookie? Hand me your stamp." },
+      { who: "police", text: "Inspector, you'll need to come with us. Both of you." },
       { who: "rehema", mood: "worried", text: "Thirty years and I never took a single shilling. Start again, and do it right this time." },
       { who: "biscuit", mood: "neutral", text: "..." }
     ]
@@ -498,6 +499,9 @@ const Activity = (() => {
     open(`ENDING ${ending.number} OF 3`, ending.title);
     return new Promise(resolve => {
       const wrap = el('div', 'activity-results');
+      const portrait = el('div', 'ending-portrait');
+      setArt(portrait, ending.portrait, '');
+      wrap.appendChild(portrait);
       wrap.appendChild(el('div', 'activity-result-line', ending.text));
       wrap.appendChild(el('div', 'activity-prompt', `Endings unlocked: ${unlocked} / 3. Replay the campaign to find the others.`));
       const btn = el('button', 'big-btn big-btn-ochre', 'Back to menu');
@@ -626,17 +630,23 @@ const Story = {
 };
 
 // --- STORY MAP (Batch 7e): ten stops along the path, done / current / locked ---
+const MAP_SIZE = [1280, 720];
 const MAP_STOPS = [
-  { label: "First day", x: 10.6, y: 79 },
-  { label: "K9 training", x: 23.5, y: 67 },
-  { label: "Kiboko on CCTV", x: 32, y: 50 },
-  { label: "UV help for Tony", x: 44, y: 38 },
-  { label: "Warehouse raid", x: 57, y: 51 },
-  { label: "Rush hour", x: 67, y: 68 },
-  { label: "Better paint", x: 80, y: 66 },
-  { label: "Rehema's farewell", x: 90, y: 44 },
-  { label: "Decoys", x: 81, y: 25 },
-  { label: "The arrest", x: 65, y: 14 }
+  { label: "First day", at: [110, 610] },
+  { label: "K9 training", at: [250, 520] },
+  { label: "Kiboko on CCTV", at: [360, 400] },
+  { label: "UV help for Tony", at: [540, 300] },
+  { label: "Warehouse raid", at: [690, 360] },
+  { label: "Rush hour", at: [800, 480] },
+  { label: "Better paint", at: [980, 520] },
+  { label: "Rehema's farewell", at: [1130, 450] },
+  { label: "Decoys", at: [1110, 290] }
+];
+// Shift 10 splits three ways: one stop per ending.
+const MAP_ENDINGS = [
+  { id: 'bribe', at: [820, 150] },
+  { id: 'escape', at: [1000, 110] },
+  { id: 'chief', at: [1190, 130] }
 ];
 
 const StoryMap = {
@@ -644,40 +654,66 @@ const StoryMap = {
     const current = StorageManager.getStoryShift();
     const nodes = document.getElementById('mapNodes');
     nodes.replaceChildren();
+    document.querySelector('.map-bg').src = ART_FILES.has('ui/story-map') ? 'art/ui/story-map.svg' : 'art/ui/story-map-bg.svg';
+    const pos = (at) => [at[0] / MAP_SIZE[0] * 100, at[1] / MAP_SIZE[1] * 100];
+
+    const makeNode = (at, state, art, numberText, shiftLabel, label, grade, onClick) => {
+      const [x, y] = pos(at);
+      const node = document.createElement('button');
+      node.className = `map-node ${state}${x > 75 ? ' flip' : ''}`;
+      node.style.left = `${x}%`;
+      node.style.top = `${y}%`;
+      node.disabled = !onClick;
+      const dot = document.createElement('span');
+      dot.className = 'map-dot';
+      if (ART_FILES.has(art)) {
+        dot.classList.add('has-art');
+        dot.innerHTML = `<img src="art/${art}.svg" alt="">`;
+        if (numberText) dot.insertAdjacentHTML('beforeend', `<span class="map-num">${numberText}</span>`);
+      } else {
+        dot.textContent = numberText || '';
+      }
+      const text = document.createElement('span');
+      text.className = 'map-text';
+      text.innerHTML = '<span class="map-shift"></span><span class="map-label"></span>';
+      text.querySelector('.map-shift').textContent = shiftLabel;
+      text.querySelector('.map-label').textContent = label;
+      if (grade) {
+        const g = document.createElement('span');
+        g.className = 'map-grade';
+        g.textContent = grade;
+        text.appendChild(g);
+      }
+      node.append(dot, text);
+      if (onClick) node.addEventListener('click', onClick);
+      nodes.appendChild(node);
+    };
+
     MAP_STOPS.forEach((stop, i) => {
       const n = i + 1;
       const state = n < current ? 'done' : n === current ? 'current' : 'locked';
-      const node = document.createElement('button');
-      node.className = `map-node ${state}${stop.x > 75 ? ' flip' : ''}`;
-      node.style.left = `${stop.x}%`;
-      node.style.top = `${stop.y}%`;
-      node.disabled = state === 'locked';
-
-      const dot = document.createElement('span');
-      dot.className = 'map-dot';
-      if (state === 'locked') dot.innerHTML = ICON('lock');
-      else dot.textContent = n;
-      const text = document.createElement('span');
-      text.className = 'map-text';
       const best = StorageManager.getBest(`story-${n}`);
-      text.innerHTML = `<span class="map-shift">Shift ${n}</span><span class="map-label"></span>`;
-      text.querySelector('.map-label').textContent = stop.label;
-      if (best) {
-        const grade = document.createElement('span');
-        grade.className = 'map-grade';
-        grade.textContent = best.grade;
-        text.appendChild(grade);
-      }
-      node.append(dot, text);
-      node.addEventListener('click', () => StoryMap.start(i));
-      nodes.appendChild(node);
+      makeNode(stop.at, state, `ui/map-stop-${state}`, state === 'current' ? n : '', `Shift ${n}`, stop.label,
+        best && best.grade, state === 'locked' ? null : () => StoryMap.start(i));
     });
 
-    const endings = Story.endingsUnlocked();
+    // Shift 10: the three ending stops. Unlocked endings show their badge; Shift 10 starts from any of them.
+    const unlocked = StoryProgress.endings();
+    const shift10Open = current >= 10;
+    MAP_ENDINGS.forEach(stop => {
+      const ending = ENDINGS[stop.id];
+      const found = unlocked.includes(stop.id);
+      const art = found ? `ui/map-ending-${stop.id}` : `ui/map-stop-${shift10Open ? 'current' : 'locked'}`;
+      makeNode(stop.at, found ? 'ending' : shift10Open ? 'current' : 'locked', art, found || !shift10Open ? '' : '?',
+        'Shift 10', found ? ending.title : 'Ending ?', null, shift10Open ? () => StoryMap.start(9) : null);
+    });
+
+    const endings = unlocked.length;
     document.getElementById('mapEndings').textContent = endings ? `Endings ${endings}/${Story.endingsTotal()}` : '';
     const startBtn = document.getElementById('btnMapStart');
-    startBtn.textContent = `Start shift ${Math.min(current, MAP_STOPS.length)}`;
-    startBtn.onclick = () => StoryMap.start(Math.min(current, MAP_STOPS.length) - 1);
+    const next = Math.min(current, 10);
+    startBtn.textContent = `Start shift ${next}`;
+    startBtn.onclick = () => StoryMap.start(next - 1);
 
     elMainMenuModal.classList.add('hidden');
     document.getElementById('storyMapModal').classList.remove('hidden');

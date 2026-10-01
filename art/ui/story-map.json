@@ -1,0 +1,81 @@
+{
+  "size": [
+    1280,
+    720
+  ],
+  "stopSize": 88,
+  "note": "Stop centres. s3, s6 and s9 fork; s4 and s7 are reached by either lane; s9 splits three ways to the endings (the Shift 10 stops).",
+  "stops": {
+    "s1": [
+      110,
+      610
+    ],
+    "s2": [
+      250,
+      520
+    ],
+    "s3": [
+      360,
+      400
+    ],
+    "s4": [
+      540,
+      300
+    ],
+    "s5": [
+      690,
+      360
+    ],
+    "s6": [
+      800,
+      480
+    ],
+    "s7": [
+      980,
+      520
+    ],
+    "s8": [
+      1130,
+      450
+    ],
+    "s9": [
+      1110,
+      290
+    ],
+    "e_bribe": [
+      820,
+      150
+    ],
+    "e_escape": [
+      1000,
+      110
+    ],
+    "e_chief": [
+      1190,
+      130
+    ]
+  },
+  "lanes": {
+    "main": [
+      "s1-s2",
+      "s2-s3",
+      "s4-s5",
+      "s5-s6",
+      "s7-s8",
+      "s8-s9"
+    ],
+    "fork3": [
+      "s3-s4 upper",
+      "s3-s4 lower"
+    ],
+    "fork6": [
+      "s6-s7 upper",
+      "s6-s7 lower"
+    ],
+    "fork9": [
+      "s9-e_bribe",
+      "s9-e_escape",
+      "s9-e_chief"
+    ]
+  }
+}
