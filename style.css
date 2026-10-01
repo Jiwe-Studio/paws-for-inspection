@@ -3482,3 +3482,133 @@ header {
     font-size: 1.25rem;
   }
 }
+
+/* ==========================================================================
+   PHASE 5: grades, personal bests, sharing, bribes
+   ========================================================================== */
+.report-rank {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+
+.report-rank .rank-grade {
+  font-size: 3.2rem;
+}
+
+.report-rank .rank-title {
+  font-size: 1rem;
+  letter-spacing: 2px;
+  margin-top: 2px;
+}
+
+.report-stat .s-unit {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+.report-best {
+  font-weight: 800;
+  color: var(--terracotta);
+  min-height: 1.2em;
+}
+
+.report-actions #btnShareResult {
+  width: 160px;
+}
+
+/* The envelope: brown paper, scribbled note, two choices. */
+.bribe-offer {
+  margin-top: 6px;
+  padding: 8px 10px;
+  background: #B8865A;
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 rgba(30, 34, 64, 0.35);
+  transform: rotate(-1deg);
+  animation: bribeIn 0.25s ease-out;
+}
+
+@keyframes bribeIn {
+  from { transform: translateY(-8px) rotate(-4deg); opacity: 0; }
+}
+
+.bribe-note {
+  font-family: var(--font-type);
+  font-size: 0.82rem;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.bribe-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.bribe-btn {
+  flex: 1;
+  border: 2px solid var(--ink);
+  box-shadow: 0 3px 0 var(--ink);
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 0.8rem;
+  padding: 4px 6px;
+  cursor: pointer;
+}
+
+.bribe-btn.take {
+  background: var(--ochre);
+  color: var(--ink);
+}
+
+.bribe-btn.refuse {
+  background: var(--bone);
+  color: var(--ink);
+}
+
+.bribe-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--ink);
+}
+
+@media (max-width: 699px), (max-height: 520px) {
+  .report-rank .rank-grade {
+    font-size: 2.2rem;
+  }
+  .report-rank .rank-title {
+    font-size: 0.75rem;
+  }
+  .report-actions #btnShareResult {
+    width: auto;
+    flex: 0 0 auto;
+  }
+  .report-actions {
+    gap: 8px;
+  }
+  .bribe-note {
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 699px), (max-height: 520px) {
+  .passenger-booth {
+    position: relative;
+    z-index: 8;
+  }
+  .bribe-offer {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    top: calc(100% - 4px);
+  }
+}
+
+@media (max-width: 699px), (max-height: 520px) {
+  .report-actions .big-btn {
+    font-size: 1.15rem;
+    white-space: nowrap;
+    padding: 0 10px;
+  }
+}

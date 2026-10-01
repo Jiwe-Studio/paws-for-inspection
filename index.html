@@ -14,10 +14,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Special+Elite&family=Baloo+2:wght@400;600;800&display=swap" />
-  <link rel="stylesheet" href="style.css?v=22" />
-  <script src="tutorial.js?v=22" defer></script>
-  <script src="story.js?v=22" defer></script>
-  <script src="game.js?v=22" defer></script>
+  <link rel="stylesheet" href="style.css?v=25" />
+  <script src="tutorial.js?v=25" defer></script>
+  <script src="story.js?v=25" defer></script>
+  <script src="game.js?v=25" defer></script>
 </head>
 <body>
 
@@ -83,6 +83,13 @@
           <div class="passenger-name-tag">Passenger / Importer</div>
           <div class="passenger-name" id="passName">Njeri Wambui</div>
           <div class="speech-bubble" id="passSpeech">"Habari officer!"</div>
+          <div class="bribe-offer hidden" id="bribeOffer">
+            <div class="bribe-note">An envelope slides under the window: <em>"a little chai money, officer"</em>.</div>
+            <div class="bribe-actions">
+              <button class="bribe-btn take" id="btnTakeBribe">Take it &amp; approve</button>
+              <button class="bribe-btn refuse" id="btnRefuseBribe">Slide it back</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -307,7 +314,7 @@
 
       <div class="report-stats">
         <div class="report-stat"><div class="s-label">ACCURACY</div><div class="s-value" id="endAccuracy">0%</div></div>
-        <div class="report-stat"><div class="s-label">CASES</div><div class="s-value" id="endCases">0</div></div>
+        <div class="report-stat"><div class="s-label">SPEED</div><div class="s-value"><span id="endSpeed">0.0s</span><span class="s-unit">per case</span></div></div>
         <div class="report-stat"><div class="s-label">SMUGGLERS BUSTED</div><div class="s-value" id="endSmugglers">0</div></div>
         <div class="report-stat"><div class="s-label">STRIKES</div><div class="s-value"><span id="endStrikes">0</span><span class="report-strike-marks" id="endStrikeMarks"></span></div></div>
       </div>
@@ -317,10 +324,12 @@
         <div class="report-rescued-text" id="endRescuedText"></div>
       </div>
 
-      <div class="report-score">SCORE <span id="endScore">0</span></div>
+      <div class="report-score">SCORE <span id="endScore">0</span> &middot; <span id="endCases">0</span> CASES</div>
+      <div class="report-best" id="endBest"></div>
 
       <div class="report-actions">
         <button class="big-btn big-btn-ochre" id="btnEndAction">Next shift</button>
+        <button class="big-btn big-btn-teal" id="btnShareResult" aria-label="Share your result">Share</button>
         <button class="big-btn big-btn-paper" id="btnEndReturnMenu">Menu</button>
       </div>
     </div>

@@ -628,6 +628,17 @@ class StorageManager {
     }
   }
 
+  static getBest(key) {
+    try { return JSON.parse(localStorage.getItem('petdetect_bests') || "{}")[key] || null; } catch (e) { return null; }
+  }
+
+  static saveBest(key, result) {
+    let all = {};
+    try { all = JSON.parse(localStorage.getItem('petdetect_bests') || "{}"); } catch (e) { /* start fresh */ }
+    all[key] = result;
+    localStorage.setItem('petdetect_bests', JSON.stringify(all));
+  }
+
   static getCustomSuspects() {
     return JSON.parse(localStorage.getItem('petdetect_custom_suspects_v2') || "[]");
   }
@@ -1116,6 +1127,13 @@ function generateNewCase(overrides = {}) {
     shouldApprove: violations.length === 0
   };
 
+  // Guilty passengers are likelier to try it, but honest ones sometimes offer "a gift" too.
+  const conf = STORY_SHIFTS[gameState.storyShiftIndex];
+  newCase.bribe = gameState.mode === 'story' && conf && conf.shiftNumber >= 3 && !newCase.isKiboko
+    && !overrides.violations && gameState.bribesOffered < 2
+    && Math.random() < (newCase.shouldApprove ? 0.05 : 0.15);
+  if (newCase.bribe) gameState.bribesOffered++;
+
   gameState.currentCase = newCase;
   gameState.resolving = false;
   renderCase(newCase);
@@ -1131,6 +1149,7 @@ function renderCase(c) {
   document.querySelectorAll('.flagged').forEach(el => el.classList.remove('flagged'));
 
   setPassengerMood(c, 'neutral');
+  document.getElementById('bribeOffer').classList.toggle('hidden', !c.bribe);
   elPassName.textContent = c.passengerName;
   elPassSpeech.textContent = `"${c.passengerSpeech}"`;
 
@@ -1191,6 +1210,10 @@ function handleVerdict(approvedByUser) {
   sound.playStamp(approvedByUser);
 
   showStampImprint(approvedByUser);
+  if (c.bribe) {
+    document.getElementById('bribeOffer').classList.add('hidden');
+    Story.recordBribe(false);
+  }
   setPassengerMood(c, approvedByUser ? 'relieved' : (c.shouldApprove ? 'nervous' : 'busted'));
 
   // Show the truth: open the crate and point at whatever was wrong.
@@ -1352,7 +1375,8 @@ function showMainMenu() {
   elMenuArcadeHighScore.textContent = highScore.toLocaleString('en-US');
 
   const savedShift = StorageManager.getStoryShift();
-  elMenuStoryBadge.textContent = `SHIFT ${savedShift} / 10`;
+  const endings = Story.endingsUnlocked();
+  elMenuStoryBadge.textContent = endings ? `SHIFT ${savedShift} / 10 · ENDINGS ${endings}/${Story.endingsTotal()}` : `SHIFT ${savedShift} / 10`;
 
   elMainMenuModal.classList.remove('hidden');
   elBulletinModal.classList.add('hidden');
@@ -1398,6 +1422,8 @@ function startActualShift() {
   gameState.correctCalls = 0;
   gameState.wrongCalls = 0;
   gameState.rescuedThisShift = [];
+  gameState.activeSeconds = 0;
+  gameState.bribesOffered = 0;
   gameState.kibokoCaught = false;
   gameState.kibokoSeen = false;
   gameState.biscuitAvailable = true;
@@ -1432,6 +1458,7 @@ function startActualShift() {
   gameState.shiftInterval = setInterval(() => {
     if (!gameState.active || gameState.isTimeFrozen || gameState.resolving || gameState.introPause || isDeskPopupOpen()) return;
     gameState.timeLeft--;
+    gameState.activeSeconds++;
 
     if (gameState.timeLeft <= 10 && gameState.timeLeft > 0) {
       sound.playWarning();
@@ -1472,18 +1499,28 @@ function handleShiftEnd(success, outcome) {
   // Rank is earned on accuracy, so a short story shift can still reach the top title.
   const totalCalls = gameState.correctCalls + gameState.wrongCalls;
   const accuracy = totalCalls > 0 ? Math.round((gameState.correctCalls / totalCalls) * 100) : 0;
-  let rank;
-  if (totalCalls < 3) rank = "SENT HOME";
-  else if (accuracy >= 95) rank = "CHIEF INSPECTOR";
-  else if (accuracy >= 85) rank = "SENIOR INSPECTOR";
-  else if (accuracy >= 70) rank = "JUNIOR INSPECTOR";
-  else if (accuracy >= 50) rank = "ROOKIE";
-  else rank = "SENT HOME";
+  const speed = totalCalls > 0 ? gameState.activeSeconds / totalCalls : 0;
+  const { grade, rank } = gradeShift(accuracy, speed, totalCalls);
+
+  // Personal best per shift: higher accuracy wins, then faster.
+  const bestKey = gameState.mode === 'story' ? `story-${gameState.storyShiftIndex + 1}` : 'arcade';
+  const result = { grade, accuracy, speed: Number(speed.toFixed(1)), score: gameState.score };
+  const previous = StorageManager.getBest(bestKey);
+  const elBest = document.getElementById('endBest');
+  if (totalCalls >= 3 && isBetterResult(result, previous)) {
+    StorageManager.saveBest(bestKey, result);
+    elBest.textContent = previous ? `New personal best! (was ${previous.accuracy}% · ${previous.speed}s)` : "First clear. This is your best to beat.";
+  } else {
+    elBest.textContent = previous ? `Your best: ${previous.grade}-rank · ${previous.accuracy}% · ${previous.speed}s per case` : "";
+  }
+  if (gameState.mode === 'story' && success) Story.recordShift(gameState.storyShiftIndex + 1, accuracy);
+  gameState.lastResult = { ...result, label: gameState.mode === 'story' ? `Shift ${gameState.storyShiftIndex + 1}` : "Arcade", rescued: gameState.rescuedThisShift.length };
 
   const modeLabel = gameState.mode === 'story' ? `SHIFT ${gameState.storyShiftIndex + 1}` : "ARCADE";
   elEndSubtitle.textContent = `${modeLabel} · ${outcome}`;
   elEndTitle.textContent = "Shift report";
-  elEndRank.textContent = rank;
+  elEndRank.innerHTML = `<span class="rank-grade">${grade}</span><span class="rank-title">${rank}</span>`;
+  document.getElementById('endSpeed').textContent = `${speed.toFixed(1)}s`;
   elEndScore.textContent = gameState.score;
   document.getElementById('endAccuracy').textContent = `${accuracy}%`;
   elEndCases.textContent = gameState.casesProcessed;
@@ -1540,6 +1577,41 @@ function handleShiftEnd(success, outcome) {
   elGameOverModal.classList.remove('hidden');
 }
 
+// Grade from accuracy and speed (seconds per case the clock was running).
+function gradeShift(accuracy, speed, totalCalls) {
+  if (totalCalls < 3) return { grade: "D", rank: "SENT HOME" };
+  if (accuracy >= 95 && speed <= 7) return { grade: "S", rank: "CHIEF INSPECTOR" };
+  if (accuracy >= 90) return { grade: "A", rank: "SENIOR INSPECTOR" };
+  if (accuracy >= 75) return { grade: "B", rank: "JUNIOR INSPECTOR" };
+  if (accuracy >= 50) return { grade: "C", rank: "ROOKIE" };
+  return { grade: "D", rank: "SENT HOME" };
+}
+
+function isBetterResult(result, previous) {
+  if (!previous) return true;
+  if (result.accuracy !== previous.accuracy) return result.accuracy > previous.accuracy;
+  return result.speed < previous.speed;
+}
+
+// Share the shift result: the system share sheet on phones, the clipboard elsewhere.
+document.getElementById('btnShareResult').addEventListener('click', async () => {
+  const r = gameState.lastResult;
+  if (!r) return;
+  const url = 'https://jiwe-studio.github.io/paws-for-inspection/';
+  const rescued = r.rescued ? `, ${r.rescued} ${r.rescued === 1 ? 'animal' : 'animals'} rescued` : '';
+  const text = `Paws for Inspection · ${r.label} at Jambo Int'l: ${r.grade}-rank, ${r.accuracy}% accuracy, ${r.speed}s per case${rescued}. Can you beat it?`;
+  try {
+    if (navigator.share) {
+      await navigator.share({ title: "Paws for Inspection", text, url });
+      return;
+    }
+    await navigator.clipboard.writeText(`${text} ${url}`);
+    showToast(true, "Result copied. Paste it anywhere to share.");
+  } catch (e) {
+    // The player closed the share sheet, or the clipboard isn't available.
+  }
+});
+
 // --- 12. GADGETS & TOOLS ---
 elBtnCoffee.addEventListener('click', () => {
   if (!gameState.active || !gameState.coffeeAvailable || gameState.isTimeFrozen) return;
@@ -1573,6 +1645,35 @@ elBtnVocalize.addEventListener('click', () => {
   sound.playVocal(soundType);
   setPassengerMood(gameState.currentCase, 'nervous');
   elPassSpeech.textContent = VOCAL_REACTIONS[soundType] || VOCAL_REACTIONS.squeak;
+});
+
+// Taking the envelope stamps the case APPROVED on the spot: points now, consequences later.
+document.getElementById('btnTakeBribe').addEventListener('click', () => {
+  const c = gameState.currentCase;
+  if (!gameState.active || !c || !c.bribe || gameState.resolving || Dialogue.isOpen()) return;
+  gameState.resolving = true;
+  gameState.currentCase = null;
+  document.getElementById('bribeOffer').classList.add('hidden');
+  Story.recordBribe(true);
+  gameState.score += 300;
+  gameState.casesProcessed++;
+  sound.init();
+  sound.playStamp(true);
+  showStampImprint(true);
+  setPassengerMood(c, 'relieved');
+  showToast(false, "You pocketed the envelope and stamped APPROVED. Across the hall, Tony saw it. (+300)");
+  updateHUD();
+  setTimeout(() => { if (gameState.active) generateNewCase(); }, 1100);
+});
+
+document.getElementById('btnRefuseBribe').addEventListener('click', () => {
+  const c = gameState.currentCase;
+  if (!c || !c.bribe) return;
+  c.bribe = false;
+  document.getElementById('bribeOffer').classList.add('hidden');
+  Story.recordBribe(false);
+  setPassengerMood(c, 'nervous');
+  elPassSpeech.textContent = '"Eh... it was just for chai, officer. No offence."';
 });
 
 document.getElementById('btnBiscuit').addEventListener('click', () => {

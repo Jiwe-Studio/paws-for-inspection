@@ -26,7 +26,7 @@ Every case is generated fresh: a clean case is built first, then 0–2 rules are
 
 New players start with **Orientation**: Mama Rehema, a veteran inspector, walks you through three practice cases with no timer. Shifts 2, 3 and 4 open with a short briefing when a new rule arrives, and the clock waits for your first stamp.
 
-**Story:** ten shifts at Jambo International Airport with Chief Kiprop, rival rookie Tony, Wiji from the lab and Biscuit the sniffer dog, chasing Big Man Kiboko's wildlife-trafficking ring. Team activities after Shifts 2, 5 and 8 (K9 training, a warehouse raid, quiz night) unlock perks, and in Shift 10 Kiboko comes to your counter himself.
+**Story:** ten shifts at Jambo International Airport with Chief Kiprop, rival rookie Tony, Wiji from the lab and Biscuit the sniffer dog, chasing Big Man Kiboko's wildlife-trafficking ring. Team activities after Shifts 2, 5 and 8 (K9 training, a warehouse raid, quiz night) unlock perks, and in Shift 10 Kiboko comes to your counter himself. Your accuracy across the campaign, and whether you take the bribes passengers slide under the window, bend the story at Shifts 3, 6 and 9 and decide which of three endings you get. Each shift report grades you on accuracy and speed, tracks your personal best and can be shared.
 
 ## 🚀 How to Play
 
