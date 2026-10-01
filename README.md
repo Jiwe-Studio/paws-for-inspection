@@ -28,6 +28,8 @@ New players start with **Orientation**: Mama Rehema, a veteran inspector, walks 
 
 **Story:** ten shifts at Jambo International Airport with Chief Kiprop, rival rookie Tony, Wiji from the lab and Biscuit the sniffer dog, chasing Big Man Kiboko's wildlife-trafficking ring. Team activities after Shifts 2, 5 and 8 (K9 training, a warehouse raid, quiz night) unlock perks, and in Shift 10 Kiboko comes to your counter himself. Your accuracy across the campaign, and whether you take the bribes passengers slide under the window, bend the story at Shifts 3, 6 and 9 and decide which of three endings you get. Each shift report grades you on accuracy and speed, tracks your personal best and can be shared.
 
+**Sound:** layered music that intensifies under pressure, airport background sound and effects, with volume controls. Stand-ins are synthesised in code until recordings are added (see `docs/AUDIO_WORK_ORDER.md`).
+
 ## 🚀 How to Play
 
 1. Clone this repository or download the repo.

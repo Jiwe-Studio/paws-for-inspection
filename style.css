@@ -3936,3 +3936,43 @@ header {
 .activity-progress:empty {
   display: none;
 }
+
+/* ==========================================================================
+   SOUND SETTINGS
+   ========================================================================== */
+.audio-card {
+  max-width: 420px;
+}
+
+.audio-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 10px 0 20px;
+  text-align: left;
+}
+
+.audio-row {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  align-items: center;
+  gap: 12px;
+  font-weight: 800;
+}
+
+.audio-row input[type="range"] {
+  width: 100%;
+  accent-color: var(--ochre);
+  height: 28px;
+}
+
+.audio-mute {
+  grid-template-columns: auto 1fr;
+  font-weight: 700;
+}
+
+.audio-mute input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--kanga-red);
+}
