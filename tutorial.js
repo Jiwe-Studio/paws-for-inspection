@@ -407,8 +407,11 @@ const Tutorial = {
       violations: [], passengerName: "Njeri Wambui", animalSpecies: "Border Collie", expiryDays: 214,
       speech: "Habari officer! Is it your first day? You look nervous."
     });
+    // First meeting at the desk (story illustration), then the walkthrough with spotlights.
     if (!(await Dialogue.run([
-      { mood: "happy", who: "rehema", text: "Karibu, rookie! I'm Mama Rehema. Thirty years on this desk, and I retire next month. Chief Kiprop says I have to train you first, so sikiza vizuri." },
+      { mood: "happy", who: "rehema", text: "Karibu, rookie! I'm Mama Rehema. Thirty years on this desk, and I retire next month. Chief Kiprop says I have to train you first, so sikiza vizuri." }
+    ], { backdrop: sceneBackdrop('story/first-day') }))) return false;
+    if (!(await Dialogue.run([
       { who: "rehema", text: "Every passenger brings an animal and a Wildlife Transit Permit. You check the permit, then stamp it APPROVE or DENY.", spot: SPOT.permit },
       { who: "rehema", text: "First, the name. The owner on the permit must match the passenger exactly. Njeri Wambui and Njeri Wambui. Good.", spot: SPOT.names },
       { who: "rehema", text: "Next, the date. 'Valid until' must not be before today's date, down here in the corner. This one is fine.", spot: SPOT.dates }

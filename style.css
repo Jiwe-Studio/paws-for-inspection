@@ -3976,3 +3976,147 @@ header {
   height: 22px;
   accent-color: var(--kanga-red);
 }
+
+/* ==========================================================================
+   BATCH 9: loading screen, K9 training crate, raid torch, quiz scoreboard
+   ========================================================================== */
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--terracotta) url(art/ui/splash.svg) center / contain no-repeat;
+  transition: opacity 0.5s ease;
+}
+
+.splash.gone {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* K9: the training crate opens and the animal pops up out of it */
+.k9-crate {
+  position: relative;
+}
+
+.k9-crate.has-art {
+  width: 170px;
+  height: 142px;
+  border: none;
+  background: url(art/activity/sniff-crate-closed.svg) center / contain no-repeat;
+}
+
+.k9-crate.has-art.open {
+  background-image: url(art/activity/sniff-crate-open.svg);
+}
+
+.k9-crate.has-art .k9-crate-no {
+  display: none;
+}
+
+.k9-crate-no {
+  font-family: var(--font-type);
+  font-size: 1.4rem;
+  color: var(--bone);
+  text-shadow: 0 1px 0 var(--ink);
+}
+
+.k9-peek {
+  position: absolute;
+  left: 50%;
+  top: -18px;
+  transform: translateX(-50%);
+  animation: peekUp 0.3s ease-out;
+}
+
+.k9-peek img {
+  width: 80px;
+  height: 80px;
+  display: block;
+}
+
+@keyframes peekUp {
+  from { transform: translate(-50%, 30px); opacity: 0; }
+}
+
+.k9-treats {
+  display: flex;
+  gap: 6px;
+  min-height: 34px;
+}
+
+.k9-treat img {
+  width: 34px;
+  height: 34px;
+  display: block;
+}
+
+/* Raid: a torch beam follows the finger across the crates */
+.raid-grid {
+  position: relative;
+  overflow: hidden;
+}
+
+.raid-torch {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 260px;
+  height: 260px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0.55;
+  mix-blend-mode: screen;
+}
+
+/* Quiz: chalk scoreboard art with the scores written in the two boxes */
+.quiz-board.chalk {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: min(420px, 100%);
+  aspect-ratio: 600 / 220;
+  background: url(art/activity/scoreboard.svg) center / 100% 100% no-repeat;
+  padding: 11% 7% 9%;
+  gap: 12%;
+}
+
+.quiz-board.chalk .quiz-score,
+.quiz-board.chalk .quiz-score.tony {
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-type);
+  font-size: clamp(1.6rem, 6vw, 2.6rem);
+  color: var(--bone);
+}
+
+.quiz-buzzers {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.quiz-buzzer img {
+  width: 78px;
+  height: 78px;
+  display: block;
+}
+
+.quiz-vs {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+}
+
+@media (max-width: 699px), (max-height: 520px) {
+  .quiz-buzzer img {
+    width: 56px;
+    height: 56px;
+  }
+  .k9-crate.has-art {
+    width: 130px;
+    height: 108px;
+  }
+}

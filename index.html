@@ -8,19 +8,32 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <title>Paws for Inspection</title>
   <link rel="manifest" href="manifest.webmanifest" />
+  <!-- Link previews (WhatsApp, X, Facebook) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Paws for Inspection" />
+  <meta property="og:description" content="Catch the smugglers, save the animals. Clear animals through customs at Jambo International Airport." />
+  <meta property="og:url" content="https://jiwe-studio.github.io/paws-for-inspection/" />
+  <meta property="og:image" content="https://jiwe-studio.github.io/paws-for-inspection/art/ui/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://jiwe-studio.github.io/paws-for-inspection/art/ui/og-image.jpg" />
   <link rel="icon" type="image/svg+xml" href="art/ui/app-icon-192.svg" />
   <link rel="apple-touch-icon" href="art/ui/app-icon-180.png" />
   <meta name="description" content="Clear, search and stamp animals through airport customs at Jambo International Airport." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Special+Elite&family=Baloo+2:wght@400;600;800&display=swap" />
-  <link rel="stylesheet" href="style.css?v=33" />
-  <script src="tutorial.js?v=33" defer></script>
-  <script src="story.js?v=33" defer></script>
-  <script src="audio.js?v=33" defer></script>
-  <script src="game.js?v=33" defer></script>
+  <link rel="stylesheet" href="style.css?v=36" />
+  <script src="tutorial.js?v=36" defer></script>
+  <script src="story.js?v=36" defer></script>
+  <script src="audio.js?v=36" defer></script>
+  <script src="game.js?v=36" defer></script>
 </head>
 <body>
+
+  <!-- Loading screen (Batch 9 splash) -->
+  <div class="splash" id="splash" aria-hidden="true"></div>
 
   <!-- TOP DASHBOARD -->
   <header>
@@ -63,7 +76,7 @@
 
       <div class="header-btns" id="headerBtns">
         <button class="btn-icon" id="btnMainMenu" title="Return to Main Menu"><img class="icon" src="art/ui/icon-home.svg" alt=""> Menu</button>
-        <button class="btn-icon" id="btnOpenDex" title="View the Rescue Log"><img class="icon" src="art/ui/icon-petdex.svg" alt=""> Rescue Log <span id="dexCountBadge">(0/19)</span></button>
+        <button class="btn-icon" id="btnOpenDex" title="View the Rescue Log"><img class="icon" src="art/ui/icon-petdex.svg" alt=""> Rescue Log <span id="dexCountBadge">(0/20)</span></button>
         <button class="btn-icon" id="btnCustomSuspects" title="Add Friends to Suspect Roster"><img class="icon" src="art/ui/icon-suspects.svg" alt=""> Suspects</button>
         <button class="btn-icon" id="btnSoundToggle" title="Toggle Sound"><img class="icon" src="art/ui/icon-sound-on.svg" alt=""> ON</button>
         <button class="btn-icon" id="btnHelp" title="Customs Regulations Manual"><img class="icon" src="art/ui/icon-help.svg" alt=""> Help</button>
@@ -361,7 +374,7 @@
   <!-- 4. PET-DEX DOSSIER SCRAPBOOK MODAL -->
   <div class="modal-backdrop hidden" id="petdexModal">
     <div class="modal-card" style="max-width:680px;">
-      <div class="log-head"><h2>Rescue Log</h2><span class="log-count" id="logCount">0 / 19</span></div>
+      <div class="log-head"><h2>Rescue Log</h2><span class="log-count" id="logCount">0 / 20</span></div>
       <div class="subtitle">Every animal you have cleared, seized or rescued</div>
 
       <div class="petdex-grid" id="petdexGrid">
