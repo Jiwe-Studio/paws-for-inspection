@@ -63,7 +63,7 @@ const STORY_SCENES = {
     before: { bg: 'scene/chief-office-bg', steps: [
       { who: "kiprop", mood: "neutral", text: "So you're Mama Rehema's rookie. I'm Chief Kiprop. This desk has never waved through a smuggler on my watch." },
       { who: "kiprop", text: "Four clean cases today. Names and dates. Don't embarrass my desk." },
-      { who: "tony", mood: "happy", text: "Tony Wafula. Started Monday, already processed forty cases. Try to keep up, rookie." },
+      { who: "tony", mood: "happy", bg: 'story/tony-rivalry', text: "Tony Wafula. Started Monday, already processed forty cases. Try to keep up, rookie." },
       { who: "rehema", text: "He processed forty and approved a painted goat. Ignore him. Read the permit, not Tony." }
     ] },
     after: { bg: 'scene/staffroom-bg', steps: [
@@ -234,7 +234,12 @@ const Activity = (() => {
   const body = () => document.getElementById('activityBody');
   const progress = () => document.getElementById('activityProgress');
 
+  // Each opened activity gets a session number; closing or opening another ends the old one.
+  let session = 0;
+  const alive = (id) => id === session;
+
   function open(kicker, title, bg) {
+    session++;
     modal().style.backgroundImage = bg && ART_FILES.has(bg) ? `url(art/${bg}.svg)` : '';
     document.getElementById('activityKicker').textContent = kicker;
     document.getElementById('activityTitle').textContent = title;
@@ -244,6 +249,7 @@ const Activity = (() => {
   }
 
   function close() {
+    session++;
     modal().classList.add('hidden');
     body().replaceChildren();
   }
@@ -288,6 +294,7 @@ const Activity = (() => {
 
   async function k9() {
     open("TEAM ACTIVITY · AFTER SHIFT 2", "K9 training with Biscuit", 'activity/k9-yard-bg');
+    const me = session;
     const rounds = shuffle(K9_ANIMALS);
     let score = 0;
 
@@ -298,15 +305,25 @@ const Activity = (() => {
       const dog = el('div', 'k9-biscuit');
       setArt(dog, 'crew/biscuit_sniffing', '🐕');
       const crate = el('div', 'k9-crate');
+      crate.classList.toggle('has-art', ART_FILES.has('activity/sniff-crate-closed'));
+      const crateNo = el('span', 'k9-crate-no', String(i + 1).padStart(2, '0'));
+      crate.appendChild(crateNo);
       stage.append(dog, crate);
       const prompt = el('div', 'activity-prompt', "Biscuit is sniffing crate " + (i + 1) + ". Listen: what's inside?");
       const replay = el('button', 'gadget-btn', 'Play the sound again');
       replay.addEventListener('click', () => { sound.init(); sound.playVocal(answer.sound); });
       const options = el('div', 'activity-options');
       const choices = shuffle([answer, ...shuffle(K9_ANIMALS.filter(a => a !== answer)).slice(0, 2)]);
-      body().replaceChildren(stage, prompt, replay, options);
+      const treats = el('div', 'k9-treats');
+      for (let t = 0; t < score; t++) {
+        const treat = el('span', 'k9-treat');
+        setArt(treat, 'activity/treat', '🦴');
+        treats.appendChild(treat);
+      }
+      body().replaceChildren(stage, prompt, replay, options, treats);
       sound.init();
       await wait(500);
+      if (!alive(me)) return;
       sound.playVocal(answer.sound);
 
       const picked = await new Promise(resolve => {
@@ -324,11 +341,14 @@ const Activity = (() => {
       if (correct) score++;
       setArt(dog, correct ? 'crew/biscuit_happy' : 'crew/biscuit_neutral', '🐕');
       crate.classList.add('open');
-      setArt(crate, `animals/${answer.art}_dex`, '?');
+      const peek = el('span', 'k9-peek');
+      setArt(peek, `animals/${answer.art}_dex`, '?');
+      crate.appendChild(peek);
       prompt.textContent = correct ? `Woof! It was a ${answer.name.toLowerCase()}.` : `Not quite. It was a ${answer.name.toLowerCase()}.`;
       options.querySelectorAll('button').forEach(b => { b.disabled = true; });
       if (correct) sound.playSuccess(); else sound.playStrike();
       await wait(1300);
+      if (!alive(me)) return;
     }
 
     const line = score >= 4 ? `${score} / 5. Biscuit thinks you're a natural.`
@@ -340,6 +360,7 @@ const Activity = (() => {
   // Warehouse raid: scrub six crates before the lorry returns; three hide trafficked animals.
   async function raid() {
     open("TEAM ACTIVITY · AFTER SHIFT 5", "Warehouse raid", 'activity/warehouse-bg');
+    const me = session;
     const trafficked = shuffle(PET_DEX_MASTER.filter(d => d.kind === 'trafficked')).slice(0, 3);
     const contents = shuffle([...trafficked, null, null, null]);
     let found = 0;
@@ -348,15 +369,34 @@ const Activity = (() => {
     const prompt = el('div', 'activity-prompt', "Scrub the crates. Three of them hide trafficked animals.");
     const grid = el('div', 'raid-grid');
     body().replaceChildren(prompt, grid);
+    if (ART_FILES.has('activity/torch-beam')) {
+      const beam = document.createElement('img');
+      beam.className = 'raid-torch';
+      beam.src = 'art/activity/torch-beam.svg';
+      beam.alt = '';
+      grid.appendChild(beam);
+      grid.addEventListener('pointermove', (e) => {
+        const r = grid.getBoundingClientRect();
+        beam.style.left = `${e.clientX - r.left}px`;
+        beam.style.top = `${e.clientY - r.top}px`;
+      });
+    }
 
-    const coverImg = new Image();
-    coverImg.src = 'art/scene/crate-cover.svg';
-    await new Promise(r => { if (coverImg.complete) r(); else { coverImg.onload = r; coverImg.onerror = r; } });
+    const loadCover = (src) => new Promise(r => {
+      const img = new Image();
+      img.onload = () => r(img);
+      img.onerror = () => r(img);
+      img.src = src;
+    });
+    const covers = ART_FILES.has('activity/raid-crate-1')
+      ? await Promise.all([1, 2, 3, 4].map(n => loadCover(`art/activity/raid-crate-${n}.svg`)))
+      : [await loadCover('art/scene/crate-cover.svg')];
 
     let finish;
     const done = new Promise(r => { finish = r; });
 
-    contents.forEach(entry => {
+    contents.forEach((entry, index) => {
+      const coverImg = covers[index % covers.length];
       const cell = el('div', 'raid-crate');
       const inside = el('div', 'raid-inside');
       if (entry) setArt(inside, `animals/${entry.art}_dex`, entry.emoji);
@@ -417,11 +457,12 @@ const Activity = (() => {
     const timer = setInterval(() => {
       timeLeft--;
       progress().textContent = `0:${String(Math.max(0, timeLeft)).padStart(2, '0')}`;
-      if (timeLeft <= 0) finish();
+      if (timeLeft <= 0 || !alive(me)) finish();
     }, 1000);
     await done;
     clearInterval(timer);
     await wait(700);
+    if (!alive(me)) return;
 
     const line = found === 3 ? "All three animals rescued before the lorry came back. The Kenya Wildlife Service is on its way."
       : `${found} of 3 animals rescued. Tony swears he saw the lorry's number plate.`;
@@ -444,21 +485,30 @@ const Activity = (() => {
 
   async function quiz() {
     open("TEAM ACTIVITY · AFTER SHIFT 8", "Quiz night: you vs Tony", 'activity/quiz-bg');
+    const me = session;
     const questions = shuffle(QUIZ).slice(0, 6);
     let you = 0;
     let tony = 0;
 
-    const board = el('div', 'quiz-board');
-    const youEl = el('div', 'quiz-score', 'You 0');
-    const tonyEl = el('div', 'quiz-score tony', 'Tony 0');
+    const hasBoard = ART_FILES.has('activity/scoreboard');
+    const board = el('div', hasBoard ? 'quiz-board chalk' : 'quiz-board');
+    const youEl = el('div', 'quiz-score', hasBoard ? '0' : 'You 0');
+    const tonyEl = el('div', 'quiz-score tony', hasBoard ? '0' : 'Tony 0');
     board.append(youEl, tonyEl);
+    const buzzers = el('div', 'quiz-buzzers');
+    const buzzYou = el('span', 'quiz-buzzer');
+    const buzzTony = el('span', 'quiz-buzzer');
+    const setBuzz = (node, colour, down) => setArt(node, `activity/buzzer-${colour}-${down ? 'down' : 'up'}`, '');
+    setBuzz(buzzYou, 'ochre', false);
+    setBuzz(buzzTony, 'teal', false);
+    buzzers.append(buzzYou, el('span', 'quiz-vs', 'vs'), buzzTony);
     const question = el('div', 'quiz-question');
     const status = el('div', 'activity-prompt');
     const buttons = el('div', 'quiz-buttons');
     const deny = el('button', 'stamp-btn deny', 'DENY');
     const approve = el('button', 'stamp-btn approve', 'APPROVE');
     buttons.append(deny, approve);
-    body().replaceChildren(board, question, status, buttons);
+    body().replaceChildren(board, buzzers, question, status, buttons);
 
     for (let i = 0; i < questions.length; i++) {
       const item = questions[i];
@@ -466,14 +516,18 @@ const Activity = (() => {
       question.textContent = item.q;
       status.textContent = "Approve or deny? Beat Tony to the buzzer.";
       deny.disabled = approve.disabled = false;
+      setBuzz(buzzYou, 'ochre', false);
+      setBuzz(buzzTony, 'teal', false);
 
       const outcome = await new Promise(resolve => {
-        const tonyTimer = setTimeout(() => resolve({ by: 'tony', right: Math.random() < 0.7 }), 2500 + Math.random() * 2000);
+        const tonyTimer = setTimeout(() => resolve(alive(me) ? { by: 'tony', right: Math.random() < 0.7 } : null), 2500 + Math.random() * 2000);
         const answer = (value) => { clearTimeout(tonyTimer); resolve({ by: 'you', right: value === item.a }); };
         deny.onclick = () => answer(false);
         approve.onclick = () => answer(true);
       });
+      if (!outcome || !alive(me)) return;
       deny.disabled = approve.disabled = true;
+      if (outcome.by === 'you') setBuzz(buzzYou, 'ochre', true); else setBuzz(buzzTony, 'teal', true);
 
       const verdict = item.a ? "APPROVE" : "DENY";
       if (outcome.by === 'you') {
@@ -484,9 +538,10 @@ const Activity = (() => {
       } else {
         you++; status.textContent = `Tony buzzed and got it wrong! It's a ${verdict}. Your point.`; sound.playSuccess();
       }
-      youEl.textContent = `You ${you}`;
-      tonyEl.textContent = `Tony ${tony}`;
+      youEl.textContent = hasBoard ? String(you) : `You ${you}`;
+      tonyEl.textContent = hasBoard ? String(tony) : `Tony ${tony}`;
       await wait(1600);
+      if (!alive(me)) return;
     }
 
     const line = you > tony ? `You win ${you}–${tony}. Tony is buying the chai.`
@@ -559,9 +614,10 @@ const Story = {
     if (gameState.kibokoCaught || gameState.quotaMetCount < gameState.targetQuota - 1) return null;
     return {
       violations: ["disguise", "seal"],
-      disguiseId: "pangolin_hedgehog",
+      disguiseId: "finale_double",
+      coverArt: "scene/crate-cover-vip",
       passenger: KIBOKO_PASSENGER,
-      speech: "I am a VIP. My hedgehog does not queue.",
+      speech: "I am a VIP. My teacup pig does not queue.",
       isKiboko: true
     };
   },

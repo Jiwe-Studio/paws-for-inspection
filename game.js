@@ -353,6 +353,15 @@ SoundEngine.prototype.playBell = function () {
 
 const sound = new SoundEngine();
 
+// Loading screen: shown until the page and its art have loaded (at least briefly), then fades.
+window.addEventListener('load', () => {
+  const splash = document.getElementById('splash');
+  setTimeout(() => {
+    splash.classList.add('gone');
+    setTimeout(() => splash.remove(), 600);
+  }, 700);
+});
+
 // Browsers only allow audio after a user gesture: the first tap anywhere unlocks it.
 window.addEventListener('pointerdown', () => sound.init(), { once: true });
 window.addEventListener('keydown', () => sound.init(), { once: true });
@@ -509,6 +518,7 @@ const PET_DEX_MASTER = [
   { id: "penguin_butler", art: "penguin_butler", kind: "trafficked", name: "Sir Tuxedo", emoji: "🐧", species: "African Penguin", disguise: "Pekin Duck", lore: "Wore a bow tie as an 'emotional-support duck'. African penguins are among Africa's most endangered seabirds." },
   { id: "croc_wiener", art: "croc_wiener", kind: "trafficked", name: "The Wiener Croc", emoji: "🐊", species: "Baby Nile Crocodile", disguise: "Dachshund", lore: "Stuffed into a knit sweater with felt ears. This lap dog would grow to over four metres long." },
   { id: "warthog_pig", art: "warthog_pig", kind: "trafficked", name: "Princess Piglet", emoji: "🐗", species: "Warthog Piglet", disguise: "Teacup Pig", lore: "Tusks hidden under pink blush. Warthogs aren't endangered, but wild animals don't belong in teacups." },
+  { id: "finale_double", art: "finale_double", kind: "trafficked", name: "The Kiboko Special", emoji: "🦔", species: "Pangolin", disguise: "Hedgehog in a teacup-pig suit", lore: "Big Man Kiboko's own crate: a pangolin in a knitted hedgehog hat inside a teacup-pig costume. Two disguises, zero luck." },
   // Scams: ordinary animals dressed up to sell as something fancier
   { id: "donkey_zebra", art: "donkey_zebra", kind: "scam", name: "The Donkeyxote", emoji: "🐴", species: "Grey Donkey", disguise: "Painted Zebra", lore: "An ordinary shamba donkey sprayed with cheap acrylic stripes. Brays when nervous." },
   { id: "capybara_dog", art: "capybara_dog", kind: "scam", name: "Sir Fluffsbark", emoji: "🦫", species: "Capybara", disguise: "Golden Retriever", lore: "Dyed with supermarket bleach. Chirps instead of barking." },
@@ -607,6 +617,15 @@ const DISGUISES = [
     speech: ["Teacup piglet! Those aren't tusks, ni meno ya mtoto."]
   },
   {
+    // Only Big Man Kiboko's finale case uses this one.
+    dexId: "finale_double", kind: "trafficked", special: true,
+    declared: { species: "Teacup Pig (Sus domesticus)", min: 8, max: 15 },
+    emoji: "🦔", sound: "squeak",
+    revealTag: "A pangolin in a hedgehog hat inside a pig suit!",
+    reason: "Kiboko's 'teacup pig' was a pangolin in two disguises!",
+    speech: ["I am a VIP. My teacup pig does not queue."]
+  },
+  {
     dexId: "donkey_zebra", kind: "scam",
     declared: { species: "Plains Zebra (Equus quagga)", min: 220, max: 350 },
     emoji: "🐴", sound: "donkey",
@@ -674,6 +693,11 @@ const ART_FILES = new Set([
   "ui/map-stop-done", "ui/map-stop-current", "ui/map-stop-locked",
   "ui/map-ending-chief", "ui/map-ending-escape", "ui/map-ending-bribe",
   "story/ending-chief", "story/ending-escape", "story/ending-bribe",
+  "scene/chief-office-bg", "scene/crate-cover-vip", "story/first-day", "story/tony-rivalry",
+  "activity/sniff-crate-closed", "activity/sniff-crate-open", "activity/treat", "activity/torch-beam",
+  "activity/raid-crate-1", "activity/raid-crate-2", "activity/raid-crate-3", "activity/raid-crate-4",
+  "activity/buzzer-ochre-up", "activity/buzzer-ochre-down", "activity/buzzer-teal-up", "activity/buzzer-teal-down",
+  "activity/scoreboard",
   ...Array.from({ length: 10 }, (_, i) => `ui/shift-card-${String(i + 1).padStart(2, '0')}`)
 ]);
 
@@ -904,9 +928,20 @@ const canvasCtx = elScratchCanvas.getContext('2d');
 // --- 8. SCRATCH CANVAS REVEAL MECHANIC ---
 const crateCoverImg = new Image();
 crateCoverImg.src = 'art/scene/crate-cover.svg';
+window.addEventListener('load', () => coverImage('scene/crate-cover-vip'));
 
 // Every animal arrives under the same crate cover, so the cover itself tells you nothing.
-function setupScratchCanvas(covered) {
+const coverImages = {};
+function coverImage(id) {
+  if (!id || !ART_FILES.has(id)) return crateCoverImg;
+  if (!coverImages[id]) {
+    coverImages[id] = new Image();
+    coverImages[id].src = `art/${id}.svg`;
+  }
+  return coverImages[id];
+}
+
+function setupScratchCanvas(covered, coverArt) {
   const w = elScratchCanvas.width;
   const h = elScratchCanvas.height;
 
@@ -923,8 +958,9 @@ function setupScratchCanvas(covered) {
 
   elScratchCanvas.style.pointerEvents = 'auto';
 
-  if (crateCoverImg.complete && crateCoverImg.naturalWidth > 0) {
-    canvasCtx.drawImage(crateCoverImg, 0, 0, w, h);
+  const cover = coverImage(coverArt);
+  if (cover.complete && cover.naturalWidth > 0) {
+    canvasCtx.drawImage(cover, 0, 0, w, h);
     elWipeStatus.textContent = "Scrub the crate to see inside!";
     elAnimalTrueTag.style.opacity = "0";
     return;
@@ -1180,7 +1216,7 @@ function generateNewCase(overrides = {}) {
   let declared, underEmoji, underArt, underTag, vocalSound, dexId;
   let disguise = null;
   if (violations.includes('disguise')) {
-    disguise = DISGUISES.find(d => d.dexId === overrides.disguiseId) || pick(DISGUISES);
+    disguise = DISGUISES.find(d => d.dexId === overrides.disguiseId) || pick(DISGUISES.filter(d => !d.special));
     declared = disguise.declared;
     underEmoji = disguise.emoji;
     underArt = `animals/${disguise.dexId}`;
@@ -1252,6 +1288,7 @@ function generateNewCase(overrides = {}) {
     sealGenuine,
     sealMisprint,
     covered,
+    coverArt: overrides.coverArt || null,
     underEmoji,
     underArt,
     underTag,
@@ -1302,7 +1339,7 @@ function renderCase(c) {
   elDocCurrentDate.textContent = TODAY_STR;
 
 
-  setupScratchCanvas(c.covered);
+  setupScratchCanvas(c.covered, c.coverArt);
   updateToolAvailability();
   updateSealImage();
 }
