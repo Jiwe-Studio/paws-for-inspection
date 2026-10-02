@@ -4120,3 +4120,112 @@ header {
     height: 108px;
   }
 }
+
+/* ==========================================================================
+   BADGES
+   ========================================================================== */
+.badges-card {
+  max-width: 760px;
+}
+
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 12px 0 18px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.badge-grid.earned-now {
+  max-height: none;
+  width: 100%;
+}
+
+.badge-medal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  background: var(--bone);
+  border: 2px solid var(--ink);
+  padding: 10px 8px;
+}
+
+.badge-disc {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  border: 3px solid var(--ink);
+  background: var(--ochre);
+  box-shadow: 0 0 0 5px var(--terracotta), 0 0 0 8px var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 8px 0 6px;
+  overflow: hidden;
+}
+
+.badge-disc img {
+  width: 70%;
+  height: 70%;
+}
+
+.badge-name {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  line-height: 1.1;
+}
+
+.badge-desc {
+  font-size: 0.72rem;
+  line-height: 1.3;
+  color: var(--ink-soft);
+}
+
+.badge-medal.locked .badge-disc {
+  background: var(--paper-shade);
+  box-shadow: 0 0 0 5px var(--bone-shade), 0 0 0 8px rgba(30, 34, 64, 0.35);
+}
+
+.badge-medal.locked .badge-disc img {
+  filter: grayscale(1);
+  opacity: 0.35;
+}
+
+.badge-medal.locked .badge-name {
+  opacity: 0.6;
+}
+
+.earned-now .badge-medal {
+  animation: badgeIn 0.4s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+.earned-now .badge-medal:nth-child(2) { animation-delay: 0.12s; }
+.earned-now .badge-medal:nth-child(3) { animation-delay: 0.24s; }
+.earned-now .badge-medal:nth-child(4) { animation-delay: 0.36s; }
+.earned-now .badge-medal:nth-child(5) { animation-delay: 0.48s; }
+
+@keyframes badgeIn {
+  from { transform: scale(0.4) rotate(-12deg); opacity: 0; }
+}
+
+.map-badges-btn {
+  font-family: var(--font-type);
+  background: var(--ochre);
+  border: 2px solid var(--ink);
+  box-shadow: 0 3px 0 var(--ink);
+  padding: 2px 10px;
+  cursor: pointer;
+}
+
+@media (max-width: 699px) {
+  .badge-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .map-badges-btn {
+    font-size: 0.8rem;
+  }
+}

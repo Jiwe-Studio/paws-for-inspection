@@ -559,14 +559,37 @@ const Activity = (() => {
       wrap.appendChild(portrait);
       wrap.appendChild(el('div', 'activity-result-line', ending.text));
       wrap.appendChild(el('div', 'activity-prompt', `Endings unlocked: ${unlocked} / 3. Replay the campaign to find the others.`));
-      const btn = el('button', 'big-btn big-btn-ochre', 'Back to menu');
+      const btn = el('button', 'big-btn big-btn-ochre', 'Collect your badges');
       btn.addEventListener('click', () => { close(); resolve(); });
       wrap.appendChild(btn);
       body().replaceChildren(wrap);
     });
   }
 
-  return { k9, raid, quiz, endingCard, close };
+  // Badges earned at the end of a campaign. Resolves with 'new' (start a new campaign) or 'menu'.
+  function badgeCard(earned, finishes, alreadyDecorated) {
+    open(alreadyDecorated ? "ALREADY DECORATED" : "BADGES EARNED", `Campaign complete ×${finishes}`);
+    return new Promise(resolve => {
+      const wrap = el('div', 'activity-results');
+      if (alreadyDecorated) {
+        wrap.appendChild(el('div', 'activity-prompt', "You've already been decorated for this campaign. Start a new one to earn another Service Medal."));
+      } else {
+        const grid = el('div', 'badge-grid earned-now');
+        earned.forEach(b => grid.appendChild(badgeMedal(b, true, b.id === 'service' ? finishes : null)));
+        wrap.appendChild(grid);
+      }
+      const buttons = el('div', 'report-actions');
+      const again = el('button', 'big-btn big-btn-ochre', 'Start a new campaign');
+      again.addEventListener('click', () => { close(); resolve('new'); });
+      const menu = el('button', 'big-btn big-btn-paper', 'Menu');
+      menu.addEventListener('click', () => { close(); resolve('menu'); });
+      buttons.append(again, menu);
+      wrap.appendChild(buttons);
+      body().replaceChildren(wrap);
+    });
+  }
+
+  return { k9, raid, quiz, endingCard, badgeCard, close };
 })();
 
 // --- FINALE: Big Man Kiboko comes to your counter ---
@@ -644,10 +667,20 @@ const Story = {
     if (!ok) return;
     StoryProgress.unlockEnding(id);
     await Activity.endingCard(ending, StoryProgress.endings().length);
+    const award = Badges.awardForCampaign(id);
+    const choice = await Activity.badgeCard(award.earned, award.finishes, award.alreadyDecorated);
+    if (choice === 'new') {
+      StorageManager.resetStory();
+      showMainMenu();
+      StoryMap.open();
+    }
   },
 
-  recordShift(shiftNumber, accuracy) {
+  recordShift(shiftNumber, accuracy, grade) {
     const st = StoryProgress.state();
+    const order = ['D', 'C', 'B', 'A', 'S'];
+    st.grades = st.grades || {};
+    if (grade && order.indexOf(grade) > order.indexOf(st.grades[shiftNumber])) st.grades[shiftNumber] = grade;
     // Keep each shift's best, so replaying a shift can only improve your standing.
     st.accuracies[shiftNumber] = Math.max(st.accuracies[shiftNumber] || 0, accuracy);
     StoryProgress.saveState(st);
@@ -766,6 +799,7 @@ const StoryMap = {
 
     const endings = unlocked.length;
     document.getElementById('mapEndings').textContent = endings ? `Endings ${endings}/${Story.endingsTotal()}` : '';
+    document.getElementById('btnMapBadges').textContent = `Badges ${Badges.count()}/${BADGES.length}`;
     const startBtn = document.getElementById('btnMapStart');
     const next = Math.min(current, 10);
     startBtn.textContent = `Start shift ${next}`;
@@ -789,3 +823,84 @@ document.getElementById('btnMapBack').addEventListener('click', () => {
   StoryMap.close();
   showMainMenu();
 });
+
+// --- BADGES ---
+// Kept apart from campaign progress, so resetting a campaign never takes badges away.
+const BADGES = [
+  { id: 'service', name: "Service Medal", icon: 'ui/icon-star', desc: "Awarded every time you finish the campaign." },
+  { id: 'ending-chief', name: "Chief Inspector", icon: 'ui/map-ending-chief', desc: "Arrest Big Man Kiboko and take the desk." },
+  { id: 'ending-escape', name: "The One That Got Away", icon: 'ui/map-ending-escape', desc: "Watch Kiboko's jet leave without him." },
+  { id: 'ending-bribe', name: "Chai Money", icon: 'ui/map-ending-bribe', desc: "End up in Kiboko's little book." },
+  { id: 'all-endings', name: "Seen It All", icon: 'ui/icon-petdex', desc: "Unlock all three endings." },
+  { id: 'incorruptible', name: "Incorruptible", icon: 'ui/seal-genuine', desc: "Finish a campaign without taking a single envelope." },
+  { id: 'straight-a', name: "Straight A", icon: 'ui/stamp-button-approve', desc: "Finish a campaign with an A or S on every shift." },
+  { id: 'spotless', name: "Spotless Record", icon: 'ui/icon-uv', desc: "Finish a campaign with 100% accuracy on every shift." },
+  { id: 'wildlife-hero', name: "Wildlife Hero", icon: 'animals/pangolin_hedgehog_dex', desc: "Rescue every trafficked species in the Rescue Log." },
+  { id: 'veteran', name: "Veteran of Jambo", icon: 'ui/logo-wca', desc: "Finish the campaign 3 times." },
+  { id: 'legend', name: "Legend of Jambo", icon: 'crew/biscuit_happy', desc: "Finish the campaign 5 times." }
+];
+
+function badgeMedal(badge, earned, count) {
+  const medal = document.createElement('div');
+  medal.className = `badge-medal ${earned ? 'earned' : 'locked'}`;
+  medal.innerHTML = `<div class="badge-disc"><img src="art/${badge.icon}.svg" alt=""></div>
+    <div class="badge-name"></div><div class="badge-desc"></div>`;
+  medal.querySelector('.badge-name').textContent = count ? `${badge.name} ×${count}` : badge.name;
+  medal.querySelector('.badge-desc').textContent = badge.desc;
+  return medal;
+}
+
+const Badges = {
+  _load() {
+    try {
+      return { earned: {}, finishes: 0, ...JSON.parse(localStorage.getItem('petdetect_badges') || '{}') };
+    } catch (e) {
+      return { earned: {}, finishes: 0 };
+    }
+  },
+  _save(data) { localStorage.setItem('petdetect_badges', JSON.stringify(data)); },
+
+  // Called once per finished campaign (replaying Shift 10 of the same campaign doesn't count).
+  awardForCampaign(endingId) {
+    const data = this._load();
+    const run = StoryProgress.state();
+    if (run.finished) return { earned: [], finishes: data.finishes, alreadyDecorated: true };
+    run.finished = true;
+    StoryProgress.saveState(run);
+
+    data.finishes += 1;
+    const qualifies = {
+      'service': true,
+      [`ending-${endingId}`]: true,
+      'all-endings': StoryProgress.endings().length >= 3,
+      'incorruptible': (run.bribes || 0) === 0,
+      'straight-a': Array.from({ length: 10 }, (_, i) => (run.grades || {})[i + 1]).every(g => g === 'A' || g === 'S'),
+      'spotless': Array.from({ length: 10 }, (_, i) => (run.accuracies || {})[i + 1]).every(a => a === 100),
+      'wildlife-hero': PET_DEX_MASTER.filter(d => d.kind === 'trafficked').every(d => StorageManager.getUserDex().includes(d.id)),
+      'veteran': data.finishes >= 3,
+      'legend': data.finishes >= 5
+    };
+    // The Service Medal is earned every time; the others only the first time.
+    const earned = BADGES.filter(b => qualifies[b.id] && (b.id === 'service' || !data.earned[b.id]));
+    earned.forEach(b => { data.earned[b.id] = data.earned[b.id] || Date.now(); });
+    this._save(data);
+    return { earned, finishes: data.finishes, alreadyDecorated: false };
+  },
+
+  count() {
+    const data = this._load();
+    return Object.keys(data.earned).length;
+  },
+
+  // Collection screen, opened from the story map.
+  show() {
+    const data = this._load();
+    const grid = document.getElementById('badgesGrid');
+    grid.replaceChildren(...BADGES.map(b => badgeMedal(b, Boolean(data.earned[b.id]), b.id === 'service' && data.finishes ? data.finishes : null)));
+    document.getElementById('badgesCount').textContent = `${this.count()} / ${BADGES.length}`;
+    document.getElementById('badgesModal').classList.remove('hidden');
+  }
+};
+
+document.getElementById('btnMapBadges').addEventListener('click', () => Badges.show());
+document.getElementById('btnCloseBadges').addEventListener('click', () => document.getElementById('badgesModal').classList.add('hidden'));

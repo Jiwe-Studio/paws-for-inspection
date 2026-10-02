@@ -1700,7 +1700,7 @@ function handleShiftEnd(success, outcome) {
   } else {
     elBest.textContent = previous ? `Your best: ${previous.grade}-rank · ${previous.accuracy}% · ${previous.speed}s per case` : "";
   }
-  if (gameState.mode === 'story' && success) Story.recordShift(gameState.storyShiftIndex + 1, accuracy);
+  if (gameState.mode === 'story' && success) Story.recordShift(gameState.storyShiftIndex + 1, accuracy, grade);
   gameState.lastResult = {
     ...result,
     rank,
