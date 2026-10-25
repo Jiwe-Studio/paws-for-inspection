@@ -1,0 +1,144 @@
+name: paws-for-inspection-prod-aws
+
+# Build+push to ECR and deploy to EKS.
+#
+# The EKS API endpoint is IP-locked (SEC-08), so GitHub-hosted runners cannot
+# reach it directly. CI pushes the image to ECR, then asks the in-VPC SSM
+# management bastion (jiwe-mgmt-bastion) to perform an image-only rollout.
+# Replicas are never changed here, so dormant deployments stay dormant.
+
+on:
+  push:
+    branches:
+      - "main"
+  workflow_dispatch: {}
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  AWS_ROLE_ARN: arn:aws:iam::231112631675:role/jiwe-paws-for-inspection-ci
+  ECR_REGISTRY: 231112631675.dkr.ecr.us-east-1.amazonaws.com
+  ECR_REPOSITORY: jiwe-studio/paws-for-inspection
+  NAMESPACE: jiweio
+  DEPLOYMENT: paws-for-inspection-prod
+  CONTAINER: paws-for-inspection-prod
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set short sha
+        id: sha
+        run: echo "short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      # ECR tags are immutable. Re-runs skip the push but still deploy that tag.
+      - name: Check if image already exists in ECR
+        id: check
+        run: |
+          if aws ecr describe-images --region "$AWS_REGION" \
+               --repository-name "$ECR_REPOSITORY" \
+               --image-ids imageTag="${{ steps.sha.outputs.short }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Image ${ECR_REPOSITORY}:${{ steps.sha.outputs.short }} already exists; skipping build."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build and push image to ECR
+        if: steps.check.outputs.exists != 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          provenance: false
+          tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ steps.sha.outputs.short }}
+
+      - name: Deploy to EKS via SSM bastion
+        id: deploy
+        env:
+          SHA: ${{ steps.sha.outputs.short }}
+        run: |
+          set -euo pipefail
+          IMG="${ECR_REGISTRY}/${ECR_REPOSITORY}:${SHA}"
+
+          echo "Resolving running mgmt bastion..."
+          BID=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=jiwe-mgmt-bastion" "Name=instance-state-name,Values=running" \
+            --query 'Reservations[0].Instances[0].InstanceId' --output text --region "$AWS_REGION")
+          if [ -z "$BID" ] || [ "$BID" = "None" ]; then
+            echo "::error::No running jiwe-mgmt-bastion instance found; cannot deploy."
+            exit 1
+          fi
+          echo "Bastion=$BID  Image=$IMG"
+
+          REMOTE=$(cat <<REOF
+          export KUBECONFIG=/etc/eks/kubeconfig
+          set -e
+          kubectl -n ${NAMESPACE} set image deployment/${DEPLOYMENT} ${CONTAINER}=${IMG}
+          REPLICAS=\$(kubectl -n ${NAMESPACE} get deploy ${DEPLOYMENT} -o jsonpath='{.spec.replicas}')
+          if [ "\$REPLICAS" != "0" ]; then
+            kubectl -n ${NAMESPACE} rollout status deployment/${DEPLOYMENT} --timeout=300s
+          else
+            echo "dormant (replicas=0): image pointer updated, no pods to roll"
+          fi
+          kubectl -n ${NAMESPACE} get deploy ${DEPLOYMENT} -o jsonpath='{.metadata.name}{" image="}{.spec.template.spec.containers[0].image}{" replicas="}{.spec.replicas}{"\n"}'
+          REOF
+          )
+
+          B64=$(printf '%s' "$REMOTE" | base64 -w0)
+          CID=$(aws ssm send-command \
+            --instance-ids "$BID" \
+            --document-name AWS-RunShellScript \
+            --comment "paws-for-inspection-prod deploy ${SHA}" \
+            --parameters commands="echo $B64 | base64 -d | bash" \
+            --region "$AWS_REGION" --query Command.CommandId --output text)
+          echo "SSM CommandId=$CID"
+
+          ST=Pending
+          for _ in $(seq 1 60); do
+            ST=$(aws ssm get-command-invocation --command-id "$CID" --instance-id "$BID" \
+                  --region "$AWS_REGION" --query Status --output text 2>/dev/null || echo Pending)
+            case "$ST" in Success|Failed|Cancelled|TimedOut) break;; esac
+            sleep 5
+          done
+
+          echo "----- rollout stdout -----"
+          aws ssm get-command-invocation --command-id "$CID" --instance-id "$BID" \
+            --region "$AWS_REGION" --query StandardOutputContent --output text || true
+          ERR=$(aws ssm get-command-invocation --command-id "$CID" --instance-id "$BID" \
+            --region "$AWS_REGION" --query StandardErrorContent --output text || true)
+          if [ -n "$ERR" ]; then echo "----- rollout stderr -----"; echo "$ERR"; fi
+
+          echo "Final SSM status: $ST"
+          [ "$ST" = "Success" ] || { echo "::error::EKS rollout failed"; exit 1; }
+
+      - name: Summary
+        if: always()
+        run: |
+          IMG="${ECR_REGISTRY}/${ECR_REPOSITORY}:${{ steps.sha.outputs.short }}"
+          {
+            echo "### paws-for-inspection-prod → EKS"
+            echo ""
+            echo "Image: \`${IMG}\`"
+            echo ""
+            if [ "${{ steps.deploy.outcome }}" = "success" ]; then
+              echo "Deployed to \`${NAMESPACE}/${DEPLOYMENT}\` via the SSM mgmt bastion (image-only)."
+            else
+              echo "Automatic rollout did not complete successfully."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
