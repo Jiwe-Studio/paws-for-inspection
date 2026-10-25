@@ -1,10 +1,16 @@
-# Static game, no build step: nginx serves the repo files under the same
-# path prefix the shared quirklog Ingress routes here.
-FROM nginxinc/nginx-unprivileged:1.27-alpine
+# One Node process (no dependencies) serves the static game and its small Jiwe API under the
+# path prefix the shared quirklog Ingress routes here. The Jiwe keys arrive as environment
+# variables from the paws-for-inspection-secrets Kubernetes Secret, never from the image.
+FROM node:20-alpine
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY index.html game.js story.js tutorial.js audio.js style.css manifest.webmanifest /usr/share/nginx/html/games/paws-for-inspection/
-COPY art /usr/share/nginx/html/games/paws-for-inspection/art
-COPY audio /usr/share/nginx/html/games/paws-for-inspection/audio
+ENV NODE_ENV=production PORT=8080 STATIC_DIR=/app/public
+WORKDIR /app
 
+COPY server/jiwe.mjs server/server.mjs ./server/
+COPY index.html game.js story.js tutorial.js audio.js jiwe.js style.css manifest.webmanifest ./public/
+COPY art ./public/art
+COPY audio ./public/audio
+
+USER node
 EXPOSE 8080
+CMD ["node", "server/server.mjs"]
