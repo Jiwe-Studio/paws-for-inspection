@@ -2,7 +2,7 @@
 
 > Animal clearance at Jambo International Airport. A comedy airport-customs game in the spirit of *Papers, Please*: you're the rookie inspector in charge of searching, checking and clearing every animal that lands.
 
-**Play:** https://jiwe-studio.github.io/paws-for-inspection/
+**Play:** https://quirklog.com/games/paws-for-inspection/
 
 Playable MVP web game prototype built with pure Vanilla JavaScript, HTML5 Canvas, CSS3, and the Web Audio API. Zero external dependencies.
 
