@@ -2746,6 +2746,17 @@ header {
   text-shadow: 0 1px 0 var(--ink);
 }
 
+.menu-disclaimer {
+  max-width: min(500px, 72%);
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.45;
+  text-align: center;
+  color: #E0D7C6;
+  text-shadow: 0 1px 0 var(--ink);
+}
+
 .menu-footer {
   position: absolute;
   left: 16px;
@@ -3070,10 +3081,15 @@ header {
     font-size: 1.9rem;
   }
   .menu-screen {
-    gap: 16px;
+    gap: 12px;
   }
   .menu-footer span {
     font-size: 0.75rem;
+  }
+  .menu-disclaimer {
+    max-width: min(86%, 380px);
+    font-size: 0.72rem;
+    line-height: 1.35;
   }
   .menu-footer img {
     width: 32px;
@@ -3162,6 +3178,18 @@ header {
   .menu-main-btns .big-btn {
     width: 200px;
     min-height: 60px;
+  }
+  .menu-screen {
+    gap: 10px;
+  }
+  .menu-disclaimer {
+    max-width: 440px;
+    font-size: 0.7rem;
+    line-height: 1.35;
+  }
+  /* Keep the badge but drop its caption so it clears the disclaimer. */
+  .menu-footer span {
+    display: none;
   }
 }
 
