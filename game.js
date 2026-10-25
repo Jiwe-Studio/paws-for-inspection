@@ -1798,7 +1798,7 @@ function isBetterResult(result, previous) {
   return result.speed < previous.speed;
 }
 
-const SHARE_URL = 'https://jiwe-studio.github.io/paws-for-inspection/';
+const SHARE_URL = 'https://quirklog.com/games/paws-for-inspection/';
 
 function loadImage(src) {
   return new Promise((resolve, reject) => {
