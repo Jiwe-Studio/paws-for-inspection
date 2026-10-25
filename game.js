@@ -1701,6 +1701,7 @@ function handleShiftEnd(success, outcome) {
     elBest.textContent = previous ? `Your best: ${previous.grade}-rank · ${previous.accuracy}% · ${previous.speed}s per case` : "";
   }
   if (gameState.mode === 'story' && success) Story.recordShift(gameState.storyShiftIndex + 1, accuracy, grade);
+  showJiweResult(gameState.mode === 'story' && success, gameState.storyShiftIndex + 1, grade);
   gameState.lastResult = {
     ...result,
     rank,
@@ -1877,7 +1878,8 @@ document.getElementById('btnShareResult').addEventListener('click', async () => 
   const r = gameState.lastResult;
   if (!r) return;
   const rescued = r.rescued ? `, ${r.rescued} ${r.rescued === 1 ? 'animal' : 'animals'} rescued` : '';
-  const text = `Paws for Inspection · ${r.label} at Jambo Int'l: ${r.grade}-rank, ${r.accuracy}% accuracy, ${r.speed}s per case${rescued}. Can you beat it?`;
+  const rankNote = r.standing && r.standing.topPercent ? ` Top ${r.standing.topPercent}% of inspectors on Jiwe.` : '';
+  const text = `Paws for Inspection · ${r.label} at Jambo Int'l: ${r.grade}-rank, ${r.accuracy}% accuracy, ${r.speed}s per case${rescued}.${rankNote} Can you beat it?`;
   try {
     let file = null;
     if (ART_FILES.has('ui/share-card')) {
@@ -1906,6 +1908,127 @@ document.getElementById('btnShareResult').addEventListener('click', async () => 
   } catch (e) {
     // The player closed the share sheet, or sharing isn't available here.
   }
+});
+
+// --- JIWE: XP for cleared story shifts and the XP leaderboard ---
+const elEndJiwe = document.getElementById('endJiwe');
+const elBtnJiwe = document.getElementById('btnJiwe');
+const elBtnLeaderboard = document.getElementById('btnLeaderboard');
+
+function refreshJiweButton() {
+  if (!Jiwe.enabled()) return;
+  const s = Jiwe.session();
+  elBtnJiwe.classList.remove('hidden');
+  elBtnLeaderboard.classList.remove('hidden');
+  elBtnJiwe.textContent = s ? `Jiwe: ${s.profile.nickname} (log out)` : "Log in with Jiwe";
+}
+
+elBtnJiwe.addEventListener('click', () => {
+  if (Jiwe.session()) {
+    Jiwe.logout();
+    refreshJiweButton();
+  } else {
+    Jiwe.login();
+  }
+});
+
+function standingText(standing) {
+  if (!standing || !standing.rank) return '';
+  return standing.topPercent ? `Top ${standing.topPercent}% of inspectors.` : `#${standing.rank} of ${standing.total} inspectors.`;
+}
+
+async function showJiweResult(clearedStoryShift, shift, grade) {
+  elEndJiwe.classList.add('hidden');
+  if (!Jiwe.enabled() || !clearedStoryShift) return;
+  elEndJiwe.classList.remove('hidden');
+  elEndJiwe.replaceChildren();
+  if (!Jiwe.session()) {
+    const btn = document.createElement('button');
+    btn.className = 'text-link dark';
+    btn.textContent = "Log in with Jiwe to earn XP and see where you rank";
+    btn.addEventListener('click', () => Jiwe.login());
+    elEndJiwe.appendChild(btn);
+    return;
+  }
+  elEndJiwe.textContent = "Sending your XP to Jiwe...";
+  const sent = await Jiwe.reportShift(shift, grade);
+  const standing = await Jiwe.standing();
+  const parts = [];
+  if (sent.status === 'sent') parts.push(`+${sent.xp} XP to your Jiwe wallet.`);
+  else if (sent.status === 'already') parts.push("XP already earned for this grade. Beat it for more.");
+  else if (sent.status === 'logged-out') parts.push("Your Jiwe login expired. Log in again from the menu.");
+  else parts.push("Couldn't reach Jiwe just now. Your result is saved here.");
+  parts.push(standingText(standing));
+  if (standing && standing.rank && gameState.lastResult) gameState.lastResult.standing = standing;
+  elEndJiwe.textContent = parts.filter(Boolean).join(' ');
+  refreshJiweButton();
+}
+
+// Menu leaderboard: the top inspectors by Jiwe XP, your place, and the XP behind it shift by shift.
+async function showLeaderboard() {
+  const list = document.getElementById('leaderboardList');
+  const note = document.getElementById('leaderboardNote');
+  document.getElementById('leaderboardModal').classList.remove('hidden');
+  note.textContent = "Loading...";
+  list.replaceChildren();
+
+  const reported = Jiwe.reported();
+  const shifts = document.getElementById('leaderboardShifts');
+  let earned = 0;
+  shifts.replaceChildren(...Array.from({ length: STORY_SHIFTS.length }, (_, i) => {
+    const grade = reported[i + 1];
+    const xp = grade ? Jiwe.XP_BY_GRADE[grade] : 0;
+    earned += xp;
+    const cell = document.createElement('div');
+    cell.className = `leaderboard-shift${grade ? '' : ' locked'}`;
+    cell.innerHTML = `<span class="ls-num">${i + 1}</span><span class="ls-grade">${grade || '-'}</span><span class="ls-xp">${xp ? `${xp} XP` : ''}</span>`;
+    return cell;
+  }));
+  const maxXp = STORY_SHIFTS.length * Jiwe.XP_BY_GRADE.S;
+  document.getElementById('leaderboardArcade').textContent =
+    `Story XP from this device: ${earned} / ${maxXp}. Arcade high score: ${StorageManager.getArcadeHighScore()} (this device).`;
+
+  const standing = await Jiwe.standing();
+  if (!standing) {
+    note.textContent = "Couldn't reach Jiwe just now. Try again in a moment.";
+    return;
+  }
+  const session = Jiwe.session();
+  if (!session) note.textContent = "Log in with Jiwe from the menu to earn XP for every shift you clear.";
+  else if (!standing.rank) note.textContent = "Clear a story shift to get on the board.";
+  else note.textContent = `You: #${standing.rank} of ${standing.total} with ${standing.xp} XP.${standing.topPercent ? ` Top ${standing.topPercent}%.` : ''}`;
+
+  const row = (entry) => {
+    const li = document.createElement('li');
+    li.className = `leaderboard-row${entry.you ? ' you' : ''}`;
+    const rank = document.createElement('span');
+    rank.className = 'lr-rank';
+    rank.textContent = `#${entry.rank}`;
+    const name = document.createElement('span');
+    name.className = 'lr-name';
+    name.textContent = entry.you ? `${entry.name} (you)` : entry.name;
+    const xp = document.createElement('span');
+    xp.className = 'lr-xp';
+    xp.textContent = `${entry.xp} XP`;
+    li.append(rank, name, xp);
+    return li;
+  };
+  const rows = standing.top.map(row);
+  if (standing.rank && standing.rank > standing.top.length) {
+    rows.push(row({ rank: standing.rank, name: session.profile.nickname, xp: standing.xp, you: true }));
+  }
+  if (!rows.length) note.textContent = "No inspectors on the board yet. Be the first.";
+  list.replaceChildren(...rows);
+}
+
+elBtnLeaderboard.addEventListener('click', () => showLeaderboard());
+document.getElementById('btnCloseLeaderboard').addEventListener('click', () => document.getElementById('leaderboardModal').classList.add('hidden'));
+
+// Switch Jiwe on if the server has its keys, then finish a login redirect if we're coming back from one.
+Jiwe.init().then(on => (on ? Jiwe.finishLogin() : null)).then(result => {
+  if (result && result.profile) showToast(true, `Signed in to Jiwe as ${result.profile.nickname}.`);
+  else if (result && result.error) showToast(false, result.error);
+  refreshJiweButton();
 });
 
 // --- 12. GADGETS & TOOLS ---

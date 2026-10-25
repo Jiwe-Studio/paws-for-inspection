@@ -24,11 +24,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Special+Elite&family=Baloo+2:wght@400;600;800&display=swap" />
-  <link rel="stylesheet" href="style.css?v=37" />
-  <script src="tutorial.js?v=37" defer></script>
-  <script src="story.js?v=37" defer></script>
-  <script src="audio.js?v=37" defer></script>
-  <script src="game.js?v=37" defer></script>
+  <link rel="stylesheet" href="style.css?v=40" />
+  <script src="tutorial.js?v=40" defer></script>
+  <script src="story.js?v=40" defer></script>
+  <script src="audio.js?v=40" defer></script>
+  <script src="jiwe.js?v=40" defer></script>
+  <script src="game.js?v=40" defer></script>
 </head>
 <body>
 
@@ -275,6 +276,8 @@
       <div class="menu-links">
         <button class="text-link" id="btnReplayTutorial">Replay Orientation</button>
         <button class="text-link" id="btnResetStory">Reset campaign</button>
+        <button class="text-link hidden" id="btnLeaderboard">Leaderboard</button>
+        <button class="text-link hidden" id="btnJiwe">Log in with Jiwe</button>
       </div>
     </div>
 
@@ -328,6 +331,19 @@
     </div>
   </div>
 
+  <!-- JIWE XP LEADERBOARD -->
+  <div class="modal-backdrop hidden" id="leaderboardModal">
+    <div class="modal-card leaderboard-card">
+      <div class="log-head"><h2>Leaderboard</h2><span class="log-count">JIWE XP</span></div>
+      <p class="leaderboard-note" id="leaderboardNote"></p>
+      <ol class="leaderboard-list" id="leaderboardList"></ol>
+      <h3 class="leaderboard-sub">Your shifts</h3>
+      <div class="leaderboard-shifts" id="leaderboardShifts"></div>
+      <p class="leaderboard-arcade" id="leaderboardArcade"></p>
+      <button class="primary-btn" id="btnCloseLeaderboard">Back</button>
+    </div>
+  </div>
+
   <!-- SHIFT TITLE CARD (Batch 7d) -->
   <div class="shift-card-layer hidden" id="shiftCardLayer">
     <img class="shift-card" id="shiftCardImg" src="art/ui/shift-card-01.svg" alt="" />
@@ -372,6 +388,7 @@
 
       <div class="report-score">SCORE <span id="endScore">0</span> &middot; <span id="endCases">0</span> CASES</div>
       <div class="report-best" id="endBest"></div>
+      <div class="report-jiwe hidden" id="endJiwe"></div>
 
       <div class="report-actions">
         <button class="big-btn big-btn-ochre" id="btnEndAction">Next shift</button>

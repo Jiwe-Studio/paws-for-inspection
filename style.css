@@ -4229,3 +4229,132 @@ header {
     font-size: 0.8rem;
   }
 }
+
+/* ==========================================================================
+   JIWE: XP on the shift report, and the leaderboard
+   ========================================================================== */
+.report-jiwe {
+  font-weight: 800;
+  color: var(--teal-shade);
+}
+
+.text-link.dark {
+  color: var(--teal-shade);
+  text-shadow: none;
+  padding: 0;
+}
+
+.leaderboard-card {
+  max-width: 560px;
+}
+
+.leaderboard-note {
+  margin: 8px 0 10px;
+  font-weight: 600;
+}
+
+.leaderboard-list {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  max-height: 40vh;
+  overflow-y: auto;
+  border: 2px solid var(--ink);
+  background: var(--bone);
+}
+
+.leaderboard-list:empty {
+  display: none;
+}
+
+.leaderboard-row {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  gap: 8px;
+  align-items: baseline;
+  padding: 6px 12px;
+  border-bottom: 1px dashed rgba(30, 34, 64, 0.3);
+}
+
+.leaderboard-row:last-child {
+  border-bottom: none;
+}
+
+.leaderboard-row.you {
+  background: var(--ochre);
+  font-weight: 800;
+}
+
+.lr-rank,
+.lr-xp {
+  font-family: var(--font-type);
+}
+
+.lr-name {
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leaderboard-sub {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.1rem;
+  margin: 0 0 6px;
+}
+
+.leaderboard-shifts {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.leaderboard-shift {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  padding: 4px 0;
+  line-height: 1.1;
+}
+
+.leaderboard-shift.locked {
+  opacity: 0.45;
+}
+
+.ls-num {
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+
+.ls-grade {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+}
+
+.ls-xp {
+  font-size: 0.6rem;
+  min-height: 0.7rem;
+}
+
+.leaderboard-arcade {
+  font-size: 0.8rem;
+  margin: 10px 0 14px;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 699px) {
+  .leaderboard-shifts {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .leaderboard-list {
+    max-height: 30vh;
+  }
+  .menu-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 6px;
+  }
+}
