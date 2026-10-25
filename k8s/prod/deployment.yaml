@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paws-for-inspection-prod
+  namespace: jiweio
+  labels:
+    app: paws-for-inspection-prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: paws-for-inspection-prod
+  template:
+    metadata:
+      labels:
+        app: paws-for-inspection-prod
+    spec:
+      containers:
+        - name: paws-for-inspection-prod
+          image: 231112631675.dkr.ecr.us-east-1.amazonaws.com/jiwe-studio/paws-for-inspection:${SHA}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 2
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 20
